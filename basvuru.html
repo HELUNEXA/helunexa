@@ -30,21 +30,62 @@
         .message { padding: 12px; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; }
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
-        .kvkk-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #10b981; cursor: pointer; user-select: none; -webkit-user-select: none; }
-        .kvkk-box label { font-weight: normal; font-size: 13px; color: #475569; margin: 0; line-height: 1.5; cursor: pointer; user-select: none; -webkit-user-select: none; }
-        .kvkk-box a { color: #10b981; font-weight: bold; }
-        .kvkk-row { display: flex; align-items: flex-start; gap: 12px; }
-        .kvkk-row input[type="checkbox"] {
-            width: 24px !important;
-            height: 24px !important;
-            min-width: 24px;
-            margin-top: 2px;
+
+        /* KVKK - iOS UYUMLU */
+        .kvkk-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #10b981;
+        }
+        .kvkk-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            margin: 0;
+            padding: 8px;
+            margin: -8px;
+            border-radius: 6px;
+            -webkit-tap-highlight-color: rgba(16, 185, 129, 0.2);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .kvkk-label:active {
+            background: #ecfdf5;
+        }
+        .kvkk-label input[type="checkbox"] {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            margin: 0;
             flex-shrink: 0;
             cursor: pointer;
+            accent-color: #10b981;
+            pointer-events: auto;
             -webkit-appearance: checkbox;
             appearance: checkbox;
-            accent-color: #10b981;
+            position: relative;
+            z-index: 1;
         }
+        .kvkk-text {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+            margin: 0;
+            font-weight: normal;
+            display: block;
+        }
+        .kvkk-text a {
+            color: #10b981;
+            font-weight: bold;
+            text-decoration: none;
+            position: relative;
+            z-index: 2;
+        }
+
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e40af; }
         .file-upload-box { background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f59e0b; }
         .file-upload-box label { color: #92400e; font-size: 13px; }
@@ -75,6 +116,11 @@
             h2 { font-size: 18px; }
             input, select, textarea { font-size: 16px; }
             .payment-modal { padding: 20px; margin: 10px; }
+            .kvkk-label input[type="checkbox"] {
+                width: 32px;
+                height: 32px;
+                min-width: 32px;
+            }
         }
     </style>
 </head>
@@ -183,15 +229,17 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <!-- KVKK ONAY KUTUSU - MOBİL UYUMLU -->
-            <div class="kvkk-box" onclick="toggleKvkk(event)">
-                <div class="kvkk-row">
+            <!-- KVKK ONAY KUTUSU - iOS UYUMLU -->
+            <div class="kvkk-box">
+                <label class="kvkk-label" for="kvkk_consent">
                     <input type="checkbox" id="kvkk_consent" required>
-                    <label for="kvkk_consent">
-                        <a href="kvkk.html" target="_blank" onclick="event.stopPropagation();">KVKK Aydınlatma Metni</a>'ni okudum, anladım.
+                    <span class="kvkk-text">
                         <strong>Sağlık verilerimin işlenmesine açık rıza veriyorum.</strong> *
-                    </label>
-                </div>
+                        <span style="display:block; margin-top:6px; font-size:12px; color:#64748b;">
+                            Detaylı bilgi için: <a href="kvkk.html" target="_blank">KVKK Aydınlatma Metni →</a>
+                        </span>
+                    </span>
+                </label>
             </div>
 
             <button type="submit" id="submitBtn">💳 Ödemeye Geç</button>
@@ -229,15 +277,6 @@
     </div>
 
     <script>
-        // KVKK checkbox - tüm alana tıklayınca işaretlensin
-        window.toggleKvkk = function(event) {
-            if (event.target.tagName === 'A') return;
-            const checkbox = document.getElementById('kvkk_consent');
-            if (checkbox) {
-                checkbox.checked = !checkbox.checked;
-            }
-        };
-
         const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
         const { createClient } = supabase;
@@ -341,7 +380,7 @@
                     const { error: uploadError } = await _supabase.storage.from('test-results').upload(fileName_upload, file);
                     if (uploadError) { showMessage('❌ Dosya yüklenemedi: ' + uploadError.message, 'error'); submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç'; return; }
                     const { data: urlData } = _supabase.storage.from('test-results').getPublicUrl(fileName_upload);
-                    fileUrl = data_url_publicUrl_placeholder = urlData.publicUrl; fileName = file.name;
+                    fileUrl = urlData.publicUrl; fileName = file.name;
                 }
 
                 pendingFormData = {
