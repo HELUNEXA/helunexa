@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HELUNEXA - Rutin Kontrol ve Kronik Takip</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, Arial, sans-serif; color: #0f172a; line-height: 1.6; }
+        .header { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+        .logo-img { height: 100px; width: auto; }
+        .nav { display: flex; gap: 25px; align-items: center; }
+        .nav a { color: #475569; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .nav a:hover { color: #10b981; }
+        .btn-header { background: #10b981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .btn-header:hover { background: #059669; }
+        .hero { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 80px 5%; text-align: center; }
+        .hero h1 { font-size: 42px; color: #0f172a; margin-bottom: 20px; line-height: 1.2; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .hero h1 span { color: #10b981; }
+        .hero p { font-size: 18px; color: #475569; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .hero-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary { background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block; }
+        .btn-primary:hover { background: #059669; }
+        .btn-secondary { background: white; color: #10b981; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; border: 2px solid #10b981; display: inline-block; }
+        .btn-secondary:hover { background: #ecfdf5; }
+        .features { padding: 80px 5%; background: white; }
+        .section-title { text-align: center; font-size: 32px; margin-bottom: 15px; color: #0f172a; }
+        .section-subtitle { text-align: center; font-size: 16px; color: #64748b; margin-bottom: 50px; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+        .feature-card { background: #f8fafc; padding: 30px; border-radius: 12px; border-left: 4px solid #10b981; }
+        .feature-icon { font-size: 36px; margin-bottom: 15px; }
+        .feature-card h3 { font-size: 18px; margin-bottom: 10px; color: #0f172a; }
+        .feature-card p { color: #64748b; font-size: 14px; }
+        .how { padding: 80px 5%; background: #f8fafc; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto; }
+        .step { background: white; padding: 30px; border-radius: 12px; text-align: center; }
+        .step-num { width: 50px; height: 50px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; margin: 0 auto 20px; }
+        .step h3 { font-size: 16px; margin-bottom: 10px; }
+        .step p { color: #64748b; font-size: 14px; }
+        .pricing { padding: 80px 5%; background: white; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto; }
+        .price-card { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 30px; text-align: center; position: relative; }
+        .price-card.featured { border-color: #10b981; transform: scale(1.05); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2); }
+        .price-card .badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .price-card h3 { font-size: 20px; margin-bottom: 10px; }
+        .price-card .price { font-size: 36px; font-weight: bold; color: #10b981; margin: 15px 0; }
+        .price-card .price span { font-size: 14px; color: #64748b; font-weight: normal; }
+        .price-card ul { list-style: none; text-align: left; margin: 20px 0; padding: 0; }
+        .price-card ul li { padding: 8px 0; color: #475569; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+        .price-card ul li:before { content: "✅ "; color: #10b981; margin-right: 5px; }
+        .price-card .btn-primary { width: 100%; margin-top: 15px; }
+        .cta { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 60px 5%; text-align: center; color: white; }
+        .cta h2 { font-size: 32px; margin-bottom: 15px; }
+        .cta p { font-size: 18px; margin-bottom: 30px; opacity: 0.95; }
+        .cta .btn-secondary { background: white; color: #10b981; border-color: white; }
+        .footer { background: #0f172a; color: #94a3b8; padding: 40px 5%; text-align: center; font-size: 14px; }
+        .footer a { color: #10b981; text-decoration: none; }
+        .footer-links { margin-bottom: 15px; }
+        .footer-links a { margin: 0 15px; }
+        @media (max-width: 768px) {
+            .header { padding: 12px 5%; flex-wrap: wrap; gap: 10px; }
+            .logo-img { height: 60px; }
+            .nav { display: none; }
+            .hero { padding: 50px 5%; }
+            .hero h1 { font-size: 26px; }
+            .hero p { font-size: 15px; }
+            .section-title { font-size: 24px; }
+            .section-subtitle { font-size: 14px; margin-bottom: 30px; }
+            .features, .how, .pricing { padding: 50px 5%; }
+            .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+            .price-card.featured { transform: none; }
+            .cta h2 { font-size: 24px; }
+            .cta p { font-size: 15px; }
+            .btn-primary, .btn-secondary { padding: 12px 20px; font-size: 14px; }
+            .footer-links a { display: block; margin: 5px 0; }
+        }
+    </style>
+</head>
+<body class="notranslate">
+    <header class="header">
+        <img src="logo.png" alt="HELUNEXA" class="logo-img">
+        <nav class="nav">
+            <a href="#hizmetler">Hizmetler</a>
+            <a href="#nasil">Nasıl Çalışır?</a>
+            <a href="#fiyatlar">Fiyatlar</a>
+            <a href="kvkk.html">KVKK</a>
+            <a href="hasta-giris.html" style="color:#10b981;">Giriş</a>
+            <a href="hasta-kayit.html" class="btn-header">Başvuru Yap</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Rutin kontrol ve kronik takibi <span>evinize getiriyoruz</span></h1>
+        <p>Hastane randevusu, sıra ve tekrar başvuru yükü olmadan; hekim kontrollü, dijital sağlık takibi.</p>
+        <div class="hero-buttons">
+            <a href="hasta-kayit.html" class="btn-primary">Hemen Başvur</a>
+            <a href="#nasil" class="btn-secondary">Nasıl Çalışır?</a>
+        </div>
+    </section>
+
+    <section class="features" id="hizmetler">
+        <h2 class="section-title">Sunduğumuz Hizmetler</h2>
+        <p class="section-subtitle">Size uygun paketi seçin, gerisini biz hallederiz</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🩺</div>
+                <h3>Rutin Sağlık Kontrolü</h3>
+                <p>Yaş, öykü ve hekim değerlendirmesine göre planlanan kapsamlı kontrol.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💊</div>
+                <h3>Kronik Hastalık Takibi</h3>
+                <p>Diyabet, hipertansiyon, tiroid için düzenli hekim takibi ve raporlama.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Dijital Hekim Değerlendirmesi</h3>
+                <p>Sonuçlarınız hekim tarafından değerlendirilir, anlaşılır rapor hazırlanır.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3>İlaç Raporu Yenileme</h3>
+                <p>Rapor bitiş hatırlatmaları ve süreç takibi ile zamanında yenileme.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏠</div>
+                <h3>Evde Numune Alma</h3>
+                <p>Evden kan/numune alımı ile hastaneye gitme yükünü ortadan kaldırır.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏥</div>
+                <h3>Evde Kronik Takip</h3>
+                <p>Evde düzenli sağlık takibi ve hemşire ziyaretleri.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how" id="nasil">
+        <h2 class="section-title">Nasıl Çalışır?</h2>
+        <p class="section-subtitle">4 basit adımda sağlığınızı takip edin</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Başvuru Yap</h3>
+                <p>Formu doldur, sağlık geçmişini ve ihtiyacını paylaş.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Hekim Değerlendirir</h3>
+                <p>Uzman hekim ihtiyacını belirler, plan hazırlar.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Tetkik & Sonuç</h3>
+                <p>Tetkikler yapılır, sonuçlar dijital ortama aktarılır.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <h3>Rapor & Takip</h3>
+                <p>Anlaşılır rapor hazırlanır, takip planı belirlenir.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="fiyatlar">
+        <h2 class="section-title">Paketler ve Fiyatlar</h2>
+        <p class="section-subtitle">Şeffaf fiyatlandırma, sürpriz yok</p>
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h3>Dijital Değerlendirme</h3>
+                <div class="price">500 <span>TL</span></div>
+                <ul>
+                    <li>Online hekim değerlendirmesi</li>
+                    <li>Mevcut sonuçların analizi</li>
+                    <li>Dijital rapor</li>
+                    <li>Yol haritası</li>
+                </ul>
+                <a href="hasta-kayit.html" class="btn-primary">Başvur</a>
+            </div>
+            <div class="price-card featured">
+                <span class="badge">EN POPÜLER</span>
+                <h3>Kronik Takip</h3>
+                <div class="price">1.500 <span>TL/ay</span></div>
+                <ul>
+                    <li>Aylık hekim değerlendirmesi</li>
+                    <li>Düzenli tetkik planı</li>
+                    <li>Sonuç takibi</li>
+                    <li>İlaç raporu desteği</li>
+                    <li>7/24 mesajla iletişim</li>
+                </ul>
+                <a href="hasta-kayit.html" class="btn-primary">Başvur</a>
+            </div>
+            <div class="price-card">
+                <h3>Rutin Check-up</h3>
+                <div class="price">2.000 <span>TL</span></div>
+                <ul>
+                    <li>Kapsamlı sağlık taraması</li>
+                    <li>Laboratuvar yönlendirmesi</li>
+                    <li>Hekim değerlendirmesi</li>
+                    <li>Detaylı dijital rapor</li>
+                    <li>6 ay takip</li>
+                </ul>
+                <a href="hasta-kayit.html" class="btn-primary">Başvur</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Sağlığınızı ertelemeyin</h2>
+        <p>Hemen başvurun, hekimimiz sizinle iletişime geçsin</p>
+        <a href="hasta-kayit.html" class="btn-secondary">Ücretsiz Başvuru Yap</a>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="index.html">Ana Sayfa</a>
+            <a href="hasta-kayit.html">Başvuru</a>
+            <a href="kvkk.html">KVKK</a>
+            <a href="hasta-giris.html">Giriş</a>
+        </div>
+        <p>© 2026 HELUNEXA. Tüm hakları saklıdır.</p>
+        <p style="margin-top: 10px; font-size: 12px;">HELUNEXA, hastanenin yerine geçmez. Klinik karar hekimdedir.</p>
+    </footer>
+</body>
+</html>

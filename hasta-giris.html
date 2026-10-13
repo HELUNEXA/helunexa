@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HELUNEXA - Hasta Girişi</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #10b981 0%, #059669 100%); min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto; }
+        .logo-container { text-align: center; margin-bottom: 25px; }
+        .logo-container img { height: 100px; width: auto; }
+        p { text-align: center; color: #64748b; margin-bottom: 25px; font-size: 14px; }
+        input { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; font-size: 16px; -webkit-appearance: none; appearance: none; }
+        input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        button { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; -webkit-appearance: none; appearance: none; touch-action: manipulation; }
+        button:hover { background: #059669; }
+        button:active { background: #047857; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        .error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
+        .link { text-align: center; margin-top: 15px; font-size: 13px; color: #64748b; }
+        .link a { color: #10b981; font-weight: bold; text-decoration: none; }
+        @media (max-width: 768px) {
+            body { padding: 15px; align-items: flex-start; padding-top: 40px; }
+            .box { padding: 30px 20px; }
+            .logo-container img { height: 80px; }
+        }
+    </style>
+</head>
+<body class="notranslate">
+    <div class="box">
+        <div class="logo-container">
+            <img src="logo.png" alt="HELUNEXA">
+        </div>
+        <p>Hasta Girişi</p>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="E-posta" autocomplete="email" required>
+            <input type="password" id="password" placeholder="Şifre" autocomplete="current-password" required>
+            <button type="submit" id="loginBtn">Giriş Yap</button>
+        </form>
+        <div class="error" id="error"></div>
+        <div class="link">Hesabınız yok mu? <a href="hasta-kayit.html">Kayıt Ol</a></div>
+    </div>
+    <script>
+        const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
+            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('error');
+
+            if (!email || !password) {
+                err.textContent = 'E-posta ve şifre gerekli.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Giriş yapılıyor...';
+            err.textContent = '';
+
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                err.textContent = '❌ ' + error.message;
+                btn.disabled = false;
+                btn.textContent = 'Giriş Yap';
+                return;
+            }
+
+            window.location.href = 'hasta-panel.html';
+        });
+    </script>
+</body>
+</html>

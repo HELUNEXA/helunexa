@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HELUNEXA - Başvuru Formu</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, Arial, sans-serif; background: #f4f6f9; padding: 20px; margin: 0; }
+        .form-container { max-width: 600px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 0 auto; }
+        .logo-header { text-align: center; margin-bottom: 15px; }
+        .logo-header img { height: 100px; width: auto; }
+        h2 { color: #0f172a; text-align: center; margin-bottom: 8px; font-size: 20px; }
+        .subtitle { color: #64748b; text-align: center; font-size: 14px; margin-bottom: 25px; }
+        .user-banner { background: #ecfdf5; border-left: 4px solid #10b981; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #065f46; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-family: inherit; -webkit-appearance: none; appearance: none; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        button { background-color: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; touch-action: manipulation; }
+        button:hover { background-color: #059669; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .message { padding: 12px; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; }
+        .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
+        .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
+        .kvkk-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #10b981; }
+        .kvkk-box label { font-weight: normal; font-size: 13px; color: #475569; margin: 0; line-height: 1.5; }
+        .kvkk-box a { color: #10b981; font-weight: bold; }
+        .kvkk-row { display: flex; align-items: flex-start; gap: 10px; }
+        .kvkk-row input { width: auto; margin-top: 4px; flex-shrink: 0; }
+        .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e40af; }
+        .file-upload-box { background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f59e0b; }
+        .file-upload-box label { color: #92400e; font-size: 13px; }
+        .file-preview { margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 13px; color: #475569; display: none; }
+        .home-service-box { background: #f0fdf4; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #10b981; }
+        .home-service-box h4 { color: #065f46; font-size: 14px; margin-bottom: 12px; }
+        .home-service-box label { color: #065f46; }
+        .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
+        .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .payment-overlay.active { display: flex; }
+        .payment-modal { background: white; border-radius: 12px; max-width: 420px; width: 100%; padding: 30px; max-height: 90vh; overflow-y: auto; }
+        .payment-modal h3 { color: #0f172a; margin-bottom: 20px; font-size: 20px; }
+        .payment-summary { background: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; }
+        .payment-summary div { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .payment-summary .total { color: #10b981; font-size: 18px; font-weight: bold; }
+        .payment-modal input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; margin-bottom: 12px; }
+        .payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .demo-warning { background: #fef3c7; padding: 10px; border-radius: 6px; font-size: 12px; color: #92400e; margin-bottom: 15px; }
+        .payment-buttons { display: flex; gap: 10px; }
+        .payment-buttons button { flex: 1; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; border: none; }
+        .btn-cancel { background: #e2e8f0; color: #475569; }
+        .btn-pay { background: #10b981; color: white; }
+        .btn-pay:disabled { background: #94a3b8; cursor: not-allowed; }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .form-container { padding: 20px 15px; }
+            .logo-header img { height: 80px; }
+            h2 { font-size: 18px; }
+            input, select, textarea { font-size: 16px; }
+            .payment-modal { padding: 20px; margin: 10px; }
+        }
+    </style>
+</head>
+<body class="notranslate">
+    <div class="form-container">
+        <div class="logo-header">
+            <img src="logo.png" alt="HELUNEXA">
+        </div>
+        <p class="subtitle">Yeni Başvuru</p>
+        <div class="user-banner">👤 <strong id="userEmail">Yükleniyor...</strong> olarak giriş yapıldı</div>
+        <div id="message" class="message"></div>
+
+        <form id="healthForm">
+            <div class="form-group">
+                <label for="fullname">Ad Soyad *</label>
+                <input type="text" id="fullname" required minlength="3" placeholder="Adınız ve soyadınız">
+            </div>
+            <div class="form-group">
+                <label for="age">Yaş *</label>
+                <input type="number" id="age" required min="1" max="120" placeholder="Örn: 35">
+            </div>
+            <div class="form-group">
+                <label for="phone">Telefon *</label>
+                <input type="tel" id="phone" required placeholder="05XX XXX XX XX">
+            </div>
+            <div class="form-group">
+                <label for="service_type">Hizmet Türü *</label>
+                <select id="service_type" required>
+                    <option value="">Seçiniz</option>
+                    <optgroup label="Aktif Hizmetler">
+                        <option value="Rutin Kontrol" data-price="500">Rutin Sağlık Kontrolü - 500 TL</option>
+                        <option value="Kronik Takip - Diyabet" data-price="1500">Kronik Takip - Diyabet - 1.500 TL</option>
+                        <option value="Kronik Takip - Hipertansiyon" data-price="1500">Kronik Takip - Hipertansiyon - 1.500 TL</option>
+                        <option value="Kronik Takip - Tiroid" data-price="1500">Kronik Takip - Tiroid - 1.500 TL</option>
+                        <option value="Check-up" data-price="2000">Check-up - 2.000 TL</option>
+                        <option value="İlaç Raporu Yenileme" data-price="500">İlaç Raporu Yenileme Desteği - 500 TL</option>
+                        <option value="Yaşlı Takip" data-price="750">Yaşlı / Taburculuk Sonrası Takip - 750 TL</option>
+                        <option value="Dijital Değerlendirme" data-price="500">Dijital Hekim Değerlendirmesi - 500 TL</option>
+                    </optgroup>
+                    <optgroup label="Evde Hizmet">
+                        <option value="Evde Numune Alma" data-price="350">Evde Numune Alma - +350 TL</option>
+                        <option value="Evde Kronik Takip" data-price="2000">Evde Kronik Takip - 2.000 TL</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="test_status">Tahlil Durumu *</label>
+                <select id="test_status" required>
+                    <option value="">Seçiniz</option>
+                    <option value="have_results">📄 Mevcut sonuçlarım var (yükleyeceğim)</option>
+                    <option value="need_test">🔬 Yeni tahlil yaptıracağım</option>
+                    <option value="partner_lab">🏥 Laboratuvar önerisi istiyorum</option>
+                </select>
+            </div>
+            <div class="file-upload-box" id="fileUploadBox" style="display:none;">
+                <label>📎 Mevcut Sonuçlarınızı Yükleyin</label>
+                <input type="file" id="test_file" accept=".pdf,.jpg,.jpeg,.png" style="margin-top: 8px; background: white;">
+                <p style="font-size: 12px; color: #92400e; margin-top: 6px;">PDF, JPG veya PNG. Maksimum 10 MB.</p>
+                <div class="file-preview" id="filePreview"></div>
+            </div>
+            <div class="info-box" id="needTestInfo" style="display:none;">
+                <strong>ℹ️ Yeni Tahlil Bilgisi</strong>
+                <p style="margin-top: 8px;">Tahlilinizi anlaşmalı laboratuvarımızda veya kendi tercih ettiğiniz laboratuvarda yaptırabilirsiniz.</p>
+            </div>
+            <div class="info-box" id="partnerLabInfo" style="display:none;">
+                <strong>🏥 Anlaşmalı Laboratuvar</strong>
+                <p style="margin-top: 8px;">Size en yakın anlaşmalı laboratuvar bilgisi, başvurunuz sonrası e-posta ile gönderilecektir.</p>
+            </div>
+            <div class="home-service-box" id="homeServiceBox" style="display:none;">
+                <h4>🏠 Evde Hizmet Bilgileri</h4>
+                <div class="form-group">
+                    <label for="home_address">Adres *</label>
+                    <textarea id="home_address" rows="2" placeholder="Mahalle, sokak, bina no, daire..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="home_city">İl / İlçe *</label>
+                    <input type="text" id="home_city" placeholder="Örn: İstanbul / Kadıköy">
+                </div>
+                <div class="form-group">
+                    <label for="home_date">Randevu Tarihi *</label>
+                    <input type="date" id="home_date">
+                </div>
+                <div class="form-group">
+                    <label for="home_time">Randevu Saati *</label>
+                    <select id="home_time">
+                        <option value="">Seçiniz</option>
+                        <option value="Sabah (09:00-12:00)">Sabah (09:00-12:00)</option>
+                        <option value="Öğlen (12:00-15:00)">Öğlen (12:00-15:00)</option>
+                        <option value="Akşam (15:00-18:00)">Akşam (15:00-18:00)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="home_note">Evde Hizmet Notu</label>
+                    <textarea id="home_note" rows="2" placeholder="Örn: Zile basmayın, kapıyı çalın."></textarea>
+                </div>
+                <div style="background:#ecfdf5; padding:10px; border-radius:6px; font-size:12px; color:#065f46;">
+                    ℹ️ Evde hizmet ücreti toplam tutara eklenir.
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="medical_history">Tıbbi Geçmiş</label>
+                <textarea id="medical_history" rows="3" placeholder="Mevcut hastalıklar, kullandığınız ilaçlar..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="test_notes">Ek Notlar</label>
+                <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
+            </div>
+            <div class="kvkk-box">
+                <div class="kvkk-row">
+                    <input type="checkbox" id="kvkk_consent" required>
+                    <label for="kvkk_consent">
+                        <a href="kvkk.html" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum, anladım.
+                        <strong>Sağlık verilerimin işlenmesine açık rıza veriyorum.</strong> *
+                    </label>
+                </div>
+            </div>
+            <button type="submit" id="submitBtn">💳 Ödemeye Geç</button>
+        </form>
+        <p class="footer-text">© 2026 HELUNEXA. Tüm hakları saklıdır.</p>
+    </div>
+
+    <div class="payment-overlay" id="paymentModal">
+        <div class="payment-modal">
+            <h3>💳 Ödeme Bilgileri</h3>
+            <div class="payment-summary">
+                <div><span style="color:#64748b;">Hizmet:</span><strong id="paymentService">-</strong></div>
+                <div><span style="color:#64748b;">Toplam:</span><span class="total" id="paymentAmount">0 TL</span></div>
+            </div>
+            <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">Kart Numarası</label>
+            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+            <div class="payment-row">
+                <div>
+                    <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">Son Kullanma</label>
+                    <input type="text" id="cardExpiry" placeholder="AA/YY" maxlength="5">
+                </div>
+                <div>
+                    <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">CVV</label>
+                    <input type="text" id="cardCvv" placeholder="123" maxlength="4">
+                </div>
+            </div>
+            <label style="font-size:13px; color:#64748b; display:block; margin-bottom:5px;">Kart Üzerindeki İsim</label>
+            <input type="text" id="cardName" placeholder="AD SOYAD">
+            <div class="demo-warning">⚠️ Bu bir <strong>demo</strong> ödeme ekranıdır. Gerçek çekim yapılmaz.</div>
+            <div class="payment-buttons">
+                <button type="button" class="btn-cancel" id="cancelPayment">İptal</button>
+                <button type="button" class="btn-pay" id="completePayment">Ödemeyi Tamamla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
+            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+        });
+
+        let currentUser = null;
+        let pendingFormData = null;
+        let pendingAmount = 0;
+
+        function showMessage(text, type) {
+            const el = document.getElementById('message');
+            el.textContent = text; el.className = 'message ' + type;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('userEmail').textContent = session.user.email;
+            } else {
+                window.location.href = 'hasta-giris.html';
+            }
+        }
+
+        document.getElementById('service_type').addEventListener('change', function() {
+            const value = this.value;
+            const homeBox = document.getElementById('homeServiceBox');
+            if (value === 'Evde Numune Alma' || value === 'Evde Kronik Takip') {
+                homeBox.style.display = 'block';
+            } else {
+                homeBox.style.display = 'none';
+            }
+        });
+
+        document.getElementById('test_status').addEventListener('change', function() {
+            const value = this.value;
+            document.getElementById('fileUploadBox').style.display = 'none';
+            document.getElementById('needTestInfo').style.display = 'none';
+            document.getElementById('partnerLabInfo').style.display = 'none';
+            if (value === 'have_results') document.getElementById('fileUploadBox').style.display = 'block';
+            else if (value === 'need_test') document.getElementById('needTestInfo').style.display = 'block';
+            else if (value === 'partner_lab') document.getElementById('partnerLabInfo').style.display = 'block';
+        });
+
+        document.getElementById('test_file').addEventListener('change', function() {
+            const file = this.files[0];
+            const preview = document.getElementById('filePreview');
+            if (file) {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                preview.textContent = '✅ ' + file.name + ' (' + sizeMB + ' MB)';
+                preview.style.display = 'block';
+            } else preview.style.display = 'none';
+        });
+
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '').substring(0, 16);
+            e.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        });
+
+        document.getElementById('cardExpiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            e.target.value = value;
+        });
+
+        document.getElementById('healthForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!document.getElementById('kvkk_consent').checked) { showMessage('❌ KVKK onay kutusunu işaretlemeniz gerekiyor.', 'error'); return; }
+            if (!currentUser) { showMessage('❌ Oturum bulunamadı.', 'error'); setTimeout(() => window.location.href = 'hasta-giris.html', 2000); return; }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true; submitBtn.textContent = 'Hazırlanıyor...';
+
+            const testStatus = document.getElementById('test_status').value;
+            const serviceType = document.getElementById('service_type').value;
+            const isHomeService = serviceType === 'Evde Numune Alma' || serviceType === 'Evde Kronik Takip';
+
+            if (isHomeService) {
+                const homeAddress = document.getElementById('home_address').value.trim();
+                const homeCity = document.getElementById('home_city').value.trim();
+                const homeDate = document.getElementById('home_date').value;
+                const homeTime = document.getElementById('home_time').value;
+                if (!homeAddress || !homeCity || !homeDate || !homeTime) {
+                    showMessage('❌ Evde hizmet için adres, il/ilçe, tarih ve saat zorunludur.', 'error');
+                    submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç'; return;
+                }
+            }
+
+            try {
+                let fileUrl = null, fileName = null;
+                const fileInput = document.getElementById('test_file');
+                if (testStatus === 'have_results' && fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    if (file.size > 10 * 1024 * 1024) { showMessage('❌ Dosya boyutu 10 MB\'dan büyük olamaz.', 'error'); submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç'; return; }
+                    const timestamp = Date.now();
+                    const fileName_upload = `${timestamp}_${file.name}`;
+                    const { error: uploadError } = await _supabase.storage.from('test-results').upload(fileName_upload, file);
+                    if (uploadError) { showMessage('❌ Dosya yüklenemedi: ' + uploadError.message, 'error'); submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç'; return; }
+                    const { data: urlData } = _supabase.storage.from('test-results').getPublicUrl(fileName_upload);
+                    fileUrl = urlData.publicUrl; fileName = file.name;
+                }
+
+                pendingFormData = {
+                    fullname: document.getElementById('fullname').value.trim(),
+                    age: parseInt(document.getElementById('age').value),
+                    phone: document.getElementById('phone').value.trim(),
+                    email: currentUser.email,
+                    service_type: serviceType, test_status: testStatus,
+                    test_file_url: fileUrl, test_file_name: fileName,
+                    medical_history: document.getElementById('medical_history').value.trim() || null,
+                    test_notes: document.getElementById('test_notes').value.trim() || null,
+                    kvkk_consent: true, status: 'paid'
+                };
+
+                if (isHomeService) {
+                    pendingFormData.home_address = document.getElementById('home_address').value.trim();
+                    pendingFormData.home_city = document.getElementById('home_city').value.trim();
+                    pendingFormData.home_date = document.getElementById('home_date').value;
+                    pendingFormData.home_time = document.getElementById('home_time').value;
+                    pendingFormData.home_note = document.getElementById('home_note').value.trim() || null;
+                    pendingFormData.home_service_status = 'pending';
+                }
+
+                const selectedOption = document.getElementById('service_type').selectedOptions[0];
+                pendingAmount = parseInt(selectedOption.getAttribute('data-price')) || 500;
+
+                document.getElementById('paymentService').textContent = serviceType;
+                document.getElementById('paymentAmount').textContent = pendingAmount.toLocaleString('tr-TR') + ' TL';
+                document.getElementById('paymentModal').classList.add('active');
+                submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
+            } catch (err) {
+                showMessage('❌ Bir hata oluştu: ' + err.message, 'error');
+                submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
+            }
+        });
+
+        document.getElementById('completePayment').addEventListener('click', async () => {
+            const cardNumber = document.getElementById('cardNumber').value.trim();
+            const cardExpiry = document.getElementById('cardExpiry').value.trim();
+            const cardCvv = document.getElementById('cardCvv').value.trim();
+            const cardName = document.getElementById('cardName').value.trim();
+            if (!cardNumber || !cardExpiry || !cardCvv || !cardName) { alert('Lütfen tüm kart bilgilerini doldurun.'); return; }
+            if (cardNumber.replace(/\s/g, '').length !== 16) { alert('Kart numarası 16 haneli olmalıdır.'); return; }
+
+            const btn = document.getElementById('completePayment');
+            btn.disabled = true; btn.textContent = 'İşleniyor...';
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const { error } = await _supabase.from('applications').insert([pendingFormData]);
+            if (error) { alert('❌ Hata: ' + error.message); btn.disabled = false; btn.textContent = 'Ödemeyi Tamamla'; return; }
+
+            document.getElementById('paymentModal').classList.remove('active');
+            showMessage('✅ Ödeme başarılı! Panele yönlendiriliyorsunuz...', 'success');
+            setTimeout(() => window.location.href = 'hasta-panel.html', 2000);
+        });
+
+        document.getElementById('cancelPayment').addEventListener('click', () => {
+            document.getElementById('paymentModal').classList.remove('active');
+            pendingFormData = null;
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '💳 Ödemeye Geç';
+        });
+
+        checkSession();
+    </script>
+</body>
+</html>

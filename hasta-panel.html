@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HELUNEXA - Hasta Paneli</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, Arial, sans-serif; background: #f1f5f9; color: #0f172a; }
+        .header { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header-left img { height: 100px; width: auto; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .logout-btn:hover { background: #dc2626; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 30px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-card .num { font-size: 28px; font-weight: bold; color: #10b981; }
+        .stat-card .label { font-size: 13px; color: #64748b; margin-top: 5px; }
+        .section-title { font-size: 18px; margin-bottom: 15px; color: #0f172a; }
+        .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 14px 15px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        tr:hover { background: #f8fafc; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge.pending { background: #fef3c7; color: #92400e; }
+        .badge.paid { background: #dbeafe; color: #1e40af; }
+        .badge.in_progress { background: #dbeafe; color: #1e40af; }
+        .badge.completed { background: #d1fae5; color: #065f46; }
+        .badge.cancelled { background: #fee2e2; color: #991b1b; }
+        .empty-state { padding: 60px 20px; text-align: center; color: #94a3b8; }
+        .btn { display: inline-block; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .btn:hover { background: #059669; }
+        .action-btn { padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; }
+        .action-btn:hover { background: #059669; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 25px; }
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
+            .header-left { gap: 10px; }
+            .header-left img { height: 70px; }
+            .user-info { flex-wrap: wrap; gap: 8px; }
+            .user-info span { font-size: 11px; }
+            .logout-btn { padding: 6px 12px; font-size: 12px; }
+            .container { padding: 15px; }
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 15px; }
+            .stat-card .num { font-size: 22px; }
+            .stat-card .label { font-size: 11px; }
+            .section-title { font-size: 16px; }
+            .btn { padding: 10px 16px; font-size: 13px; }
+            table { min-width: 600px; }
+            th, td { padding: 10px 8px; font-size: 12px; white-space: nowrap; }
+            .modal { max-width: 100%; padding: 20px; }
+        }
+    </style>
+</head>
+<body class="notranslate">
+    <div class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="HELUNEXA">
+        </div>
+        <div class="user-info">
+            <span id="userEmail" style="font-size:14px; color:#64748b;"></span>
+            <button class="logout-btn" id="logoutBtn">Çıkış</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">Toplam</div></div>
+            <div class="stat-card"><div class="num" id="statPending">-</div><div class="label">Bekleyen</div></div>
+            <div class="stat-card"><div class="num" id="statProgress">-</div><div class="label">İşlemde</div></div>
+            <div class="stat-card"><div class="num" id="statCompleted">-</div><div class="label">Tamamlanan</div></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+            <h3 class="section-title">Başvurularım</h3>
+            <a href="basvuru.html" class="btn">+ Yeni Başvuru Yap</a>
+        </div>
+
+        <div class="table-container">
+            <div id="tableContent">
+                <div class="empty-state">Yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 id="modalTitle" style="font-size:18px;">Başvuru Detayı</h3>
+                <button onclick="closeModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#64748b;">×</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
+            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+        });
+
+        let allApps = [];
+
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                document.getElementById('userEmail').textContent = session.user.email;
+                loadApplications(session.user.email);
+            } else {
+                window.location.href = 'hasta-giris.html';
+            }
+        }
+
+        async function loadApplications(email) {
+            const { data, error } = await _supabase
+                .from('applications').select('*').eq('email', email).order('created_at', { ascending: false });
+            const container = document.getElementById('tableContent');
+            if (error) { container.innerHTML = '<div class="empty-state">Hata: ' + error.message + '</div>'; return; }
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="empty-state">Henüz başvurunuz yok. Yukarıdan yeni başvuru yapabilirsiniz.</div>';
+                updateStats([]); return;
+            }
+            allApps = data; updateStats(data); renderTable(data);
+        }
+
+        function updateStats(data) {
+            document.getElementById('statTotal').textContent = data.length;
+            document.getElementById('statPending').textContent = data.filter(a => a.status === 'pending' || !a.status || a.status === 'paid').length;
+            document.getElementById('statProgress').textContent = data.filter(a => a.status === 'in_progress').length;
+            document.getElementById('statCompleted').textContent = data.filter(a => a.status === 'completed').length;
+        }
+
+        function renderTable(data) {
+            let html = `<table><thead><tr><th>Tarih</th><th>Hizmet</th><th>Durum</th><th>Hekim Notu</th><th>İşlemler</th></tr></thead><tbody>`;
+            data.forEach(app => {
+                const date = new Date(app.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+                const status = app.status || 'pending';
+                const statusText = { pending: 'Bekliyor', paid: 'Ödendi', in_progress: 'İşlemde', completed: 'Tamamlandı', cancelled: 'İptal' }[status] || status;
+                html += `<tr>
+                    <td>${date}</td>
+                    <td>${escapeHtml(app.service_type) || '-'}</td>
+                    <td><span class="badge ${status}">${statusText}</span></td>
+                    <td>${escapeHtml(app.doctor_note) || '<em style="color:#94a3b8;">Henüz not yok</em>'}</td>
+                    <td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('tableContent').innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
+        }
+
+        window.openDetail = function(id) {
+            const app = allApps.find(a => a.id === id);
+            if (!app) return;
+            const date = new Date(app.created_at).toLocaleString('tr-TR');
+            const status = app.status || 'pending';
+            const statusText = { pending: 'Bekliyor', paid: 'Ödendi', in_progress: 'İşlemde', completed: 'Tamamlandı', cancelled: 'İptal' }[status] || status;
+            document.getElementById('modalTitle').textContent = app.service_type;
+
+            document.getElementById('modalBody').innerHTML = `
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:12px; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">Başvuru Tarihi</label>
+                    <div style="font-size:15px;">${date}</div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:12px; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">Durum</label>
+                    <div><span class="badge ${status}">${statusText}</span></div>
+                </div>
+                ${app.home_address ? `
+                <div style="background:#f0fdf4; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
+                    <label style="font-size:12px; color:#065f46; text-transform:uppercase; font-weight:bold;">🏠 Evde Hizmet</label>
+                    <div style="font-size:14px; margin-top:8px; line-height:1.6;">
+                        <strong>Adres:</strong> ${escapeHtml(app.home_address)}<br>
+                        <strong>İl/İlçe:</strong> ${escapeHtml(app.home_city) || '-'}<br>
+                        <strong>Tarih:</strong> ${app.home_date || '-'} / ${escapeHtml(app.home_time) || '-'}
+                    </div>
+                </div>` : ''}
+                ${app.doctor_note ? `
+                <div style="background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
+                    <label style="font-size:12px; color:#065f46; text-transform:uppercase; font-weight:bold;">📝 Hekim Notu</label>
+                    <div style="font-size:14px; margin-top:8px; line-height:1.5;">${escapeHtml(app.doctor_note)}</div>
+                </div>` : ''}
+                ${app.evaluation ? `
+                <div style="background:#eff6ff; padding:15px; border-radius:8px; border-left:4px solid #3b82f6; margin-bottom:15px;">
+                    <label style="font-size:12px; color:#1e40af; text-transform:uppercase; font-weight:bold;">🩺 Hekim Değerlendirmesi</label>
+                    <div style="font-size:14px; margin-top:8px; line-height:1.5;">${escapeHtml(app.evaluation)}</div>
+                </div>` : ''}
+                ${app.lab_result_url ? `
+                <div style="background:#f3e8ff; padding:15px; border-radius:8px; border-left:4px solid #8b5cf6; margin-bottom:15px;">
+                    <label style="font-size:12px; color:#6b21a8; text-transform:uppercase; font-weight:bold;">🔬 Laboratuvar Sonucu</label>
+                    <div style="font-size:14px; margin-top:8px;">
+                        <a href="${app.lab_result_url}" target="_blank" style="color:#8b5cf6; font-weight:bold; text-decoration:none;">📎 ${escapeHtml(app.lab_result_name) || 'Sonucu Görüntüle'}</a>
+                    </div>
+                    ${app.lab_note ? `<div style="font-size:13px; color:#64748b; margin-top:8px;"><strong>Lab Notu:</strong> ${escapeHtml(app.lab_note)}</div>` : ''}
+                </div>` : ''}
+                ${app.prescription ? `
+                <div style="background:#fef3c7; padding:15px; border-radius:8px; border-left:4px solid #f59e0b; margin-bottom:15px;">
+                    <label style="font-size:12px; color:#92400e; text-transform:uppercase; font-weight:bold;">💊 Reçete</label>
+                    <div style="font-size:14px; margin-top:8px; white-space:pre-line; font-family:monospace; line-height:1.7;">${escapeHtml(app.prescription)}</div>
+                    ${app.prescription_date ? `<div style="font-size:11px; color:#92400e; margin-top:8px;">Düzenlenme: ${new Date(app.prescription_date).toLocaleString('tr-TR')}</div>` : ''}
+                </div>` : ''}
+                ${!app.doctor_note && !app.evaluation && !app.lab_result_url && !app.prescription ? `
+                <div style="padding:30px; text-align:center; color:#94a3b8; font-size:14px;">⏳ Hekiminiz henüz değerlendirme yapmadı.</div>` : ''}
+                <button onclick="closeModal()" style="width:100%; padding:12px; background:#e2e8f0; color:#475569; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:15px;">Kapat</button>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('active'); };
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.href = 'hasta-giris.html';
+        });
+
+        checkSession();
+    </script>
+</body>
+</html>
