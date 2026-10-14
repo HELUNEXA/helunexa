@@ -22,10 +22,10 @@
         .login-box p { color: #64748b; text-align: center; margin-bottom: 25px; font-size: 14px; }
         .login-box input { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; font-size: 16px; -webkit-appearance: none; appearance: none; }
         .login-box input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        .login-box button { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; -webkit-appearance: none; appearance: none; touch-action: manipulation; }
+        .login-box button { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .login-box button:hover { background: #059669; }
         .login-box button:disabled { background: #94a3b8; cursor: not-allowed; }
-        .login-error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; line-height: 1.5; min-height: 18px; }
+        .login-error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
         .panel { display: none; }
         .panel.active { display: block; }
         .header { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
@@ -40,6 +40,14 @@
         .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
         .logout-btn:hover { background: #dc2626; }
         .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
+
+        /* SEKMELER */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+        .tab-btn { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: bold; color: #64748b; }
+        .tab-btn.active { color: #10b981; border-bottom-color: #10b981; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .stat-card .num { font-size: 28px; font-weight: bold; color: #10b981; }
@@ -103,6 +111,30 @@
         .appointment-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
         .appointment-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; margin-bottom: 8px; }
 
+        /* TAKVİM */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .calendar-header h3 { font-size: 18px; color: #0f172a; }
+        .calendar-header button { padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .calendar-header button:hover { background: #059669; }
+        .calendar-legend { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; font-size: 13px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .calendar-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .calendar-grid { min-width: 900px; display: grid; grid-template-columns: 80px repeat(7, 1fr); }
+        .cal-header { background: #f8fafc; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: bold; color: #475569; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }
+        .cal-header.today { background: #d1fae5; color: #065f46; }
+        .cal-hour { background: #f8fafc; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: bold; color: #64748b; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }
+        .cal-slot { padding: 8px; font-size: 11px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; min-height: 50px; cursor: pointer; transition: background 0.2s; }
+        .cal-slot:hover { background: #f8fafc; }
+        .cal-slot.empty { color: #cbd5e1; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .cal-slot.pending { background: #fef3c7; border-left: 3px solid #f59e0b; }
+        .cal-slot.confirmed { background: #d1fae5; border-left: 3px solid #10b981; }
+        .cal-slot.changed { background: #dbeafe; border-left: 3px solid #3b82f6; }
+        .cal-slot.cancelled { background: #fee2e2; border-left: 3px solid #ef4444; }
+        .cal-slot .name { font-weight: bold; color: #0f172a; font-size: 12px; }
+        .cal-slot .service { color: #64748b; font-size: 10px; margin-top: 2px; }
+        .cal-slot .time { color: #0f172a; font-weight: bold; font-size: 11px; }
+
         @media (max-width: 768px) {
             .login-container { padding: 15px; align-items: flex-start; padding-top: 40px; }
             .login-box { padding: 30px 20px; }
@@ -129,6 +161,7 @@
             .modal-footer { padding: 15px; flex-wrap: wrap; }
             .btn { padding: 10px 15px; font-size: 13px; }
             select, textarea, input[type="text"], input[type="date"] { font-size: 16px; }
+            .tab-btn { padding: 10px 14px; font-size: 13px; }
         }
     </style>
 </head>
@@ -169,16 +202,43 @@
                 <div class="stat-card"><div class="num" id="statCompleted">-</div><div class="label">Tamamlanan</div></div>
             </div>
 
-            <div class="filters">
-                <button class="filter-btn active" data-filter="all">Tümü</button>
-                <button class="filter-btn" data-filter="pending">Bekleyen</button>
-                <button class="filter-btn" data-filter="in_progress">İşlemde</button>
-                <button class="filter-btn" data-filter="completed">Tamamlanan</button>
-                <button class="filter-btn" data-filter="cancelled">İptal</button>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="applications">📋 Başvurular</button>
+                <button class="tab-btn" data-tab="calendar">📅 Randevu Takvimi</button>
             </div>
 
-            <div class="table-container">
-                <div id="tableContent"><div class="loading">Yükleniyor...</div></div>
+            <div class="tab-content active" id="tab-applications">
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Tümü</button>
+                    <button class="filter-btn" data-filter="pending">Bekleyen</button>
+                    <button class="filter-btn" data-filter="in_progress">İşlemde</button>
+                    <button class="filter-btn" data-filter="completed">Tamamlanan</button>
+                    <button class="filter-btn" data-filter="cancelled">İptal</button>
+                </div>
+
+                <div class="table-container">
+                    <div id="tableContent"><div class="loading">Yükleniyor...</div></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-calendar">
+                <div class="calendar-header">
+                    <button onclick="prevWeek()">◀ Önceki Hafta</button>
+                    <h3 id="weekLabel">-</h3>
+                    <button onclick="nextWeek()">Sonraki Hafta ▶</button>
+                </div>
+
+                <div class="calendar-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Onaylandı</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Onay Bekliyor</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> Değiştirildi</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> İptal</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#e2e8f0;"></span> Boş</div>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -214,10 +274,22 @@
         let currentUserId = null;
         let currentDisplayName = '';
 
+        // Takvim için
+        let currentWeekStart = getMonday(new Date());
+
         const ALL_TIME_SLOTS = [
             '09:00', '10:00', '11:00', '12:00', '13:00',
             '14:00', '15:00', '16:00', '17:00', '18:00'
         ];
+
+        function getMonday(d) {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+            const monday = new Date(date.setDate(diff));
+            monday.setHours(0, 0, 0, 0);
+            return monday;
+        }
 
         async function checkSession() {
             try {
@@ -307,6 +379,20 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => { await _supabase.auth.signOut(); showLogin(); });
 
+        // SEKMELER
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+                if (btn.dataset.tab === 'calendar') {
+                    renderCalendar();
+                }
+            });
+        });
+
         async function loadApplications() {
             const { data, error } = await _supabase.from('applications').select('*').order('created_at', { ascending: false });
             if (error) { document.getElementById('tableContent').innerHTML = '<div class="empty-state">Hata: ' + error.message + '</div>'; return; }
@@ -365,7 +451,88 @@
             });
         });
 
-        // Randevu kartı HTML'i
+        // ============================================
+        // TAKVİM FONKSİYONLARI
+        // ============================================
+        function prevWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            renderCalendar();
+        }
+
+        function nextWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            renderCalendar();
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const weekLabel = document.getElementById('weekLabel');
+
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+            weekLabel.textContent = `${currentWeekStart.getDate()} ${months[currentWeekStart.getMonth()]} - ${weekEnd.getDate()} ${months[weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
+
+            // Günleri oluştur
+            const days = [];
+            const dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(currentWeekStart);
+                d.setDate(d.getDate() + i);
+                days.push(d);
+            }
+
+            // Randevuları filtrele
+            const weekStartStr = formatDate(currentWeekStart);
+            const weekEndStr = formatDate(weekEnd);
+            const weekAppointments = allApplications.filter(a =>
+                a.appointment_date &&
+                a.appointment_date >= weekStartStr &&
+                a.appointment_date <= weekEndStr
+            );
+
+            // Header satırı
+            let html = '<div class="cal-header" style="background:#0f172a; color:white;">Saat</div>';
+            const today = formatDate(new Date());
+            days.forEach((d, i) => {
+                const dateStr = formatDate(d);
+                const isToday = dateStr === today;
+                html += `<div class="cal-header ${isToday ? 'today' : ''}">
+                    ${dayNames[i]}<br>
+                    <span style="font-size:14px;">${d.getDate()} ${months[d.getMonth()].substring(0,3)}</span>
+                </div>`;
+            });
+
+            // Saat satırları
+            ALL_TIME_SLOTS.forEach(time => {
+                html += `<div class="cal-hour">${time}</div>`;
+                days.forEach(d => {
+                    const dateStr = formatDate(d);
+                    const apt = weekAppointments.find(a => a.appointment_date === dateStr && a.appointment_time === time);
+
+                    if (apt) {
+                        const status = apt.appointment_status || 'pending';
+                        html += `<div class="cal-slot ${status}" onclick="openDetail(${apt.id})">
+                            <div class="name">${escapeHtml(apt.fullname)}</div>
+                            <div class="service">${escapeHtml(apt.service_type)}</div>
+                        </div>`;
+                    } else {
+                        html += `<div class="cal-slot empty">—</div>`;
+                    }
+                });
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // ============================================
+        // RANDEVU KARTI
+        // ============================================
         function buildAppointmentCard(app) {
             if (!app.appointment_date) return '';
 
@@ -412,22 +579,9 @@
                             <option value="cancelled" ${app.appointment_status === 'cancelled' ? 'selected' : ''}>❌ İptal</option>
                         </select>
                     </div>
-
-                    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-                        <button type="button" class="btn btn-primary" onclick="quickConfirmAppointment()" style="padding:8px 16px; font-size:13px;">✅ Randevuyu Onayla</button>
-                    </div>
                 </div>
             `;
         }
-
-        // Hızlı onayla - durumu confirmed yap
-        window.quickConfirmAppointment = function() {
-            const statusSelect = document.getElementById('editAppointmentStatus');
-            if (statusSelect) {
-                statusSelect.value = 'confirmed';
-                alert('✅ Randevu durumu "Onaylandı" olarak ayarlandı. Kaydet butonuna basarak kaydedin.');
-            }
-        };
 
         window.openDetail = function(id) {
             const app = allApplications.find(a => a.id === id);
@@ -448,19 +602,17 @@
                     <div class="value"><strong>Tarih:</strong> ${app.home_date || '-'}</div>
                     <div class="value"><strong>Saat:</strong> ${escapeHtml(app.home_time) || '-'}</div>
                     ${app.home_note ? `<div class="value"><strong>Not:</strong> ${escapeHtml(app.home_note)}</div>` : ''}
-                    <div class="value" style="margin-top:8px;"><strong>Durum:</strong> ${app.home_service_status === 'collected' ? '<span style="color:#10b981;">✅ Numune Alındı</span>' : '<span style="color:#f59e0b;">⏳ Numune Bekliyor</span>'}</div>
                 </div>` : ''}
                 <div class="detail-row"><label>Başvuru Tarihi</label><div class="value">${date}</div></div>
                 <div class="detail-row"><label>Yaş</label><div class="value">${app.age}</div></div>
                 <div class="detail-row"><label>Telefon</label><div class="value">${escapeHtml(app.phone)}</div></div>
                 <div class="detail-row"><label>E-posta</label><div class="value">${escapeHtml(app.email)}</div></div>
                 <div class="detail-row"><label>Hizmet Türü</label><div class="value">${escapeHtml(app.service_type)}</div></div>
-                <div class="detail-row"><label>Tahlil Durumu</label><div class="value">${escapeHtml(app.test_status) || '<em>Belirtilmemiş</em>'}</div></div>
                 <div class="detail-row"><label>Tıbbi Geçmiş</label><div class="value">${escapeHtml(app.medical_history) || '<em>Belirtilmemiş</em>'}</div></div>
                 ${app.test_file_url ? `<div class="test-box"><label>📄 Hastanın Yüklediği Tahlil</label><div class="value"><a href="${app.test_file_url}" target="_blank">📎 ${escapeHtml(app.test_file_name) || 'Dosyayı Görüntüle'}</a></div></div>` : ''}
                 ${app.lab_result_url ? `
-                <div class="lab-box"><label>🔬 Laboratuvar Sonucu</label><div class="value"><a href="${app.lab_result_url}" target="_blank">📎 ${escapeHtml(app.lab_result_name) || 'Sonucu Görüntüle'}</a>${app.lab_uploaded_at ? `<br><small style="color:#94a3b8;">Yüklendi: ${new Date(app.lab_uploaded_at).toLocaleString('tr-TR')}</small>` : ''}</div></div>
-                ${app.lab_note ? `<div class="lab-box"><label>🔬 Laboratuvar Notu</label><div class="value">${escapeHtml(app.lab_note)}</div></div>` : ''}` : '<div style="padding:12px; background:#f8fafc; border-radius:6px; color:#94a3b8; font-size:13px; margin-bottom:12px;">🔬 Henüz laboratuvar sonucu yüklenmemiş.</div>'}
+                <div class="lab-box"><label>🔬 Laboratuvar Sonucu</label><div class="value"><a href="${app.lab_result_url}" target="_blank">📎 ${escapeHtml(app.lab_result_name) || 'Sonucu Görüntüle'}</a></div></div>
+                ${app.lab_note ? `<div class="lab-box"><label>🔬 Laboratuvar Notu</label><div class="value">${escapeHtml(app.lab_note)}</div></div>` : ''}` : ''}
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
                 <div class="detail-row"><label>Durum</label><select id="editStatus">
                     <option value="pending" ${status === 'pending' ? 'selected' : ''}>Bekliyor</option>
@@ -471,7 +623,7 @@
                 </select></div>
                 <div class="detail-row"><label>Hekim Notu (Kısa)</label><textarea id="editNote" placeholder="Kısa not...">${escapeHtml(app.doctor_note) || ''}</textarea></div>
                 <div class="evaluation-box"><label>🩺 Hekim Değerlendirmesi</label><textarea id="editEvaluation" placeholder="Klinik değerlendirme, tanı, öneriler..." style="margin-top:8px; min-height:100px;">${escapeHtml(app.evaluation) || ''}</textarea></div>
-                <div class="prescription-box"><label>💊 Reçete</label><textarea id="editPrescription" placeholder="İlaç adı, doz, kullanım..." style="margin-top:8px; min-height:120px; font-family:monospace;">${escapeHtml(app.prescription) || ''}</textarea><p style="font-size:11px; color:#92400e; margin-top:8px;">ℹ️ Reçete boş bırakılırsa hastaya gösterilmez.</p></div>
+                <div class="prescription-box"><label>💊 Reçete</label><textarea id="editPrescription" placeholder="İlaç adı, doz, kullanım..." style="margin-top:8px; min-height:120px; font-family:monospace;">${escapeHtml(app.prescription) || ''}</textarea></div>
             `;
             document.getElementById('modalOverlay').classList.add('active');
         };
@@ -487,7 +639,6 @@
             const newEvaluation = document.getElementById('editEvaluation').value.trim();
             const newPrescription = document.getElementById('editPrescription').value.trim();
 
-            // Randevu alanları (varsa)
             const editApptDate = document.getElementById('editAppointmentDate');
             const editApptTime = document.getElementById('editAppointmentTime');
             const editApptLink = document.getElementById('editAppointmentLink');
@@ -505,7 +656,6 @@
                 prescription_date: newPrescription ? new Date().toISOString() : null
             };
 
-            // Randevu bilgisi varsa güncelle
             if (editApptDate && editApptTime) {
                 const newDate = editApptDate.value;
                 const newTime = editApptTime.value;
@@ -517,20 +667,18 @@
                 updateData.appointment_link = editApptLink ? editApptLink.value.trim() || null : null;
                 updateData.appointment_note = editApptNote ? editApptNote.value.trim() || null : null;
 
-                // Durum: kullanıcı seçti mi?
                 let aptStatus = editApptStatus ? editApptStatus.value : currentApplication.appointment_status;
-
-                // Eğer tarih/saat değiştiyse ve durum hala pending ise, "changed" yap
                 if ((newDate !== oldDate || newTime !== oldTime) && aptStatus === 'pending') {
                     aptStatus = 'changed';
                 }
-
                 updateData.appointment_status = aptStatus;
             }
 
             const { error } = await _supabase.from('applications').update(updateData).eq('id', currentApplication.id);
             if (error) { alert('❌ Hata: ' + error.message); btn.disabled = false; btn.textContent = 'Kaydet'; return; }
-            await loadApplications(); closeModal();
+            await loadApplications();
+            renderCalendar();
+            closeModal();
             btn.disabled = false; btn.textContent = 'Kaydet';
         });
 
