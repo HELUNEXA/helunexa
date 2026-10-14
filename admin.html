@@ -24,7 +24,6 @@
         .login-box input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .login-box button { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; -webkit-appearance: none; appearance: none; touch-action: manipulation; }
         .login-box button:hover { background: #059669; }
-        .login-box button:active { background: #047857; }
         .login-box button:disabled { background: #94a3b8; cursor: not-allowed; }
         .login-error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; line-height: 1.5; min-height: 18px; }
         .panel { display: none; }
@@ -59,6 +58,10 @@
         .badge.in_progress { background: #dbeafe; color: #1e40af; }
         .badge.completed { background: #d1fae5; color: #065f46; }
         .badge.cancelled { background: #fee2e2; color: #991b1b; }
+        .badge.apt-pending { background: #fef3c7; color: #92400e; }
+        .badge.apt-confirmed { background: #d1fae5; color: #065f46; }
+        .badge.apt-changed { background: #dbeafe; color: #1e40af; }
+        .badge.apt-cancelled { background: #fee2e2; color: #991b1b; }
         .action-btn { padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; }
         .action-btn:hover { background: #059669; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
@@ -77,7 +80,7 @@
         .btn-primary:hover { background: #059669; }
         .btn-secondary { background: #e2e8f0; color: #475569; }
         .btn-secondary:hover { background: #cbd5e1; }
-        select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; font-family: inherit; }
+        select, textarea, input[type="text"], input[type="date"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; font-family: inherit; }
         textarea { resize: vertical; min-height: 80px; }
         .empty-state { padding: 60px 20px; text-align: center; color: #94a3b8; }
         .loading { text-align: center; padding: 40px; color: #64748b; }
@@ -96,6 +99,9 @@
         .home-box { background: #f0fdf4; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 12px; }
         .home-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; }
         .home-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; }
+        .appointment-box { background: #ecfdf5; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 20px; }
+        .appointment-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
+        .appointment-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; margin-bottom: 8px; }
 
         @media (max-width: 768px) {
             .login-container { padding: 15px; align-items: flex-start; padding-top: 40px; }
@@ -115,14 +121,14 @@
             .filters { padding: 10px; gap: 5px; }
             .filters button { padding: 6px 10px; font-size: 12px; }
             .table-container { border-radius: 8px; }
-            table { min-width: 700px; }
+            table { min-width: 800px; }
             th, td { padding: 10px 8px; font-size: 12px; white-space: nowrap; }
             .modal { max-width: 100%; max-height: 95vh; border-radius: 12px 12px 0 0; }
             .modal-header { padding: 15px; }
             .modal-body { padding: 15px; }
             .modal-footer { padding: 15px; flex-wrap: wrap; }
             .btn { padding: 10px 15px; font-size: 13px; }
-            select, textarea { font-size: 16px; }
+            select, textarea, input[type="text"], input[type="date"] { font-size: 16px; }
         }
     </style>
 </head>
@@ -207,6 +213,11 @@
         let currentRole = 'doctor';
         let currentUserId = null;
         let currentDisplayName = '';
+
+        const ALL_TIME_SLOTS = [
+            '09:00', '10:00', '11:00', '12:00', '13:00',
+            '14:00', '15:00', '16:00', '17:00', '18:00'
+        ];
 
         async function checkSession() {
             try {
@@ -309,17 +320,37 @@
             document.getElementById('statCompleted').textContent = allApplications.filter(a => a.status === 'completed').length;
         }
 
+        function aptStatusBadge(status) {
+            const map = {
+                'pending': ['⏳ Onay Bekliyor', 'apt-pending'],
+                'confirmed': ['✅ Onaylandı', 'apt-confirmed'],
+                'changed': ['🔄 Değiştirildi', 'apt-changed'],
+                'cancelled': ['❌ İptal', 'apt-cancelled']
+            };
+            if (!status) return '';
+            const [text, cls] = map[status] || [status, ''];
+            return `<span class="badge ${cls}">${text}</span>`;
+        }
+
         function renderTable() {
             const filtered = currentFilter === 'all' ? allApplications : allApplications.filter(a => (a.status || 'pending') === currentFilter);
             const container = document.getElementById('tableContent');
             if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Bu filtrede başvuru yok.</div>'; return; }
-            let html = `<table><thead><tr><th>Tarih</th><th>Ad Soyad</th><th>Yaş</th><th>Telefon</th><th>Hizmet</th><th>Durum</th><th>Lab</th><th></th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>Tarih</th><th>Ad Soyad</th><th>Yaş</th><th>Telefon</th><th>Hizmet</th><th>Randevu</th><th>Durum</th><th>Lab</th><th></th></tr></thead><tbody>`;
             filtered.forEach(app => {
                 const date = new Date(app.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 const status = app.status || 'pending';
                 const statusText = { pending: 'Bekliyor', paid: 'Ödendi', in_progress: 'İşlemde', completed: 'Tamamlandı', cancelled: 'İptal' }[status] || status;
                 const labStatus = app.lab_result_url ? '<span style="color:#8b5cf6; font-weight:bold;">🔬 Var</span>' : '<span style="color:#94a3b8;">—</span>';
-                html += `<tr><td>${date}</td><td><strong>${escapeHtml(app.fullname)}</strong></td><td>${app.age}</td><td>${escapeHtml(app.phone)}</td><td>${escapeHtml(app.service_type)}</td><td><span class="badge ${status}">${statusText}</span></td><td>${labStatus}</td><td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td></tr>`;
+
+                let aptInfo = '<span style="color:#94a3b8;">—</span>';
+                if (app.appointment_date) {
+                    const d = new Date(app.appointment_date);
+                    const dt = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+                    aptInfo = `<div style="font-size:12px;">📅 ${dt} · ${app.appointment_time}<br>${aptStatusBadge(app.appointment_status)}</div>`;
+                }
+
+                html += `<tr><td>${date}</td><td><strong>${escapeHtml(app.fullname)}</strong></td><td>${app.age}</td><td>${escapeHtml(app.phone)}</td><td>${escapeHtml(app.service_type)}</td><td>${aptInfo}</td><td><span class="badge ${status}">${statusText}</span></td><td>${labStatus}</td><td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -334,13 +365,81 @@
             });
         });
 
+        // Randevu kartı HTML'i
+        function buildAppointmentCard(app) {
+            if (!app.appointment_date) return '';
+
+            const d = new Date(app.appointment_date);
+            const formattedDate = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' });
+
+            return `
+                <div class="appointment-box">
+                    <label>📅 Randevu Bilgisi</label>
+                    <div class="value"><strong>Tarih:</strong> ${formattedDate}</div>
+                    <div class="value"><strong>Saat:</strong> ${escapeHtml(app.appointment_time) || '-'}</div>
+                    <div class="value"><strong>Tür:</strong> 💻 Online Görüşme</div>
+                    <div class="value"><strong>Durum:</strong> ${aptStatusBadge(app.appointment_status)}</div>
+
+                    <div style="margin-top:12px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">Yeni Tarih (değiştir)</label>
+                            <input type="date" id="editAppointmentDate" value="${app.appointment_date || ''}">
+                        </div>
+                        <div>
+                            <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">Yeni Saat</label>
+                            <select id="editAppointmentTime">
+                                ${ALL_TIME_SLOTS.map(t => `<option value="${t}" ${app.appointment_time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">🔗 Görüşme Linki (Zoom/Meet)</label>
+                        <input type="text" id="editAppointmentLink" placeholder="https://meet.google.com/..." value="${escapeHtml(app.appointment_link) || ''}">
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">📝 Randevu Notu</label>
+                        <textarea id="editAppointmentNote" rows="2" placeholder="Hasta ile ilgili not...">${escapeHtml(app.appointment_note) || ''}</textarea>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">Randevu Durumu</label>
+                        <select id="editAppointmentStatus">
+                            <option value="pending" ${app.appointment_status === 'pending' ? 'selected' : ''}>⏳ Onay Bekliyor</option>
+                            <option value="confirmed" ${app.appointment_status === 'confirmed' ? 'selected' : ''}>✅ Onaylandı</option>
+                            <option value="changed" ${app.appointment_status === 'changed' ? 'selected' : ''}>🔄 Değiştirildi</option>
+                            <option value="cancelled" ${app.appointment_status === 'cancelled' ? 'selected' : ''}>❌ İptal</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary" onclick="quickConfirmAppointment()" style="padding:8px 16px; font-size:13px;">✅ Randevuyu Onayla</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Hızlı onayla - durumu confirmed yap
+        window.quickConfirmAppointment = function() {
+            const statusSelect = document.getElementById('editAppointmentStatus');
+            if (statusSelect) {
+                statusSelect.value = 'confirmed';
+                alert('✅ Randevu durumu "Onaylandı" olarak ayarlandı. Kaydet butonuna basarak kaydedin.');
+            }
+        };
+
         window.openDetail = function(id) {
             const app = allApplications.find(a => a.id === id);
             if (!app) return; currentApplication = app;
             const date = new Date(app.created_at).toLocaleString('tr-TR');
             const status = app.status || 'pending';
             document.getElementById('modalTitle').textContent = app.fullname;
+
+            const appointmentCard = buildAppointmentCard(app);
+
             document.getElementById('modalBody').innerHTML = `
+                ${appointmentCard}
                 ${app.home_address ? `
                 <div class="home-box">
                     <label>🏠 Evde Hizmet Bilgileri</label>
@@ -387,12 +486,49 @@
             const newNote = document.getElementById('editNote').value.trim();
             const newEvaluation = document.getElementById('editEvaluation').value.trim();
             const newPrescription = document.getElementById('editPrescription').value.trim();
+
+            // Randevu alanları (varsa)
+            const editApptDate = document.getElementById('editAppointmentDate');
+            const editApptTime = document.getElementById('editAppointmentTime');
+            const editApptLink = document.getElementById('editAppointmentLink');
+            const editApptNote = document.getElementById('editAppointmentNote');
+            const editApptStatus = document.getElementById('editAppointmentStatus');
+
             const btn = document.getElementById('saveBtn');
             btn.disabled = true; btn.textContent = 'Kaydediliyor...';
-            const { error } = await _supabase.from('applications').update({
-                status: newStatus, doctor_note: newNote || null, evaluation: newEvaluation || null,
-                prescription: newPrescription || null, prescription_date: newPrescription ? new Date().toISOString() : null
-            }).eq('id', currentApplication.id);
+
+            const updateData = {
+                status: newStatus,
+                doctor_note: newNote || null,
+                evaluation: newEvaluation || null,
+                prescription: newPrescription || null,
+                prescription_date: newPrescription ? new Date().toISOString() : null
+            };
+
+            // Randevu bilgisi varsa güncelle
+            if (editApptDate && editApptTime) {
+                const newDate = editApptDate.value;
+                const newTime = editApptTime.value;
+                const oldDate = currentApplication.appointment_date;
+                const oldTime = currentApplication.appointment_time;
+
+                updateData.appointment_date = newDate || null;
+                updateData.appointment_time = newTime || null;
+                updateData.appointment_link = editApptLink ? editApptLink.value.trim() || null : null;
+                updateData.appointment_note = editApptNote ? editApptNote.value.trim() || null : null;
+
+                // Durum: kullanıcı seçti mi?
+                let aptStatus = editApptStatus ? editApptStatus.value : currentApplication.appointment_status;
+
+                // Eğer tarih/saat değiştiyse ve durum hala pending ise, "changed" yap
+                if ((newDate !== oldDate || newTime !== oldTime) && aptStatus === 'pending') {
+                    aptStatus = 'changed';
+                }
+
+                updateData.appointment_status = aptStatus;
+            }
+
+            const { error } = await _supabase.from('applications').update(updateData).eq('id', currentApplication.id);
             if (error) { alert('❌ Hata: ' + error.message); btn.disabled = false; btn.textContent = 'Kaydet'; return; }
             await loadApplications(); closeModal();
             btn.disabled = false; btn.textContent = 'Kaydet';
