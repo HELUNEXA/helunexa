@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HELUNEXA - Giriş</title>
+<link rel="icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Arial, sans-serif; background: linear-gradient(135deg, #10b981 0%, #059669 100%); min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.box { background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 100%; max-width: 440px; }
+.logo-container { text-align: center; margin-bottom: 20px; }
+.logo-container img { height: 80px; width: auto; }
+h1 { text-align: center; font-size: 20px; color: #0f172a; margin-bottom: 8px; }
+.subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 25px; }
+
+/* Rol seçim ekranı */
+.role-grid { display: grid; gap: 12px; }
+.role-btn { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: left; width: 100%; font-family: inherit; font-size: 15px; color: #0f172a; }
+.role-btn:hover { border-color: #10b981; background: #f0fdf4; transform: translateY(-2px); }
+.role-btn .icon { font-size: 24px; }
+.role-btn .label { font-weight: bold; }
+.role-btn .desc { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+/* Giriş formu */
+#formScreen { display: none; }
+#formScreen.active { display: block; }
+#roleScreen.hidden { display: none; }
+
+.back-btn { background: none; border: none; color: #64748b; font-size: 14px; cursor: pointer; padding: 8px 0; margin-bottom: 15px; font-weight: bold; }
+.back-btn:hover { color: #10b981; }
+
+.selected-role { display: flex; align-items: center; gap: 10px; padding: 12px 15px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 8px; margin-bottom: 20px; }
+.selected-role .icon { font-size: 22px; }
+.selected-role .text { font-weight: bold; color: #065f46; }
+
+.form-group { margin-bottom: 15px; }
+label { display: block; font-size: 13px; color: #334155; font-weight: bold; margin-bottom: 6px; }
+input { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; -webkit-appearance: none; }
+input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+button[type="submit"] { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+button[type="submit"]:hover { background: #059669; }
+button[type="submit"]:disabled { background: #94a3b8; cursor: not-allowed; }
+.error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 12px; min-height: 18px; }
+.links { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
+.links a { color: #10b981; font-weight: bold; text-decoration: none; }
+
+@media (max-width: 480px) {
+    body { padding: 15px; align-items: flex-start; padding-top: 30px; }
+    .box { padding: 30px 20px; }
+    .logo-container img { height: 70px; }
+}
+</style>
+</head>
+<body class="notranslate">
+<div class="box">
+    <div class="logo-container">
+        <img src="logo.png" alt="HELUNEXA">
+    </div>
+
+    <!-- EKRAN 1: ROL SEÇİMİ -->
+    <div id="roleScreen">
+        <h1>Sisteme Giriş</h1>
+        <p class="subtitle">Giriş türünüzü seçin</p>
+
+        <div class="role-grid">
+            <button class="role-btn" onclick="selectRole('patient', '👤', 'Hasta')">
+                <span class="icon">👤</span>
+                <div>
+                    <div class="label">Hasta</div>
+                    <div class="desc">Başvurularımı görüntüle</div>
+                </div>
+            </button>
+
+            <button class="role-btn" onclick="selectRole('doctor', '🩺', 'Hekim')">
+                <span class="icon">🩺</span>
+                <div>
+                    <div class="label">Hekim</div>
+                    <div class="desc">Hasta değerlendirme paneli</div>
+                </div>
+            </button>
+
+            <button class="role-btn" onclick="selectRole('psychologist', '🧠', 'Psikolog')">
+                <span class="icon">🧠</span>
+                <div>
+                    <div class="label">Psikolog</div>
+                    <div class="desc">Psikolojik değerlendirme</div>
+                </div>
+            </button>
+
+            <button class="role-btn" onclick="selectRole('lab', '🔬', 'Laboratuvar')">
+                <span class="icon">🔬</span>
+                <div>
+                    <div class="label">Laboratuvar</div>
+                    <div class="desc">Sonuç yükleme paneli</div>
+                </div>
+            </button>
+
+            <button class="role-btn" onclick="selectRole('admin', '👑', 'Admin')">
+                <span class="icon">👑</span>
+                <div>
+                    <div class="label">Admin</div>
+                    <div class="desc">Yönetim paneli</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="links" style="margin-top:25px;">
+            Hesabınız yok mu? <a href="hasta-kayit.html">Kayıt Ol</a>
+        </div>
+    </div>
+
+    <!-- EKRAN 2: GİRİŞ FORMU -->
+    <div id="formScreen">
+        <button class="back-btn" onclick="backToRoles()">← Geri Dön</button>
+
+        <h1>Giriş Yap</h1>
+
+        <div class="selected-role">
+            <span class="icon" id="selectedIcon">👤</span>
+            <div>
+                <div style="font-size:12px; color:#065f46;">Giriş türü</div>
+                <div class="text" id="selectedLabel">Hasta</div>
+            </div>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">E-posta *</label>
+                <input type="email" id="email" placeholder="ornek@email.com" autocomplete="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Şifre *</label>
+                <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" id="loginBtn">Giriş Yap</button>
+        </form>
+
+        <div class="error" id="error"></div>
+    </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
+    global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+});
+
+let selectedRole = null;
+
+function selectRole(role, icon, label) {
+    selectedRole = role;
+    document.getElementById('selectedIcon').textContent = icon;
+    document.getElementById('selectedLabel').textContent = label;
+    document.getElementById('roleScreen').classList.add('hidden');
+    document.getElementById('formScreen').classList.add('active');
+    document.getElementById('email').focus();
+}
+
+function backToRoles() {
+    selectedRole = null;
+    document.getElementById('roleScreen').classList.remove('hidden');
+    document.getElementById('formScreen').classList.remove('active');
+    document.getElementById('error').textContent = '';
+    document.getElementById('loginForm').reset();
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
+    const err = document.getElementById('error');
+
+    err.textContent = '';
+    if (!email || !password) { err.textContent = '❌ E-posta ve şifre gerekli.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Giriş yapılıyor...';
+
+    try {
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            err.textContent = '❌ ' + error.message;
+            btn.disabled = false;
+            btn.textContent = 'Giriş Yap';
+            return;
+        }
+
+        if (selectedRole === 'patient') {
+            window.location.href = 'hasta-panel.html';
+            return;
+        }
+
+        const { data: roleData, error: roleErr } = await _supabase
+            .from('user_roles')
+            .select('role, specialty, display_name')
+            .eq('user_id', data.user.id)
+            .maybeSingle();
+
+        if (roleErr || !roleData) {
+            await _supabase.auth.signOut();
+            err.textContent = '❌ Bu panele erişim yetkiniz yok.';
+            btn.disabled = false;
+            btn.textContent = 'Giriş Yap';
+            return;
+        }
+
+        const roleMap = {
+            'admin': ['admin'],
+            'doctor': ['doctor'],
+            'psychologist': ['doctor'],
+            'lab': ['lab']
+        };
+        const expected = roleMap[selectedRole] || [];
+
+        if (!expected.includes(roleData.role)) {
+            await _supabase.auth.signOut();
+            err.textContent = '❌ Seçtiğiniz rolle bu hesap uyuşmuyor.';
+            btn.disabled = false;
+            btn.textContent = 'Giriş Yap';
+            return;
+        }
+
+        if (selectedRole === 'lab') {
+            window.location.href = 'lab.html';
+        } else {
+            window.location.href = 'admin.html';
+        }
+
+    } catch (ex) {
+        console.error(ex);
+        err.textContent = '❌ Bağlantı hatası: ' + ex.message;
+        btn.disabled = false;
+        btn.textContent = 'Giriş Yap';
+    }
+});
+</script>
+</body>
+</html>
