@@ -99,6 +99,7 @@
             <div class="form-group">
                 <label for="service_type">Hizmet Türü *</label>
                 <select id="service_type" required>
+
                     <option value="">Seçiniz</option>
                     <optgroup label="Temel Hizmetler">
                         <option value="Rutin Kontrol" data-price="500">Rutin Sağlık Kontrolü - 500 TL</option>
@@ -119,6 +120,32 @@
                         <option value="Evde Kronik Takip" data-price="2000">Evde Kronik Takip - 2.000 TL</option>
                     </optgroup>
                 </select>
+            </div>
+                        <!-- RANDEVU ALANI (sadece online hizmetler için) -->
+            <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
+                <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
+
+                <div class="form-group">
+                    <label for="appointmentDate">Randevu Tarihi *</label>
+                    <input type="date" id="appointmentDate" min="">
+                </div>
+
+                <div class="form-group">
+                    <label for="appointmentTime">Randevu Saati *</label>
+                    <select id="appointmentTime">
+                        <option value="">Tarih seçiniz...</option>
+                    </select>
+                    <div class="hint" id="timeHint" style="font-size:11px; color:#64748b; margin-top:5px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointmentNote">Randevu Notu</label>
+                    <textarea id="appointmentNote" rows="2" placeholder="Eklemek istediğiniz not..."></textarea>
+                </div>
+
+                <div style="background:#fff; padding:10px; border-radius:6px; font-size:12px; color:#065f46;">
+                    ℹ️ Psikolog randevunuzu onayladıktan sonra görüşme linki tarafınıza iletilecektir.
+                </div>
             </div>
             <div class="form-group">
                 <label for="test_status">Tahlil Durumu *</label>
@@ -259,7 +286,102 @@
             auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
+        // ============================================
+// RANDEVU SİSTEMİ
+// ============================================
 
+// Randevu gerektiren hizmetler
+const APPOINTMENT_SERVICES = [
+    'Psikolojik Destek',
+    'Longevity Takibi',
+    'Dijital Değerlendirme'
+];
+
+// Hizmet → Hekim UID eşleştirmesi
+const DOCTOR_UID_BY_SERVICE = {
+    'Psikolojik Destek': 'c5b92d85-569f-4bf8-8f1b-2b23c70b88bd',      // Can Akgül
+    'Longevity Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',        // Dr. Hasan
+    'Dijital Değerlendirme': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',   // Dr. Hasan
+};
+
+// Saat seçenekleri
+const ALL_TIME_SLOTS = [
+    '09:00', '10:00', '11:00', '12:00', '13:00',
+    '14:00', '15:00', '16:00', '17:00', '18:00'
+];
+
+// Hizmet türü değişince randevu alanını göster/gizle
+document.getElementById('service_type').addEventListener('change', function() {
+    const serviceType = this.value;
+    const appointmentBox = document.getElementById('appointmentBox');
+
+    if (APPOINTMENT_SERVICES.includes(serviceType)) {
+        appointmentBox.style.display = 'block';
+
+        // Tarih aralığı: bugün → +60 gün
+        const today = new Date().toISOString().split('T')[0];
+        const maxDate = new Date();
+        maxDate.setDate(maxDate.getDate() + 60);
+        const maxDateStr = maxDate.toISOString().split('T')[0];
+
+        const dateInput = document.getElementById('appointmentDate');
+        dateInput.min = today;
+        dateInput.max = maxDateStr;
+        dateInput.value = ''; // sıfırla
+        dateInput.onchange = loadAvailableTimes;
+    } else {
+        appointmentBox.style.display = 'none';
+        document.getElementById('appointmentDate').value = '';
+        document.getElementById('appointmentTime').innerHTML = '<option value="">Tarih seçiniz...</option>';
+        document.getElementById('appointmentNote').value = '';
+        document.getElementById('timeHint').textContent = '';
+    }
+});
+
+// Seçilen tarihte boş saatleri getir
+async function loadAvailableTimes() {
+    const date = document.getElementById('appointmentDate').value;
+    const serviceType = document.getElementById('service_type').value;
+    const timeSelect = document.getElementById('appointmentTime');
+    const hint = document.getElementById('timeHint');
+
+    if (!date) return;
+
+    timeSelect.innerHTML = '<option value="">Yükleniyor...</option>';
+    hint.textContent = '';
+
+    const doctorId = DOCTOR_UID_BY_SERVICE[serviceType];
+
+    try {
+        const { data, error } = await _supabase
+            .from('applications')
+            .select('appointment_time')
+            .eq('appointment_date', date)
+            .eq('appointment_doctor_id', doctorId)
+            .in('appointment_status', ['pending', 'confirmed']);
+
+        if (error) throw error;
+
+        const bookedTimes = (data || []).map(r => r.appointment_time);
+        const availableTimes = ALL_TIME_SLOTS.filter(t => !bookedTimes.includes(t));
+
+        if (availableTimes.length === 0) {
+            timeSelect.innerHTML = '<option value="">Bu tarihte boş saat yok</option>';
+            hint.textContent = '⚠️ Lütfen başka bir tarih seçin.';
+            return;
+        }
+
+        timeSelect.innerHTML = '<option value="">Saat seçiniz</option>' +
+            availableTimes.map(t => `<option value="${t}">${t}</option>`).join('');
+
+        hint.textContent = `✅ ${availableTimes.length} boş saat mevcut`;
+
+    } catch (err) {
+        console.error('Saat yükleme hatası:', err);
+        timeSelect.innerHTML = '<option value="">Hata oluştu</option>';
+        hint.textContent = '⚠️ Saatler yüklenemedi, tekrar deneyin.';
+    }
+}
         let currentUser = null;
         let pendingFormData = null;
         let pendingAmount = 0;
@@ -390,6 +512,9 @@
                     'Evde Kronik Takip': 'internal'
                 };
 
+                               // Randevu gerekiyor mu?
+                const needsAppointment = APPOINTMENT_SERVICES.includes(serviceType);
+
                 pendingFormData = {
                     user_id: currentUser.id,
                     specialty: specialtyMap[serviceType] || 'internal',
@@ -398,12 +523,18 @@
                     phone: document.getElementById('phone').value.trim(),
                     email: currentUser.email,
                     service_type: serviceType, test_status: testStatus,
-                    
                     test_location: testLocation || null,
                     test_file_url: fileUrl, test_file_name: fileName,
                     medical_history: document.getElementById('medical_history').value.trim() || null,
                     test_notes: document.getElementById('test_notes').value.trim() || null,
-                    kvkk_consent: true, status: 'paid'
+                    kvkk_consent: true, status: 'paid',
+                    // Randevu alanları
+                    appointment_date: needsAppointment ? document.getElementById('appointmentDate').value : null,
+                    appointment_time: needsAppointment ? document.getElementById('appointmentTime').value : null,
+                    appointment_note: needsAppointment ? document.getElementById('appointmentNote').value.trim() || null : null,
+                    appointment_type: needsAppointment ? 'online' : null,
+                    appointment_status: needsAppointment ? 'pending' : null,
+                    appointment_doctor_id: needsAppointment ? DOCTOR_UID_BY_SERVICE[serviceType] : null
                 };
 
                 if (isHomeService) {
