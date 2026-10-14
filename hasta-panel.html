@@ -127,7 +127,7 @@
                 document.getElementById('userEmail').textContent = session.user.email;
                 loadApplications(session.user.email);
             } else {
-                window.location.href = 'hasta-giris.html';
+                window.location.href = 'giris.html';
             }
         }
 
@@ -234,7 +234,7 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await _supabase.auth.signOut();
-            window.location.href = 'hasta-giris.html';
+            window.location.href = 'giris.html';
         });
 
         checkSession();

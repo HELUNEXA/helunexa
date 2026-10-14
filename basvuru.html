@@ -276,7 +276,7 @@
                 currentUser = session.user;
                 document.getElementById('userEmail').textContent = session.user.email;
             } else {
-                window.location.href = 'hasta-giris.html';
+                window.location.href = 'giris.html';
             }
         }
 
@@ -340,7 +340,7 @@
         document.getElementById('healthForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!document.getElementById('kvkk_consent').checked) { showMessage('❌ KVKK onay kutusunu işaretlemeniz gerekiyor.', 'error'); return; }
-            if (!currentUser) { showMessage('❌ Oturum bulunamadı.', 'error'); setTimeout(() => window.location.href = 'hasta-giris.html', 2000); return; }
+            if (!currentUser) { showMessage('❌ Oturum bulunamadı.', 'error'); setTimeout(() => window.location.href = 'giris.html', 2000); return; }
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true; submitBtn.textContent = 'Hazırlanıyor...';

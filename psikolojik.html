@@ -177,7 +177,7 @@ async function checkSession() {
             document.getElementById('userEmail').textContent = session.user.email;
             loadSaved();
         } else {
-            window.location.href = 'hasta-giris.html';
+            window.location.href = 'giris.html';
         }
     } catch(e) { console.warn(e); }
 }
@@ -459,7 +459,7 @@ async function loadSaved() {
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     await _supabase.auth.signOut();
-    window.location.href = 'hasta-giris.html';
+    window.location.href = 'giris.html';
 });
 
 checkSession();
