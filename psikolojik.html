@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HELUNEXA - Psikolojik Destek Paneli</title>
+<link rel="icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Arial, sans-serif; background: #f1f5f9; color: #0f172a; }
+.header { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+.header-title { font-size: 18px; font-weight: bold; color: #3b82f6; }
+.user-info { font-size: 13px; color: #64748b; }
+.logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 30px; }
+.tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
+.tab-btn { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 14px; font-weight: bold; color: #64748b; white-space: nowrap; }
+.tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.card h2 { font-size: 20px; margin-bottom: 15px; }
+.card h3 { font-size: 16px; margin-bottom: 12px; }
+.card p { color: #64748b; font-size: 14px; margin-bottom: 10px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 25px; }
+.stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.stat-card .num { font-size: 26px; font-weight: bold; color: #3b82f6; }
+.stat-card .label { font-size: 13px; color: #64748b; margin-top: 5px; }
+.btn { padding: 12px 24px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+.btn-primary { background: #3b82f6; color: white; }
+.btn-primary:hover { background: #2563eb; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.badge.minimal { background: #d1fae5; color: #065f46; }
+.badge.mild { background: #fef3c7; color: #92400e; }
+.badge.moderate { background: #fed7aa; color: #9a3412; }
+.badge.severe { background: #fee2e2; color: #991b1b; }
+.score-box { background: linear-gradient(135deg,#3b82f6 0%,#2563eb 100%); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+.score-box h3 { color: white; font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.score-box .score { font-size: 56px; font-weight: bold; margin: 15px 0; }
+.score-box .info { font-size: 14px; opacity: 0.9; }
+.info-box { padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+.info-box.blue { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; }
+.info-box.green { background: #f0fdf4; border-left: 4px solid #10b981; color: #065f46; }
+.info-box.yellow { background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; }
+.info-box.red { background: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; }
+.question-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #3b82f6; }
+.question-box .question { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #0f172a; }
+.options { display: flex; gap: 8px; flex-wrap: wrap; }
+.options label { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: white; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.options label:hover { border-color: #3b82f6; }
+.test-card { background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.test-card h3 { font-size: 18px; margin-bottom: 10px; }
+.test-card p { color: #64748b; font-size: 14px; margin-bottom: 15px; }
+.table-container { background: white; border-radius: 10px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 14px 15px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+@media (max-width: 768px) { .container { padding: 15px; } .score-box .score { font-size: 42px; } .options { flex-direction: column; } }
+</style>
+</head>
+<body class="notranslate">
+
+<div class="header">
+    <span class="header-title">🧠 Psikolojik Destek Paneli</span>
+    <div>
+        <span id="userEmail" class="user-info"></span>
+        <button class="logout-btn" id="logoutBtn" style="margin-left:10px;">Çıkış</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="overview">📊 Genel Bakış</button>
+        <button class="tab-btn" data-tab="tests">📝 Testler</button>
+        <button class="tab-btn" data-tab="results">📈 Sonuçlarım</button>
+        <button class="tab-btn" data-tab="support">💬 Destek</button>
+    </div>
+
+    <!-- GENEL BAKIŞ -->
+    <div class="tab-content active" id="tab-overview">
+        <div class="stats">
+            <div class="stat-card"><div class="num" id="statAnxiety">-</div><div class="label">Anksiyete (GAD-7)</div></div>
+            <div class="stat-card"><div class="num" id="statDepression">-</div><div class="label">Depresyon (PHQ-9)</div></div>
+            <div class="stat-card"><div class="num" id="statStress">-</div><div class="label">Stres (PSS-10)</div></div>
+            <div class="stat-card"><div class="num" id="statWellbeing">-</div><div class="label">İyi Oluş (WHO-5)</div></div>
+        </div>
+
+        <div class="score-box">
+            <h3>🧠 Bileşik Ruhsal Sağlık Skoru</h3>
+            <div class="score" id="compositeScore">-</div>
+            <div class="info" id="compositeInfo">4 testi tamamladığınızda skorunuz görünür</div>
+        </div>
+
+        <div class="info-box blue">
+            <strong>ℹ️ Bileşik Skor Nasıl Hesaplanır?</strong>
+            Her test 0-100 aralığına normalize edilir, ardından ağırlıklı ortalama alınır: GAD-7 (%25) + PHQ-9 (%30) + PSS-10 (%20) + WHO-5 (%25 ters).
+        </div>
+
+        <div id="overviewAlerts"></div>
+    </div>
+
+    <!-- TESTLER -->
+    <div class="tab-content" id="tab-tests">
+        <div class="card"><h2>📝 Psikolojik Testler</h2><p>Standart, geçerliliği kanıtlanmış ölçekler.</p></div>
+
+        <!-- GAD-7 -->
+        <div class="test-card">
+            <h3>1. GAD-7 — Yaygın Anksiyete (Spitzer 2006)</h3>
+            <p>Son 2 hafta içinde ne sıklıkla rahatsız oldunuz?</p>
+            <div id="gad7Questions"></div>
+            <button class="btn btn-primary" onclick="calculateGAD7()">GAD-7 Hesapla</button>
+        </div>
+
+        <!-- PHQ-9 -->
+        <div class="test-card">
+            <h3>2. PHQ-9 — Depresyon (Kroenke 2001)</h3>
+            <p>Son 2 hafta içinde ne sıklıkla rahatsız oldunuz?</p>
+            <div id="phq9Questions"></div>
+            <button class="btn btn-primary" onclick="calculatePHQ9()">PHQ-9 Hesapla</button>
+        </div>
+
+        <!-- PSS-10 (TAM 10 SORU) -->
+        <div class="test-card">
+            <h3>3. PSS-10 — Algılanan Stres (Cohen 1983)</h3>
+            <p>Son 1 ay içinde bu durumları ne sıklıkla yaşadınız?</p>
+            <div id="pss10Questions"></div>
+            <button class="btn btn-primary" onclick="calculatePSS10()">PSS-10 Hesapla</button>
+        </div>
+
+        <!-- WHO-5 -->
+        <div class="test-card">
+            <h3>4. WHO-5 — İyi Oluş Hali (1998)</h3>
+            <p>Son 2 hafta içinde kendinizi nasıl hissettiniz?</p>
+            <div id="who5Questions"></div>
+            <button class="btn btn-primary" onclick="calculateWHO5()">WHO-5 Hesapla</button>
+        </div>
+    </div>
+
+    <!-- SONUÇLAR -->
+    <div class="tab-content" id="tab-results">
+        <div class="card"><h2>📈 Test Sonuçlarım</h2></div>
+        <div class="table-container"><div id="resultsTable"><div style="padding:40px;text-align:center;color:#94a3b8;">Henüz test sonucunuz yok.</div></div></div>
+    </div>
+
+    <!-- DESTEK -->
+    <div class="tab-content" id="tab-support">
+        <div class="card">
+            <h2>💬 Destek ve Yönlendirme</h2>
+            <div class="info-box green"><strong>🟢 Minimal:</strong> Belirti yok.</div>
+            <div class="info-box yellow"><strong>🟡 Hafif:</strong> Psikolog görüşmesi önerilir.</div>
+            <div class="info-box yellow"><strong>🟠 Orta:</strong> Psikolog takibi gerekir.</div>
+            <div class="info-box red"><strong>🔴 Şiddetli:</strong> Psikiyatr yönlendirmesi gerekir.</div>
+            <div class="info-box red" style="margin-top:20px;"><strong>📞 Acil:</strong> Kendinize zarar verme düşüncesi varsa hemen 112'yi arayın.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
+    global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+});
+
+let currentUser = null;
+let testResults = {};
+
+async function checkSession() {
+    try {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            document.getElementById('userEmail').textContent = session.user.email;
+            loadSaved();
+        } else {
+            window.location.href = 'hasta-giris.html';
+        }
+    } catch(e) { console.warn(e); }
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const t = document.getElementById('tab-' + btn.dataset.tab);
+        if (t) t.classList.add('active');
+    });
+});
+
+// SORU TANIMLARI
+const GAD7_QS = [
+    'Kendinizi sinirli, endişeli veya gergin hissetme',
+    'Endişeyi durduramama veya kontrol edememe',
+    'Çok fazla endişelenme',
+    'Rahatlamada zorluk',
+    'Yerinde duramayacak kadar huzursuz olma',
+    'Kolayca kızma veya sinirlenme',
+    'Kötü bir şey olacak korkusu'
+];
+const LIKERT_4 = ['Hiç', 'Birkaç gün', 'Yarıdan fazla', 'Neredeyse her gün'];
+
+const PHQ9_QS = [
+    'Yaptığınız işlerden zevk almama',
+    'Kendinizi üzgün, çökkün veya umutsuz hissetme',
+    'Uykuya dalma veya uykuyu sürdürmede zorluk',
+    'Yorgunluk veya enerji azlığı',
+    'İştah azalması veya aşırı yeme',
+    'Kendinizi kötü hissetme, başarısız olduğunuzu düşünme',
+    'Konsantrasyon zorluğu',
+    'Yavaş hareket etme veya huzursuz olma',
+    'Ölüm veya kendine zarar verme düşüncesi'
+];
+
+const PSS10_QS = [
+    'Beklenmedik bir olay nedeniyle üzülme',
+    'Hayatındaki önemli şeyleri kontrol edememe',
+    'Sinirli ve gergin hissetme',
+    'Hayatındaki zorluklarla başa çıkabilme',       // ters
+    'Hayatında işlerin yolunda gittiğini hissetme',   // ters
+    'İstediğin şeyleri yapamama',
+    'Günlük hayattaki sinir bozucu şeylerle başa çıkabilme', // ters
+    'Her şeyin üstesinden geldiğini hissetme',        // ters
+    'Kontrol edemediğin şeyler için sinirlenme',
+    'Zorlukların üstesinden gelemeyecek kadar yığılma'
+];
+const PSS_OPTIONS = ['Hiç', 'Nadiren', 'Bazen', 'Sıklıkla', 'Çok sık'];
+const PSS_REVERSE = [3, 4, 6, 7]; // 0-indexli ters puanlanan sorular
+
+const WHO5_QS = [
+    'Kendimi neşeli ve iyi hissediyorum',
+    'Kendimi sakin ve rahat hissediyorum',
+    'Kendimi aktif ve enerjik hissediyorum',
+    'Sabahları dinlenmiş uyanıyorum',
+    'Günlük hayatım ilgi çekici şeylerle dolu'
+];
+const WHO_OPTIONS = ['Hiçbir zaman', 'Nadiren', 'Bazen', 'Sıklıkla', 'Her zaman', 'Sürekli'];
+
+// HTML OLUŞTUR
+function buildQuestions(containerId, questions, prefix, options) {
+    const c = document.getElementById(containerId);
+    c.innerHTML = questions.map((q, i) => `
+        <div class="question-box">
+            <div class="question">${i+1}. ${q}</div>
+            <div class="options">
+                ${options.map((opt, j) => `
+                    <label><input type="radio" name="${prefix}${i+1}" value="${j}"> ${opt}</label>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+buildQuestions('gad7Questions', GAD7_QS, 'gad', LIKERT_4);
+buildQuestions('phq9Questions', PHQ9_QS, 'phq', LIKERT_4);
+buildQuestions('pss10Questions', PSS10_QS, 'pss', PSS_OPTIONS);
+buildQuestions('who5Questions', WHO5_QS, 'who', WHO_OPTIONS);
+
+// HESAPLAMA
+function sumScores(prefix, count) {
+    let total = 0;
+    for (let i = 1; i <= count; i++) {
+        const el = document.querySelector(`input[name="${prefix}${i}"]:checked`);
+        if (!el) { alert('❌ Lütfen ' + i + '. soruyu yanıtlayın.'); return null; }
+        total += parseInt(el.value);
+    }
+    return total;
+}
+
+function getLevelGAD(score) {
+    if (score <= 4) return { level: 'Minimal', cls: 'minimal' };
+    if (score <= 9) return { level: 'Hafif', cls: 'mild' };
+    if (score <= 14) return { level: 'Orta', cls: 'moderate' };
+    return { level: 'Şiddetli', cls: 'severe' };
+}
+function getLevelPHQ(score) {
+    if (score <= 4) return { level: 'Minimal', cls: 'minimal' };
+    if (score <= 9) return { level: 'Hafif', cls: 'mild' };
+    if (score <= 14) return { level: 'Orta', cls: 'moderate' };
+    if (score <= 19) return { level: 'Orta-Şiddetli', cls: 'moderate' };
+    return { level: 'Şiddetli', cls: 'severe' };
+}
+function getLevelPSS(score) {
+    if (score <= 13) return { level: 'Düşük Stres', cls: 'minimal' };
+    if (score <= 26) return { level: 'Orta Stres', cls: 'mild' };
+    return { level: 'Yüksek Stres', cls: 'moderate' };
+}
+function getLevelWHO(pct) {
+    if (pct >= 68) return { level: 'İyi', cls: 'minimal' };
+    if (pct >= 50) return { level: 'Orta', cls: 'mild' };
+    if (pct >= 28) return { level: 'Düşük', cls: 'moderate' };
+    return { level: 'Çok Düşük', cls: 'severe' };
+}
+
+function calculateGAD7() {
+    const score = sumScores('gad', 7);
+    if (score === null) return;
+    const lvl = getLevelGAD(score);
+    document.getElementById('statAnxiety').textContent = score + '/21';
+    testResults.anxiety = { score, max: 21, ...lvl };
+    saveResults();
+    alert(`GAD-7: ${score}/21 — ${lvl.level}`);
+}
+
+function calculatePHQ9() {
+    const score = sumScores('phq', 9);
+    if (score === null) return;
+    const lvl = getLevelPHQ(score);
+    document.getElementById('statDepression').textContent = score + '/27';
+
+    // İntihar riski kontrolü (9. soru ≥1)
+    const q9 = document.querySelector('input[name="phq9"]:checked');
+    const suicidal = q9 && parseInt(q9.value) >= 1;
+
+    testResults.depression = { score, max: 27, ...lvl, suicidal };
+    saveResults();
+    alert(`PHQ-9: ${score}/27 — ${lvl.level}${suicidal ? '\n\n🚨 UYARI: 9. soruya verdiğiniz yanıt nedeniyle lütfen en kısa sürede bir uzmana başvurun. Acil durumda 112.' : ''}`);
+}
+
+function calculatePSS10() {
+    let total = 0;
+    for (let i = 1; i <= 10; i++) {
+        const el = document.querySelector(`input[name="pss${i}"]:checked`);
+        if (!el) { alert('❌ Lütfen ' + i + '. soruyu yanıtlayın.'); return; }
+        let v = parseInt(el.value);
+        if (PSS_REVERSE.includes(i - 1)) v = 4 - v; // ters puanla
+        total += v;
+    }
+    const lvl = getLevelPSS(total);
+    document.getElementById('statStress').textContent = total + '/40';
+    testResults.stress = { score: total, max: 40, ...lvl };
+    saveResults();
+    alert(`PSS-10: ${total}/40 — ${lvl.level}`);
+}
+
+function calculateWHO5() {
+    const raw = sumScores('who', 5);
+    if (raw === null) return;
+    const pct = raw * 4;
+    const lvl = getLevelWHO(pct);
+    document.getElementById('statWellbeing').textContent = pct + '%';
+    testResults.wellbeing = { score: raw, max: 25, percentage: pct, ...lvl };
+    saveResults();
+    alert(`WHO-5: ${pct}% — ${lvl.level}`);
+}
+
+function computeComposite() {
+    const tr = testResults;
+    if (!tr.anxiety || !tr.depression || !tr.stress || !tr.wellbeing) return null;
+
+    // Her testi 0-100 normalize et (yüksek = sağlıklı)
+    const gadNorm = 100 - (tr.anxiety.score / tr.anxiety.max) * 100;
+    const phqNorm = 100 - (tr.depression.score / tr.depression.max) * 100;
+    const pssNorm = 100 - (tr.stress.score / tr.stress.max) * 100;
+    const whoNorm = tr.wellbeing.percentage;
+
+    const composite = Math.round(gadNorm * 0.25 + phqNorm * 0.30 + pssNorm * 0.20 + whoNorm * 0.25);
+    return Math.round(Math.max(0, Math.min(100, composite)));
+}
+
+function saveResults() {
+    localStorage.setItem('psych_test_results_' + (currentUser?.email || 'guest'), JSON.stringify(testResults));
+    renderResults();
+    renderOverview();
+    saveToSupabase();
+}
+
+async function saveToSupabase() {
+    if (!currentUser) return;
+    const composite = computeComposite();
+    let riskFlag = 'normal';
+    if (testResults.depression?.suicidal) riskFlag = 'suicidal_ideation';
+    else if (testResults.depression?.cls === 'severe' || testResults.anxiety?.cls === 'severe') riskFlag = 'severe';
+    else if (testResults.depression?.cls === 'moderate' || testResults.anxiety?.cls === 'moderate') riskFlag = 'moderate';
+
+    try {
+        await _supabase.from('psych_results').insert({
+            user_id: currentUser.id,
+            email: currentUser.email,
+            gad7: testResults.anxiety?.score ?? null,
+            phq9: testResults.depression?.score ?? null,
+            pss10: testResults.stress?.score ?? null,
+            who5: testResults.wellbeing?.percentage ?? null,
+            composite_score: composite,
+            risk_flag: riskFlag,
+            details: testResults
+        });
+    } catch(e) { console.warn('Kayıt hatası:', e); }
+}
+
+function renderOverview() {
+    const comp = computeComposite();
+    const scoreEl = document.getElementById('compositeScore');
+    const infoEl = document.getElementById('compositeInfo');
+    const alertEl = document.getElementById('overviewAlerts');
+
+    if (comp === null) {
+        scoreEl.textContent = '-';
+        infoEl.textContent = '4 testi tamamladığınızda skorunuz görünür';
+        alertEl.innerHTML = '';
+        return;
+    }
+    scoreEl.textContent = comp + '/100';
+    let msg = '';
+    if (comp >= 80) msg = '🌟 Ruhsal sağlığınız çok iyi.';
+    else if (comp >= 60) msg = '👍 İyi durumdasınız.';
+    else if (comp >= 40) msg = '⚠️ Orta seviye. Destek almanız faydalı olabilir.';
+    else msg = '🚨 Düşük skor. Bir uzmandan destek almanızı öneririz.';
+    infoEl.textContent = msg;
+
+    let alerts = '';
+    if (testResults.depression?.suicidal) {
+        alerts += '<div class="info-box red"><strong>🚨 ACİL:</strong> İntihar düşüncesi tespit edildi. Lütfen hemen 112 veya bir uzmana başvurun.</div>';
+    }
+    if (testResults.anxiety?.cls === 'severe') {
+        alerts += '<div class="info-box red"><strong>⚠️ Şiddetli anksiyete:</strong> Psikiyatr yönlendirmesi gerekir.</div>';
+    }
+    if (testResults.depression?.cls === 'severe') {
+        alerts += '<div class="info-box red"><strong>⚠️ Şiddetli depresyon:</strong> Psikiyatr yönlendirmesi gerekir.</div>';
+    }
+    alertEl.innerHTML = alerts;
+}
+
+function renderResults() {
+    const table = document.getElementById('resultsTable');
+    const keys = Object.keys(testResults);
+    if (keys.length === 0) {
+        table.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8;">Henüz test sonucunuz yok.</div>';
+        return;
+    }
+    const names = { anxiety: 'GAD-7 (Anksiyete)', depression: 'PHQ-9 (Depresyon)', stress: 'PSS-10 (Stres)', wellbeing: 'WHO-5 (İyi Oluş)' };
+    let html = '<table><thead><tr><th>Test</th><th>Puan</th><th>Seviye</th></tr></thead><tbody>';
+    keys.forEach(k => {
+        const r = testResults[k];
+        const disp = r.percentage !== undefined ? r.percentage + '%' : r.score + '/' + r.max;
+        html += `<tr><td><strong>${names[k]}</strong></td><td>${disp}</td><td><span class="badge ${r.cls}">${r.level}</span></td></tr>`;
+    });
+    html += '</tbody></table>';
+    table.innerHTML = html;
+}
+
+async function loadSaved() {
+    const local = localStorage.getItem('psych_test_results_' + (currentUser?.email || 'guest'));
+    if (local) {
+        try { testResults = JSON.parse(local); } catch(e) {}
+        // Kartları doldur
+        if (testResults.anxiety) document.getElementById('statAnxiety').textContent = testResults.anxiety.score + '/21';
+        if (testResults.depression) document.getElementById('statDepression').textContent = testResults.depression.score + '/27';
+        if (testResults.stress) document.getElementById('statStress').textContent = testResults.stress.score + '/40';
+        if (testResults.wellbeing) document.getElementById('statWellbeing').textContent = testResults.wellbeing.percentage + '%';
+        renderResults();
+        renderOverview();
+    }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await _supabase.auth.signOut();
+    window.location.href = 'hasta-giris.html';
+});
+
+checkSession();
+</script>
+</body>
+</html>

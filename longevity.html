@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HELUNEXA - Longevity Paneli</title>
+<link rel="icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Arial, sans-serif; background: #f1f5f9; color: #0f172a; }
+.header { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 15px; }
+.header-title { font-size: 18px; font-weight: bold; color: #8b5cf6; }
+.user-info { font-size: 13px; color: #64748b; }
+.logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 30px; }
+.tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; overflow-x: auto; }
+.tab-btn { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 14px; font-weight: bold; color: #64748b; white-space: nowrap; }
+.tab-btn.active { color: #8b5cf6; border-bottom-color: #8b5cf6; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.card h2 { font-size: 20px; margin-bottom: 15px; }
+.card h3 { font-size: 16px; margin-bottom: 12px; }
+.card p { color: #64748b; font-size: 14px; margin-bottom: 10px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 25px; }
+.stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.stat-card .num { font-size: 26px; font-weight: bold; color: #8b5cf6; }
+.stat-card .label { font-size: 13px; color: #64748b; margin-top: 5px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; font-size: 14px; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+.form-group .hint { font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: normal; }
+.btn { padding: 12px 24px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+.btn-primary { background: #8b5cf6; color: white; }
+.btn-primary:hover { background: #7c3aed; }
+.bio-age-box { background: linear-gradient(135deg,#8b5cf6 0%,#6d28d9 100%); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+.bio-age-box h3 { color: white; font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+.bio-age-box .age { font-size: 56px; font-weight: bold; margin: 15px 0; }
+.bio-age-box .info { font-size: 14px; opacity: 0.9; }
+.info-box { padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+.info-box.purple { background: #f3e8ff; border-left: 4px solid #8b5cf6; color: #6b21a8; }
+.info-box.green { background: #f0fdf4; border-left: 4px solid #10b981; color: #065f46; }
+.info-box.blue { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; }
+.info-box.yellow { background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; }
+.info-box.red { background: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; }
+.test-category { margin-bottom: 25px; }
+.test-category h3 { font-size: 16px; color: #8b5cf6; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e9d5ff; }
+.table-container { background: white; border-radius: 10px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8fafc; padding: 14px 15px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid #e2e8f0; }
+td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.badge.normal { background: #d1fae5; color: #065f46; }
+.badge.high { background: #fee2e2; color: #991b1b; }
+.badge.low { background: #fef3c7; color: #92400e; }
+.badge.optimal { background: #dbeafe; color: #1e40af; }
+.age-form { background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 4px solid #8b5cf6; margin-bottom: 20px; }
+.age-form h3 { color: #8b5cf6; margin-bottom: 15px; }
+.age-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+@media (max-width: 600px) { .age-form-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .container { padding: 15px; } .bio-age-box .age { font-size: 42px; } }
+.bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.bar > div { height: 100%; background: linear-gradient(90deg,#8b5cf6,#6d28d9); transition: width .4s; }
+</style>
+</head>
+<body class="notranslate">
+
+<div class="header">
+    <div class="header-left">
+        <span class="header-title">🧬 Longevity Paneli</span>
+    </div>
+    <div>
+        <span id="userEmail" class="user-info"></span>
+        <button class="logout-btn" id="logoutBtn" style="margin-left:10px;">Çıkış</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="overview">📊 Genel Bakış</button>
+        <button class="tab-btn" data-tab="calculator">🧮 Biyolojik Yaş Hesapla</button>
+        <button class="tab-btn" data-tab="tests">🔬 Testlerim</button>
+        <button class="tab-btn" data-tab="lifestyle">🥗 Yaşam Tarzı</button>
+        <button class="tab-btn" data-tab="followup">📅 Takip</button>
+    </div>
+
+    <!-- GENEL BAKIŞ -->
+    <div class="tab-content active" id="tab-overview">
+        <div class="stats">
+            <div class="stat-card"><div class="num" id="statBioAge">-</div><div class="label">Biyolojik Yaş</div></div>
+            <div class="stat-card"><div class="num" id="statChronoAge">-</div><div class="label">Kronolojik Yaş</div></div>
+            <div class="stat-card"><div class="num" id="statScore">-</div><div class="label">Longevity Skoru</div></div>
+            <div class="stat-card"><div class="num" id="statFollowup">-</div><div class="label">Sonraki Takip</div></div>
+        </div>
+
+        <div class="bio-age-box">
+            <h3>🧬 Biyolojik Yaşınız</h3>
+            <div class="age" id="bioAgeDisplay">-</div>
+            <div class="info" id="bioAgeInfo">Hesaplama için "Biyolojik Yaş Hesapla" sekmesine gidin</div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Skor Dağılımı</h3>
+            <p style="font-size:13px;">Yaşam tarzı ve laboratuvar verilerinin toplam skora katkısı</p>
+            <div style="margin-top:15px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:bold;color:#475569;">
+                    <span>Yaşam Tarzı (%40)</span><span id="lifestylePct">-</span>
+                </div>
+                <div class="bar"><div id="lifestyleBar" style="width:0%"></div></div>
+            </div>
+            <div style="margin-top:15px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:bold;color:#475569;">
+                    <span>Laboratuvar / Biyobelirteç (%60)</span><span id="labPct">-</span>
+                </div>
+                <div class="bar"><div id="labBar" style="width:0%"></div></div>
+            </div>
+        </div>
+
+        <div class="info-box purple">
+            <strong>ℹ️ PhenoAge Nedir?</strong>
+            PhenoAge (Levine 2018), 9 klinik biyobelirteç (albümin, kreatinin, glukoz, CRP, lenfosit %, MCV, RDW, ALP, WBC) ile biyolojik yaş tahmini yapan bilimsel bir modeldir. Bu panelde bu modele yaklaşan, elimizdeki verilerle (CRP, HbA1c, glukoz, D vit, omega-3, homosistein, HOMA-IR) hesaplanan bir yaklaşım kullanılır.
+        </div>
+
+        <div class="card">
+            <h3>📋 Size Özel Öneriler</h3>
+            <div id="recommendations">
+                <div class="info-box yellow"><strong>⚠️ Henüz hesaplama yapılmadı.</strong> "Biyolojik Yaş Hesapla" sekmesinden formu doldurun.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HESAPLA -->
+    <div class="tab-content" id="tab-calculator">
+        <div class="card">
+            <h2>🧮 PhenoAge Benzeri Biyolojik Yaş</h2>
+            <p>Formül: <strong>Biyolojik Yaş = Kronolojik Yaş + (Lab Skoru × 0.6 + Anket Skoru × 0.4 - 50) / 6</strong></p>
+            <p style="font-size:12px;">Skor 50'nin üzerindeyse daha gençsiniz; altındaysa daha yaşlı.</p>
+        </div>
+
+        <div class="age-form">
+            <h3>📝 Kişisel Bilgiler</h3>
+            <div class="age-form-grid">
+                <div class="form-group">
+                    <label>Kronolojik Yaşınız *</label>
+                    <input type="number" id="chronoAge" min="18" max="100" placeholder="Örn: 38">
+                </div>
+                <div class="form-group">
+                    <label>Cinsiyet *</label>
+                    <select id="gender">
+                        <option value="">Seçiniz</option>
+                        <option value="male">Erkek</option>
+                        <option value="female">Kadın</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="age-form">
+            <h3>🧪 Laboratuvar Değerleri (PhenoAge benzeri)</h3>
+            <p style="font-size:12px;color:#64748b;margin-bottom:15px;">Bilmiyorsanız boş bırakın — sadece anket skoru kullanılır.</p>
+
+            <div class="age-form-grid">
+                <div class="form-group">
+                    <label>CRP (mg/L)</label>
+                    <input type="number" id="labCRP" step="0.1" placeholder="Örn: 1.2">
+                    <div class="hint">İdeal: &lt; 1.0</div>
+                </div>
+                <div class="form-group">
+                    <label>Açlık Glukoz (mg/dL)</label>
+                    <input type="number" id="labGlucose" placeholder="Örn: 92">
+                    <div class="hint">İdeal: 70-99</div>
+                </div>
+                <div class="form-group">
+                    <label>HbA1c (%)</label>
+                    <input type="number" id="labHbA1c" step="0.1" placeholder="Örn: 5.4">
+                    <div class="hint">İdeal: &lt; 5.7</div>
+                </div>
+                <div class="form-group">
+                    <label>Homosistein (µmol/L)</label>
+                    <input type="number" id="labHomo" step="0.1" placeholder="Örn: 9.5">
+                    <div class="hint">İdeal: &lt; 10</div>
+                </div>
+                <div class="form-group">
+                    <label>Vitamin D (ng/mL)</label>
+                    <input type="number" id="labVitD" step="0.1" placeholder="Örn: 22">
+                    <div class="hint">İdeal: 40-60</div>
+                </div>
+                <div class="form-group">
+                    <label>Omega-3 Index (%)</label>
+                    <input type="number" id="labOmega" step="0.1" placeholder="Örn: 6.8">
+                    <div class="hint">İdeal: &gt; 8</div>
+                </div>
+                <div class="form-group">
+                    <label>HOMA-IR</label>
+                    <input type="number" id="labHOMA" step="0.1" placeholder="Örn: 1.9">
+                    <div class="hint">İdeal: &lt; 2.0</div>
+                </div>
+                <div class="form-group">
+                    <label>Albümin (g/dL)</label>
+                    <input type="number" id="labAlbumin" step="0.1" placeholder="Örn: 4.5">
+                    <div class="hint">İdeal: 4.0-5.5 (PhenoAge)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="age-form">
+            <h3>💚 Yaşam Tarzı Soruları</h3>
+
+            <div class="form-group">
+                <label>1. Haftada kaç gün egzersiz yapıyorsunuz?</label>
+                <select id="q1"><option value="0">Hiç yapmıyorum</option><option value="1">1-2 gün</option><option value="2">3-4 gün</option><option value="3">5+ gün</option></select>
+            </div>
+            <div class="form-group">
+                <label>2. Günde kaç saat uyuyorsunuz?</label>
+                <select id="q2"><option value="0">5 saatten az</option><option value="1">5-6 saat</option><option value="2">7-8 saat</option><option value="3">8+ saat</option></select>
+            </div>
+            <div class="form-group">
+                <label>3. Sigara kullanıyor musunuz?</label>
+                <select id="q3"><option value="0">Evet, düzenli</option><option value="1">Ara sıra</option><option value="2">Bıraktım</option><option value="3">Hiç kullanmadım</option></select>
+            </div>
+            <div class="form-group">
+                <label>4. Alkol tüketiminiz?</label>
+                <select id="q4"><option value="0">Haftada 4+ kez</option><option value="1">Haftada 2-3 kez</option><option value="2">Haftada 1 kez</option><option value="3">Hiç / nadiren</option></select>
+            </div>
+            <div class="form-group">
+                <label>5. Günlük stres seviyeniz?</label>
+                <select id="q5"><option value="0">Çok yüksek</option><option value="1">Yüksek</option><option value="2">Orta</option><option value="3">Düşük</option></select>
+            </div>
+            <div class="form-group">
+                <label>6. Beslenme düzeniniz?</label>
+                <select id="q6"><option value="0">Fast food ağırlıklı</option><option value="1">Karışık</option><option value="2">Sağlıklı, ev yapımı</option><option value="3">Akdeniz tipi / anti-enflamatuar</option></select>
+            </div>
+            <div class="form-group">
+                <label>7. Günlük su tüketiminiz?</label>
+                <select id="q7"><option value="0">1 litreden az</option><option value="1">1-1.5 litre</option><option value="2">1.5-2 litre</option><option value="3">2+ litre</option></select>
+            </div>
+            <div class="form-group">
+                <label>8. Vücut kitle indeksiniz (BMI)?</label>
+                <select id="q8"><option value="0">30+ (Obez)</option><option value="1">25-30 (Fazla kilolu)</option><option value="2">18.5-25 (Normal)</option><option value="3">18.5 altı / atletik</option></select>
+            </div>
+            <div class="form-group">
+                <label>9. Sosyal ilişkileriniz?</label>
+                <select id="q9"><option value="0">Çok az / yalnız</option><option value="1">Sınırlı</option><option value="2">İyi</option><option value="3">Çok güçlü</option></select>
+            </div>
+            <div class="form-group">
+                <label>10. Kronik hastalığınız var mı?</label>
+                <select id="q10"><option value="0">3+ hastalık</option><option value="1">2 hastalık</option><option value="2">1 hastalık</option><option value="3">Yok</option></select>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="calculateBioAge()" style="width:100%;padding:15px;font-size:16px;">🧬 Biyolojik Yaşımı Hesapla</button>
+    </div>
+
+    <!-- TESTLERİM -->
+    <div class="tab-content" id="tab-tests">
+        <div class="card"><h2>🔬 Longevity Testlerim</h2><p>Kaydedilmiş laboratuvar değerleriniz.</p></div>
+        <div id="labValuesDisplay"></div>
+    </div>
+
+    <!-- YAŞAM TARZI -->
+    <div class="tab-content" id="tab-lifestyle">
+        <div class="card">
+            <h2>🥗 Yaşam Tarzı Önerileri</h2>
+            <div class="info-box green"><strong>🍎 Beslenme</strong> — Akdeniz tipi, anti-enflamatuar, omega-3 ağırlıklı.</div>
+            <div class="info-box blue"><strong>🏃 Egzersiz</strong> — Haftada 150 dk orta yoğunluk + 2 gün direnç.</div>
+            <div class="info-box purple"><strong>😴 Uyku</strong> — 7-9 saat, düzenli döngü.</div>
+            <div class="info-box green"><strong>🧘 Stres</strong> — 10 dk meditasyon, nefes egzersizleri.</div>
+            <div class="info-box blue"><strong>🚭 Kaçın</strong> — Sigara, aşırı alkol, işlenmiş gıda.</div>
+        </div>
+    </div>
+
+    <!-- TAKİP -->
+    <div class="tab-content" id="tab-followup">
+        <div class="card"><h2>📅 Takip Planınız</h2></div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Tarih</th><th>Test</th><th>Durum</th><th>Not</th></tr></thead>
+                <tbody>
+                    <tr><td>14 Ekim 2026</td><td>İlk Longevity Testleri</td><td><span class="badge normal">Tamamlandı</span></td><td id="followupNote">Biyolojik yaş: -</td></tr>
+                    <tr><td>14 Ocak 2027</td><td>3 Aylık Kontrol</td><td><span class="badge low">Planlandı</span></td><td>Vitamin D, CRP, Omega-3</td></tr>
+                    <tr><td>14 Nisan 2027</td><td>6 Aylık Kontrol</td><td><span class="badge low">Planlandı</span></td><td>Tam panel</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
+    global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+});
+
+let currentUser = null;
+
+async function checkSession() {
+    try {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            document.getElementById('userEmail').textContent = session.user.email;
+            loadSaved();
+        } else {
+            window.location.href = 'hasta-giris.html';
+        }
+    } catch(e) { console.warn(e); }
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const t = document.getElementById('tab-' + btn.dataset.tab);
+        if (t) t.classList.add('active');
+    });
+});
+
+// PHENOAGE BENZERİ LAB SKORU (0-100)
+function scoreLabValue(value, idealMin, idealMax, reverse = false) {
+    if (value === '' || value === null || isNaN(value)) return null;
+    let v = parseFloat(value);
+    let score;
+    if (reverse) {
+        // Düşük iyi (CRP, HOMA-IR, homosistein)
+        if (v <= idealMin) score = 100;
+        else if (v >= idealMax * 2) score = 0;
+        else score = 100 - ((v - idealMin) / (idealMax * 2 - idealMin)) * 100;
+    } else {
+        // Aralık içinde iyi (albümin, glukoz, D vit)
+        if (v >= idealMin && v <= idealMax) score = 100;
+        else if (v < idealMin) {
+            const dist = (idealMin - v) / idealMin;
+            score = Math.max(0, 100 - dist * 200);
+        } else {
+            const dist = (v - idealMax) / idealMax;
+            score = Math.max(0, 100 - dist * 200);
+        }
+    }
+    return Math.max(0, Math.min(100, score));
+}
+
+function computeLabScore() {
+    const scores = [];
+    const details = {};
+
+    // CRP: ideal <1, kötü >3
+    let s = scoreLabValue(document.getElementById('labCRP').value, 0, 1, true);
+    if (s !== null) { scores.push(s); details.crp = s; }
+
+    // Glukoz: ideal 70-99
+    s = scoreLabValue(document.getElementById('labGlucose').value, 70, 99, false);
+    if (s !== null) { scores.push(s); details.glucose = s; }
+
+    // HbA1c: ideal <5.7
+    s = scoreLabValue(document.getElementById('labHbA1c').value, 4.0, 5.7, true);
+    if (s !== null) { scores.push(s); details.hba1c = s; }
+
+    // Homosistein: ideal <10
+    s = scoreLabValue(document.getElementById('labHomo').value, 5, 10, true);
+    if (s !== null) { scores.push(s); details.homocysteine = s; }
+
+    // D vit: ideal 40-60
+    s = scoreLabValue(document.getElementById('labVitD').value, 40, 60, false);
+    if (s !== null) { scores.push(s); details.vitD = s; }
+
+    // Omega-3: ideal >8 → ters mantık, ama formül uygun: 0-8 arası artan
+    let omegaVal = document.getElementById('labOmega').value;
+    if (omegaVal !== '') {
+        let v = parseFloat(omegaVal);
+        let oscore = v >= 8 ? 100 : Math.max(0, (v / 8) * 100);
+        scores.push(oscore); details.omega = oscore;
+    }
+
+    // HOMA-IR: ideal <2
+    s = scoreLabValue(document.getElementById('labHOMA').value, 0, 2, true);
+    if (s !== null) { scores.push(s); details.homa = s; }
+
+    // Albümin: ideal 4.0-5.5
+    s = scoreLabValue(document.getElementById('labAlbumin').value, 4.0, 5.5, false);
+    if (s !== null) { scores.push(s); details.albumin = s; }
+
+    if (scores.length === 0) return { score: null, details: {} };
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return { score: Math.round(avg), details };
+}
+
+function computeLifestyleScore() {
+    let total = 0;
+    for (let i = 1; i <= 10; i++) {
+        const el = document.getElementById('q' + i);
+        if (!el || el.value === '') return null;
+        total += parseInt(el.value);
+    }
+    return Math.round((total / 30) * 100);
+}
+
+function calculateBioAge() {
+    const chronoAge = parseInt(document.getElementById('chronoAge').value);
+    const gender = document.getElementById('gender').value;
+
+    if (!chronoAge || chronoAge < 18 || chronoAge > 100) { alert('❌ Geçerli kronolojik yaş girin (18-100).'); return; }
+    if (!gender) { alert('❌ Cinsiyet seçin.'); return; }
+
+    const lifestyleScore = computeLifestyleScore();
+    if (lifestyleScore === null) { alert('❌ Lütfen tüm yaşam tarzı sorularını yanıtlayın.'); return; }
+
+    const labResult = computeLabScore();
+    const labScore = labResult.score;
+
+    // Kompozit skor: lab varsa %60 lab + %40 anket; yoksa sadece anket
+    let compositeScore;
+    if (labScore !== null) {
+        compositeScore = Math.round(labScore * 0.6 + lifestyleScore * 0.4);
+    } else {
+        compositeScore = lifestyleScore;
+    }
+
+    // Biyolojik yaş = kronolojik + (50 - composite) / 6
+    // composite 100 → -8.3 yıl, composite 0 → +8.3 yıl
+    let bioAge = chronoAge + (50 - compositeScore) / 6;
+
+    if (gender === 'female') bioAge -= 1;
+    if (gender === 'male') bioAge += 1;
+
+    bioAge = Math.round(bioAge * 10) / 10;
+    if (bioAge < 18) bioAge = 18;
+
+    const diff = Math.round((bioAge - chronoAge) * 10) / 10;
+
+    // Ekrana yaz
+    document.getElementById('statBioAge').textContent = bioAge;
+    document.getElementById('statChronoAge').textContent = chronoAge;
+    document.getElementById('statScore').textContent = compositeScore + '/100';
+    document.getElementById('statFollowup').textContent = '14 Oca 2027';
+    document.getElementById('bioAgeDisplay').textContent = bioAge + ' yaş';
+
+    let infoText;
+    if (diff < -5) infoText = '🎉 Harika! Kronolojik yaşınızdan ' + Math.abs(diff) + ' yıl daha gençsiniz.';
+    else if (diff < 0) infoText = '👍 İyi! ' + Math.abs(diff) + ' yıl daha gençsiniz.';
+    else if (diff === 0) infoText = '➖ Kronolojik yaşınızla aynı.';
+    else infoText = '⚠️ ' + diff + ' yıl daha yaşlısınız. Yaşam tarzı ve lab değerlerinizi iyileştirin.';
+    document.getElementById('bioAgeInfo').textContent = infoText;
+
+    // Skor barları
+    document.getElementById('lifestylePct').textContent = lifestyleScore + '/100';
+    document.getElementById('lifestyleBar').style.width = lifestyleScore + '%';
+    if (labScore !== null) {
+        document.getElementById('labPct').textContent = labScore + '/100';
+        document.getElementById('labBar').style.width = labScore + '%';
+    } else {
+        document.getElementById('labPct').textContent = 'veri yok';
+        document.getElementById('labBar').style.width = '0%';
+    }
+
+    document.getElementById('followupNote').textContent = 'Biyolojik yaş: ' + bioAge + ' yaş';
+
+    renderLabValues(labResult.details);
+    generateRecommendations(compositeScore, diff, lifestyleScore, labScore);
+    saveToSupabase(chronoAge, gender, lifestyleScore, labScore, compositeScore, bioAge, diff, labResult.details);
+}
+
+function renderLabValues(details) {
+    const container = document.getElementById('labValuesDisplay');
+    const names = {
+        crp: ['CRP', 'mg/L'], glucose: ['Açlık Glukoz', 'mg/dL'], hba1c: ['HbA1c', '%'],
+        homocysteine: ['Homosistein', 'µmol/L'], vitD: ['Vitamin D', 'ng/mL'],
+        omega: ['Omega-3 Index', '%'], homa: ['HOMA-IR', ''], albumin: ['Albümin', 'g/dL']
+    };
+    const keys = Object.keys(details);
+    if (keys.length === 0) {
+        container.innerHTML = '<div class="card"><p>Henüz lab değeri girilmedi.</p></div>';
+        return;
+    }
+    let html = '<div class="test-category"><h3>🧪 Biyobelirteç Skorları</h3><div class="table-container"><table><thead><tr><th>Belirteç</th><th>Skor</th><th>Durum</th></tr></thead><tbody>';
+    keys.forEach(k => {
+        const s = Math.round(details[k]);
+        const st = s >= 80 ? '<span class="badge optimal">İyi</span>' : s >= 60 ? '<span class="badge normal">Orta</span>' : s >= 40 ? '<span class="badge low">Zayıf</span>' : '<span class="badge high">Kötü</span>';
+        html += `<tr><td>${names[k] ? names[k][0] : k}</td><td>${s}/100</td><td>${st}</td></tr>`;
+    });
+    html += '</tbody></table></div></div>';
+    container.innerHTML = html;
+}
+
+function generateRecommendations(score, diff, lifestyle, lab) {
+    const recDiv = document.getElementById('recommendations');
+    let html = '';
+
+    if (score >= 80) html += '<div class="info-box green"><strong>🌟 Mükemmel!</strong> Skorunuz çok iyi.</div>';
+    else if (score >= 60) html += '<div class="info-box blue"><strong>👍 İyi gidiyorsunuz.</strong></div>';
+    else if (score >= 40) html += '<div class="info-box yellow"><strong>⚠️ Orta seviye.</strong> İyileştirme gerekli.</div>';
+    else html += '<div class="info-box red"><strong>🚨 Dikkat!</strong> Ciddi değişiklikler gerekli.</div>';
+
+    if (lifestyle < 60) {
+        html += '<div class="info-box purple"><strong>🏃 Yaşam Tarzı:</strong> Egzersiz, uyku, beslenme ve stres yönetimini iyileştirin.</div>';
+    }
+    if (lab !== null && lab < 60) {
+        html += '<div class="info-box yellow"><strong>🧪 Lab Değerleri:</strong> CRP, HOMA-IR, D vitamini, omega-3 değerlerinizi iyileştirin. Doktorunuza danışın.</div>';
+    }
+    if (diff > 3) {
+        html += '<div class="info-box red"><strong>⚠️ Biyolojik yaşınız yüksek.</strong> Bir longevity kliniği ile görüşmenizi öneririz.</div>';
+    }
+    if (diff < -3) {
+        html += '<div class="info-box green"><strong>🎉 Tebrikler!</strong> Biyolojik yaşınız çok genç.</div>';
+    }
+
+    recDiv.innerHTML = html;
+}
+
+async function saveToSupabase(chronoAge, gender, lifestyleScore, labScore, compositeScore, bioAge, diff, labDetails) {
+    if (!currentUser) return;
+    try {
+        const { error } = await _supabase.from('longevity_results').upsert({
+            user_id: currentUser.id,
+            email: currentUser.email,
+            chrono_age: chronoAge,
+            gender: gender,
+            lifestyle_score: lifestyleScore,
+            lab_score: labScore,
+            longevity_score: compositeScore,
+            bio_age: bioAge,
+            age_diff: diff,
+            pheno_data: labDetails,
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+        if (error) console.warn('Kayıt hatası:', error.message);
+    } catch(e) { console.warn(e); }
+}
+
+async function loadSaved() {
+    if (!currentUser) return;
+    try {
+        const { data, error } = await _supabase.from('longevity_results').select('*').eq('user_id', currentUser.id).maybeSingle();
+        if (error || !data) return;
+
+        document.getElementById('statBioAge').textContent = data.bio_age ?? '-';
+        document.getElementById('statChronoAge').textContent = data.chrono_age ?? '-';
+        document.getElementById('statScore').textContent = (data.longevity_score ?? '-') + '/100';
+        document.getElementById('statFollowup').textContent = '14 Oca 2027';
+        document.getElementById('bioAgeDisplay').textContent = (data.bio_age ?? '-') + ' yaş';
+
+        const diff = data.age_diff || 0;
+        document.getElementById('bioAgeInfo').textContent =
+            diff < 0 ? '👍 Kronolojik yaşınızdan ' + Math.abs(diff) + ' yıl gençsiniz.' :
+            diff === 0 ? '➖ Kronolojik yaşınızla aynı.' :
+            '⚠️ ' + diff + ' yıl daha yaşlısınız.';
+
+        if (data.lifestyle_score != null) {
+            document.getElementById('lifestylePct').textContent = data.lifestyle_score + '/100';
+            document.getElementById('lifestyleBar').style.width = data.lifestyle_score + '%';
+        }
+        if (data.lab_score != null) {
+            document.getElementById('labPct').textContent = data.lab_score + '/100';
+            document.getElementById('labBar').style.width = data.lab_score + '%';
+        }
+        if (data.chrono_age) document.getElementById('chronoAge').value = data.chrono_age;
+        if (data.gender) document.getElementById('gender').value = data.gender;
+        if (data.pheno_data) renderLabValues(data.pheno_data);
+        document.getElementById('followupNote').textContent = 'Biyolojik yaş: ' + (data.bio_age ?? '-') + ' yaş';
+        generateRecommendations(data.longevity_score || 0, diff, data.lifestyle_score || 0, data.lab_score);
+    } catch(e) { console.warn(e); }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await _supabase.auth.signOut();
+    window.location.href = 'hasta-giris.html';
+});
+
+checkSession();
+</script>
+</body>
+</html>

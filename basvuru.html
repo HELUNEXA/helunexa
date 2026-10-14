@@ -375,12 +375,14 @@
                     fileUrl = urlData.publicUrl; fileName = file.name;
                 }
 
-                pendingFormData = {
+                                pendingFormData = {
+                    user_id: currentUser.id,
                     fullname: document.getElementById('fullname').value.trim(),
                     age: parseInt(document.getElementById('age').value),
                     phone: document.getElementById('phone').value.trim(),
                     email: currentUser.email,
                     service_type: serviceType, test_status: testStatus,
+                    
                     test_location: testLocation || null,
                     test_file_url: fileUrl, test_file_name: fileName,
                     medical_history: document.getElementById('medical_history').value.trim() || null,
