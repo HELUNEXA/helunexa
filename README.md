@@ -44,10 +44,12 @@ HELUNEXA; ilk hekim değerlendirmesini, gerekli tetkiklerin planlanmasını, son
 ### Hizmet Akışı
 
 1. **Başvuru:** Kullanıcı sağlık öyküsünü, mevcut hastalıklarını ve önceki sonuçlarını paylaşır.
-2. **Hekim Değerlendirmesi:** Rutin kontrol veya kronik takip ihtiyacı belirlenir; gerekli plan hazırlanır.
-3. **Tetkik:** Gerekli testler yetkili bir laboratuvar veya klinikte yaptırılır.
-4. **Sonuç:** Hekim sonuçları değerlendirir ve anlaşılır bir dijital rapor hazırlar.
-5. **Sonraki Adım:** İzlem zamanı belirlenir; gerekiyorsa kullanıcı doğru branşa yönlendirilir.
+2. **Ödeme:** Hizmet bedeli online olarak ödenir (demo aşamasında).
+3. **Hekim Değerlendirmesi:** Rutin kontrol veya kronik takip ihtiyacı belirlenir; gerekli plan hazırlanır.
+4. **Tetkik:** Gerekli testler anlaşmalı laboratuvarda (VitaLab) veya kullanıcının tercih ettiği kuruluşta yaptırılır.
+5. **Sonuç Yükleme:** Laboratuvar sonucu sisteme yüklenir.
+6. **Hekim Raporu:** Hekim sonuçları değerlendirir; dijital rapor + reçete hazırlar.
+7. **Sonraki Adım:** İzlem zamanı belirlenir; gerekiyorsa kullanıcı doğru branşa yönlendirilir.
 
 ---
 
@@ -79,6 +81,8 @@ Yaşla sınırlandırılmayan iki ana kullanıcı ihtiyacı vardır:
 
 İlk kullanıcılar mevcut sonuçlarıyla gelebilir veya tercih ettikleri yetkili kuruluşta tetkik yaptırabilir. Talep doğrulandıktan sonra fiyat, randevu ve sonuç formatını standartlaştırmak için tercih edilen, münhasır olmayan bir laboratuvar/klinik ortağı belirlenir.
 
+**Aktif pilot laboratuvar:** VitaLab Sağlık Laboratuvarı (Kadıköy / İstanbul)
+
 ---
 
 ## 📱 İlk MVP
@@ -107,14 +111,30 @@ Amaç; rutin kontrol ve kronik takip sürecini hastane kuyruğundan mümkün old
 
 ## 🗺️ Yol Haritası
 
-### İlk Ürün — HELUNEXA QuickCheck
-Doğrudan bireysel kullanıcıya sunulan rutin kontrol ve kronik takip hizmeti.
+### ✅ Faz 1 — Çekirdek MVP (Tamamlandı)
+- Hasta kayıt / giriş
+- Başvuru formu + demo ödeme
+- Hasta paneli
+- Hekim / Admin paneli
+- Laboratuvar paneli (VitaLab pilot)
+- KVKK aydınlatma metni
+- Supabase Auth + RLS güvenlik
 
-### Sonraki Kanal — HELUNEXA Workplace
-Doğrulanan hizmetin şirket çalışanlarına kurumsal kanaldan sunulması.
+### ✅ Faz 2 — Uzun Yaşam & Ruh Sağlığı Modülleri (Tamamlandı)
+- **Longevity Paneli:** PhenoAge benzeri biyolojik yaş hesaplama
+- **Psikolojik Destek Paneli:** GAD-7, PHQ-9, PSS-10, WHO-5 testleri + bileşik skor
 
-### Uzun Vadeli Modül — HomeCare-AI-CDSS
-Klinik ortak, gerçek veri ve pilot koşulları oluştuğunda geliştirilecek karar destek modülü.
+### 🚧 Faz 3 — Planlanan
+- E-posta bildirimleri (Resend API)
+- PDF rapor çıktısı
+- Çoklu laboratuvar desteği (`lab_id` + hasta seçim)
+- Grafik geçmiş takip (Chart.js)
+- Gerçek ödeme entegrasyonu (iyzico)
+- Mobil PWA
+
+### 🔮 Faz 4 — Uzun Vadeli
+- **HELUNEXA Workplace** — Kurumsal çalışan sağlığı kanalı
+- **HomeCare-AI-CDSS** — Klinik karar destek modülü
 
 ---
 
@@ -124,29 +144,102 @@ Klinik ortak, gerçek veri ve pilot koşulları oluştuğunda geliştirilecek ka
 |--------|-----------|
 | **Frontend** | HTML5, CSS3, JavaScript (Vanilla) |
 | **Backend** | Supabase (PostgreSQL + Auth + Storage) |
-| **Hosting** | Cloudflare Pages |
-| **E-posta** | Resend API |
+| **Hosting** | GitHub Pages |
+| **CDN** | jsDelivr (Supabase JS) |
+| **E-posta** | Resend API (planlandı) |
 | **Ödeme** | iyzico (demo aşamasında) |
+
+---
+
+## 🔐 Güvenlik
+
+- **Row Level Security (RLS):** Her kullanıcı sadece kendi verisini görür
+- **Rol Bazlı Erişim:** Admin / Hekim / Laboratuvar / Hasta
+- **Supabase Auth:** E-posta + şifre
+- **HTTPS:** GitHub Pages üzerinden otomatik
+- **KVKK Uyumlu:** Aydınlatma metni + açık rıza
+
+### Rol Yapısı
+
+| Rol | Panel | Yetki |
+|-----|-------|-------|
+| **Hasta** | `hasta-panel.html` | Kendi başvurularını görür |
+| **Hekim** | `admin.html` | Tüm başvuruları görür, değerlendirir |
+| **Admin** | `admin.html` | Hekim + kullanıcı yönetimi |
+| **Laboratuvar** | `lab.html` | Sonuç yükler, numune işaretler |
 
 ---
 
 ## 📁 Dosya Yapısı
 HELUNEXA/
-├── index.html → Ana sayfa
+├── index.html → Ana sayfa (landing)
 ├── hasta-kayit.html → Hasta kayıt
 ├── hasta-giris.html → Hasta giriş
 ├── hasta-panel.html → Hasta paneli
-├── basvuru.html → Başvuru formu
-├── admin.html → Hekim/yönetim paneli
-├── lab.html → Laboratuvar paneli
+├── basvuru.html → Başvuru formu + demo ödeme
+├── admin.html → Hekim / Admin paneli
+├── lab.html → Laboratuvar paneli (VitaLab)
+├── longevity.html → Longevity / Biyolojik yaş paneli
+├── psikolojik.html → Psikolojik destek paneli
 ├── kvkk.html → KVKK aydınlatma metni
+├── ornek-tahlil-sonuc.html → Örnek lab sonucu şablonu
 ├── logo.png → Logo
 ├── favicon.ico → Favicon
 ├── favicon-16x16.png → 16x16 favicon
 ├── favicon-32x32.png → 32x32 favicon
 ├── apple-touch-icon.png → Apple touch icon
-├── android-chrome-*.png → Android ikonları
-└── site.webmanifest → PWA manifest
+├── android-chrome-192x192.png → Android ikonu
+├── android-chrome-512x512.png → Android ikonu
+├── site.webmanifest → PWA manifest
+└── README.md → Bu dosya
+
+---
+
+## 🗄️ Veritabanı Şeması
+
+### Supabase Tabloları
+
+| Tablo | Açıklama |
+|-------|----------|
+| `auth.users` | Supabase otomatik kullanıcı tablosu |
+| `user_roles` | Rol tanımları (admin/doctor/lab/patient) |
+| `applications` | Hasta başvuruları |
+| `longevity_results` | Longevity hesaplama sonuçları |
+| `psych_results` | Psikolojik test sonuçları |
+
+### Storage Bucket
+
+| Bucket | Açıklama |
+|--------|----------|
+| `test-results` | Hasta tahlilleri + lab sonuçları |
+
+---
+
+## 🚦 Kurulum (Geliştirici için)
+
+### 1. Supabase Projesi Oluştur
+- https://supabase.com → yeni proje
+- URL + Anon Key'i al
+
+### 2. Tabloları Oluştur
+- SQL Editor'de migration'ları çalıştır
+- `user_roles`, `applications`, `longevity_results`, `psych_results`
+
+### 3. RLS Policy'leri Ayarla
+- Her tablo için `auth.uid() = user_id` policy'si
+
+### 4. Storage Bucket
+- `test-results` bucket oluştur (public read, authenticated write)
+
+### 5. Auth URL Configuration
+- **Site URL:** `https://KULLANICI.github.io/REPO`
+- **Redirect URLs:** `https://KULLANICI.github.io/REPO/**`
+
+### 6. HTML Dosyalarını Güncelle
+- `SUPABASE_URL` ve `SUPABASE_ANON_KEY` değerlerini tüm HTML'lerde güncelle
+
+### 7. GitHub Pages Aktifleştir
+- Settings → Pages → `main` branch → root
 
 ---
 
@@ -160,6 +253,7 @@ Bu proje **özel mülkiyet** altındadır. Tüm hakları saklıdır.
 
 - **E-posta:** info@helunexa.com
 - **Web:** www.helunexa.com
+- **GitHub:** github.com/neslihanakgul6116/helunexa
 
 ---
 
