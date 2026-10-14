@@ -30,62 +30,12 @@
         .message { padding: 12px; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; }
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
-
-        /* KVKK - iOS UYUMLU */
-        .kvkk-box {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #10b981;
-        }
-        .kvkk-label {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            cursor: pointer;
-            margin: 0;
-            padding: 8px;
-            margin: -8px;
-            border-radius: 6px;
-            -webkit-tap-highlight-color: rgba(16, 185, 129, 0.2);
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-        .kvkk-label:active {
-            background: #ecfdf5;
-        }
-        .kvkk-label input[type="checkbox"] {
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
-            margin: 0;
-            flex-shrink: 0;
-            cursor: pointer;
-            accent-color: #10b981;
-            pointer-events: auto;
-            -webkit-appearance: checkbox;
-            appearance: checkbox;
-            position: relative;
-            z-index: 1;
-        }
-        .kvkk-text {
-            font-size: 13px;
-            color: #475569;
-            line-height: 1.5;
-            margin: 0;
-            font-weight: normal;
-            display: block;
-        }
-        .kvkk-text a {
-            color: #10b981;
-            font-weight: bold;
-            text-decoration: none;
-            position: relative;
-            z-index: 2;
-        }
-
+        .kvkk-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #10b981; }
+        .kvkk-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin: 0; padding: 8px; margin: -8px; border-radius: 6px; -webkit-tap-highlight-color: rgba(16, 185, 129, 0.2); user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+        .kvkk-label:active { background: #ecfdf5; }
+        .kvkk-label input[type="checkbox"] { width: 28px; height: 28px; min-width: 28px; margin: 0; flex-shrink: 0; cursor: pointer; accent-color: #10b981; pointer-events: auto; -webkit-appearance: checkbox; appearance: checkbox; position: relative; z-index: 1; }
+        .kvkk-text { font-size: 13px; color: #475569; line-height: 1.5; margin: 0; font-weight: normal; display: block; }
+        .kvkk-text a { color: #10b981; font-weight: bold; text-decoration: none; position: relative; z-index: 2; }
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e40af; }
         .file-upload-box { background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f59e0b; }
         .file-upload-box label { color: #92400e; font-size: 13px; }
@@ -93,6 +43,10 @@
         .home-service-box { background: #f0fdf4; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #10b981; }
         .home-service-box h4 { color: #065f46; font-size: 14px; margin-bottom: 12px; }
         .home-service-box label { color: #065f46; }
+        .vitalab-box { background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-top: 10px; }
+        .vitalab-box h4 { color: #065f46; font-size: 14px; margin-bottom: 10px; }
+        .vitalab-box p { font-size: 13px; color: #065f46; margin: 5px 0; }
+        .vitalab-box .note { font-size: 12px; color: #10b981; margin-top: 10px; }
         .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
         .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .payment-overlay.active { display: flex; }
@@ -116,11 +70,7 @@
             h2 { font-size: 18px; }
             input, select, textarea { font-size: 16px; }
             .payment-modal { padding: 20px; margin: 10px; }
-            .kvkk-label input[type="checkbox"] {
-                width: 32px;
-                height: 32px;
-                min-width: 32px;
-            }
+            .kvkk-label input[type="checkbox"] { width: 32px; height: 32px; min-width: 32px; }
         }
     </style>
 </head>
@@ -150,7 +100,7 @@
                 <label for="service_type">Hizmet Türü *</label>
                 <select id="service_type" required>
                     <option value="">Seçiniz</option>
-                    <optgroup label="Aktif Hizmetler">
+                    <optgroup label="Temel Hizmetler">
                         <option value="Rutin Kontrol" data-price="500">Rutin Sağlık Kontrolü - 500 TL</option>
                         <option value="Kronik Takip - Diyabet" data-price="1500">Kronik Takip - Diyabet - 1.500 TL</option>
                         <option value="Kronik Takip - Hipertansiyon" data-price="1500">Kronik Takip - Hipertansiyon - 1.500 TL</option>
@@ -159,6 +109,10 @@
                         <option value="İlaç Raporu Yenileme" data-price="500">İlaç Raporu Yenileme Desteği - 500 TL</option>
                         <option value="Yaşlı Takip" data-price="750">Yaşlı / Taburculuk Sonrası Takip - 750 TL</option>
                         <option value="Dijital Değerlendirme" data-price="500">Dijital Hekim Değerlendirmesi - 500 TL</option>
+                    </optgroup>
+                    <optgroup label="Yeni Hizmetler">
+                        <option value="Longevity Takibi" data-price="2500">🧬 Longevity Takibi - 2.500 TL</option>
+                        <option value="Psikolojik Destek" data-price="1500">🧠 Psikolojik Destek - 1.500 TL</option>
                     </optgroup>
                     <optgroup label="Evde Hizmet">
                         <option value="Evde Numune Alma" data-price="350">Evde Numune Alma - +350 TL</option>
@@ -175,6 +129,28 @@
                     <option value="partner_lab">🏥 Laboratuvar önerisi istiyorum</option>
                 </select>
             </div>
+
+            <!-- TAHLİL YERİ SEÇİMİ -->
+            <div class="form-group" id="testLocationGroup" style="display:none;">
+                <label for="test_location">Tahlil Yeri *</label>
+                <select id="test_location">
+                    <option value="">Seçiniz</option>
+                    <option value="vitalab">🏥 VitaLab Sağlık Laboratuvarı (Anlaşmalı)</option>
+                    <option value="own_lab">🔬 Kendi laboratuvarım</option>
+                </select>
+            </div>
+
+            <!-- VITALAB BİLGİ KUTUSU -->
+            <div class="vitalab-box" id="vitalabInfo" style="display:none;">
+                <h4>🏥 VitaLab Sağlık Laboratuvarı</h4>
+                <p><strong>📍 Adres:</strong> Bağdat Caddesi No: 145, Kadıköy / İstanbul</p>
+                <p><strong>📞 Telefon:</strong> 0216 555 44 33</p>
+                <p><strong>✉️ E-posta:</strong> info@vitalab.com.tr</p>
+                <p><strong>🕐 Çalışma Saatleri:</strong> Hafta içi: 08:00 - 18:00 / Cumartesi: 09:00 - 14:00</p>
+                <p><strong>🧪 Hizmetler:</strong> Kan tahlili, idrar tahlili, hormon testleri, vitamin testleri</p>
+                <p class="note">✅ Başvurunuz sonrası VitaLab randevu bilgisi mail ile gönderilecektir.</p>
+            </div>
+
             <div class="file-upload-box" id="fileUploadBox" style="display:none;">
                 <label>📎 Mevcut Sonuçlarınızı Yükleyin</label>
                 <input type="file" id="test_file" accept=".pdf,.jpg,.jpeg,.png" style="margin-top: 8px; background: white;">
@@ -229,7 +205,6 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <!-- KVKK ONAY KUTUSU - iOS UYUMLU -->
             <div class="kvkk-box">
                 <label class="kvkk-label" for="kvkk_consent">
                     <input type="checkbox" id="kvkk_consent" required>
@@ -320,9 +295,25 @@
             document.getElementById('fileUploadBox').style.display = 'none';
             document.getElementById('needTestInfo').style.display = 'none';
             document.getElementById('partnerLabInfo').style.display = 'none';
+            document.getElementById('testLocationGroup').style.display = 'none';
+            document.getElementById('vitalabInfo').style.display = 'none';
+            
             if (value === 'have_results') document.getElementById('fileUploadBox').style.display = 'block';
-            else if (value === 'need_test') document.getElementById('needTestInfo').style.display = 'block';
+            else if (value === 'need_test') {
+                document.getElementById('needTestInfo').style.display = 'block';
+                document.getElementById('testLocationGroup').style.display = 'block';
+            }
             else if (value === 'partner_lab') document.getElementById('partnerLabInfo').style.display = 'block';
+        });
+
+        document.getElementById('test_location').addEventListener('change', function() {
+            const value = this.value;
+            const vitalabBox = document.getElementById('vitalabInfo');
+            if (value === 'vitalab') {
+                vitalabBox.style.display = 'block';
+            } else {
+                vitalabBox.style.display = 'none';
+            }
         });
 
         document.getElementById('test_file').addEventListener('change', function() {
@@ -357,6 +348,7 @@
             const testStatus = document.getElementById('test_status').value;
             const serviceType = document.getElementById('service_type').value;
             const isHomeService = serviceType === 'Evde Numune Alma' || serviceType === 'Evde Kronik Takip';
+            const testLocation = document.getElementById('test_location') ? document.getElementById('test_location').value : null;
 
             if (isHomeService) {
                 const homeAddress = document.getElementById('home_address').value.trim();
@@ -389,6 +381,7 @@
                     phone: document.getElementById('phone').value.trim(),
                     email: currentUser.email,
                     service_type: serviceType, test_status: testStatus,
+                    test_location: testLocation || null,
                     test_file_url: fileUrl, test_file_name: fileName,
                     medical_history: document.getElementById('medical_history').value.trim() || null,
                     test_notes: document.getElementById('test_notes').value.trim() || null,
