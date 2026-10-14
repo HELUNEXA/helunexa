@@ -375,8 +375,24 @@
                     fileUrl = urlData.publicUrl; fileName = file.name;
                 }
 
-                                pendingFormData = {
+                                                const specialtyMap = {
+                    'Rutin Kontrol': 'internal',
+                    'Kronik Takip - Diyabet': 'internal',
+                    'Kronik Takip - Hipertansiyon': 'internal',
+                    'Kronik Takip - Tiroid': 'internal',
+                    'Check-up': 'internal',
+                    'İlaç Raporu Yenileme': 'internal',
+                    'Yaşlı Takip': 'internal',
+                    'Dijital Değerlendirme': 'internal',
+                    'Longevity Takibi': 'internal',
+                    'Psikolojik Destek': 'psychology',
+                    'Evde Numune Alma': 'internal',
+                    'Evde Kronik Takip': 'internal'
+                };
+
+                pendingFormData = {
                     user_id: currentUser.id,
+                    specialty: specialtyMap[serviceType] || 'internal',
                     fullname: document.getElementById('fullname').value.trim(),
                     age: parseInt(document.getElementById('age').value),
                     phone: document.getElementById('phone').value.trim(),
