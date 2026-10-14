@@ -37,6 +37,10 @@
         .badge.in_progress { background: #dbeafe; color: #1e40af; }
         .badge.completed { background: #d1fae5; color: #065f46; }
         .badge.cancelled { background: #fee2e2; color: #991b1b; }
+        .badge.apt-pending { background: #fef3c7; color: #92400e; }
+        .badge.apt-confirmed { background: #d1fae5; color: #065f46; }
+        .badge.apt-changed { background: #dbeafe; color: #1e40af; }
+        .badge.apt-cancelled { background: #fee2e2; color: #991b1b; }
         .empty-state { padding: 60px 20px; text-align: center; color: #94a3b8; }
         .btn { display: inline-block; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; }
         .btn:hover { background: #059669; }
@@ -59,7 +63,7 @@
             .stat-card .label { font-size: 11px; }
             .section-title { font-size: 16px; }
             .btn { padding: 10px 16px; font-size: 13px; }
-            table { min-width: 600px; }
+            table { min-width: 700px; }
             th, td { padding: 10px 8px; font-size: 12px; white-space: nowrap; }
             .modal { max-width: 100%; padding: 20px; }
         }
@@ -84,7 +88,7 @@
             <div class="stat-card"><div class="num" id="statCompleted">-</div><div class="label">Tamamlanan</div></div>
         </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
             <h3 class="section-title">Başvurularım</h3>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <a href="basvuru.html" class="btn">+ Yeni Başvuru</a>
@@ -150,15 +154,40 @@
             document.getElementById('statCompleted').textContent = data.filter(a => a.status === 'completed').length;
         }
 
+        function formatAppointment(app) {
+            if (!app.appointment_date) return '—';
+            const d = new Date(app.appointment_date);
+            const formatted = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' });
+            return formatted + ' · ' + (app.appointment_time || '—');
+        }
+
+        function aptStatusBadge(status) {
+            const map = {
+                'pending': ['⏳ Onay Bekliyor', 'apt-pending'],
+                'confirmed': ['✅ Onaylandı', 'apt-confirmed'],
+                'changed': ['🔄 Değiştirildi', 'apt-changed'],
+                'cancelled': ['❌ İptal Edildi', 'apt-cancelled']
+            };
+            if (!status) return '';
+            const [text, cls] = map[status] || [status, ''];
+            return `<span class="badge ${cls}">${text}</span>`;
+        }
+
         function renderTable(data) {
-            let html = `<table><thead><tr><th>Tarih</th><th>Hizmet</th><th>Durum</th><th>Hekim Notu</th><th>İşlemler</th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>Tarih</th><th>Hizmet</th><th>Randevu</th><th>Durum</th><th>Hekim Notu</th><th>İşlemler</th></tr></thead><tbody>`;
             data.forEach(app => {
                 const date = new Date(app.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
                 const status = app.status || 'pending';
                 const statusText = { pending: 'Bekliyor', paid: 'Ödendi', in_progress: 'İşlemde', completed: 'Tamamlandı', cancelled: 'İptal' }[status] || status;
+
+                const aptInfo = app.appointment_date
+                    ? `<div style="font-size:13px;">📅 ${formatAppointment(app)}<br><small>${aptStatusBadge(app.appointment_status)}</small></div>`
+                    : '<span style="color:#94a3b8;">—</span>';
+
                 html += `<tr>
                     <td>${date}</td>
                     <td>${escapeHtml(app.service_type) || '-'}</td>
+                    <td>${aptInfo}</td>
                     <td><span class="badge ${status}">${statusText}</span></td>
                     <td>${escapeHtml(app.doctor_note) || '<em style="color:#94a3b8;">Henüz not yok</em>'}</td>
                     <td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td>
@@ -181,7 +210,39 @@
             const statusText = { pending: 'Bekliyor', paid: 'Ödendi', in_progress: 'İşlemde', completed: 'Tamamlandı', cancelled: 'İptal' }[status] || status;
             document.getElementById('modalTitle').textContent = app.service_type;
 
+            // Randevu bilgisi varsa göster
+            let appointmentHtml = '';
+            if (app.appointment_date) {
+                const d = new Date(app.appointment_date);
+                const formattedDate = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' });
+
+                appointmentHtml = `
+                    <div style="background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
+                        <label style="font-size:12px; color:#065f46; text-transform:uppercase; font-weight:bold;">📅 Randevunuz</label>
+                        <div style="font-size:15px; margin-top:10px; line-height:1.8;">
+                            <strong>Tarih:</strong> ${formattedDate}<br>
+                            <strong>Saat:</strong> ${escapeHtml(app.appointment_time) || '-'}<br>
+                            <strong>Tür:</strong> 💻 Online Görüşme<br>
+                            <strong>Durum:</strong> ${aptStatusBadge(app.appointment_status)}
+                        </div>
+                        ${app.appointment_note ? `
+                            <div style="font-size:13px; color:#475569; margin-top:10px; padding:10px; background:white; border-radius:6px;">
+                                <strong>Randevu Notu:</strong> ${escapeHtml(app.appointment_note)}
+                            </div>
+                        ` : ''}
+                        ${app.appointment_link ? `
+                            <a href="${app.appointment_link}" target="_blank" style="display:inline-block; background:#10b981; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold; margin-top:12px;">🔗 Görüşmeye Katıl</a>
+                        ` : `
+                            <div style="font-size:12px; color:#065f46; margin-top:10px; padding:10px; background:white; border-radius:6px;">
+                                ℹ️ Görüşme linki randevu onaylandıktan sonra tarafınıza iletilecektir.
+                            </div>
+                        `}
+                    </div>
+                `;
+            }
+
             document.getElementById('modalBody').innerHTML = `
+                ${appointmentHtml}
                 <div style="margin-bottom:15px;">
                     <label style="font-size:12px; color:#64748b; text-transform:uppercase; display:block; margin-bottom:4px;">Başvuru Tarihi</label>
                     <div style="font-size:15px;">${date}</div>
@@ -223,7 +284,7 @@
                     <div style="font-size:14px; margin-top:8px; white-space:pre-line; font-family:monospace; line-height:1.7;">${escapeHtml(app.prescription)}</div>
                     ${app.prescription_date ? `<div style="font-size:11px; color:#92400e; margin-top:8px;">Düzenlenme: ${new Date(app.prescription_date).toLocaleString('tr-TR')}</div>` : ''}
                 </div>` : ''}
-                ${!app.doctor_note && !app.evaluation && !app.lab_result_url && !app.prescription ? `
+                ${!app.doctor_note && !app.evaluation && !app.lab_result_url && !app.prescription && !app.appointment_date ? `
                 <div style="padding:30px; text-align:center; color:#94a3b8; font-size:14px;">⏳ Hekiminiz henüz değerlendirme yapmadı.</div>` : ''}
                 <button onclick="closeModal()" style="width:100%; padding:12px; background:#e2e8f0; color:#475569; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:15px;">Kapat</button>
             `;
