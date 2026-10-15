@@ -5,11 +5,7 @@
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HELUNEXA - Başvuru Formu</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="site.webmanifest">
+    <link rel="icon" href="favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; }
@@ -17,54 +13,27 @@
         .form-container { max-width: 600px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 0 auto; }
         .logo-header { text-align: center; margin-bottom: 15px; }
         .logo-header img { height: 100px; width: auto; }
-        h2 { color: #0f172a; text-align: center; margin-bottom: 8px; font-size: 20px; }
         .subtitle { color: #64748b; text-align: center; font-size: 14px; margin-bottom: 25px; }
         .user-banner { background: #ecfdf5; border-left: 4px solid #10b981; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #065f46; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; font-size: 14px; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-family: inherit; -webkit-appearance: none; appearance: none; background: white; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        button { background-color: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; touch-action: manipulation; }
+        button { background-color: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         button:hover { background-color: #059669; }
         button:disabled { background-color: #94a3b8; cursor: not-allowed; }
         .message { padding: 12px; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; }
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
-
-        /* KVKK - DÜZELTİLDİ */
-        .kvkk-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #10b981; position: relative; z-index: 1; }
-        .kvkk-label { display: flex; align-items: center; gap: 12px; cursor: pointer; margin: 0; padding: 12px; border-radius: 6px; user-select: none; -webkit-user-select: none; touch-action: manipulation; position: relative; z-index: 1; }
-        .kvkk-label:active { background: #ecfdf5; }
-        .kvkk-label input[type="checkbox"] {
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
-            margin: 0;
-            flex-shrink: 0;
-            cursor: pointer;
-            accent-color: #10b981;
-            -webkit-appearance: checkbox;
-            appearance: checkbox;
-            pointer-events: auto;
-            position: relative;
-            z-index: 10;
-            display: inline-block;
-            opacity: 1;
-        }
-        .kvkk-text { font-size: 13px; color: #475569; line-height: 1.5; margin: 0; font-weight: normal; display: block; }
-        .kvkk-text a { color: #10b981; font-weight: bold; text-decoration: none; }
-
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e40af; }
         .file-upload-box { background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f59e0b; }
         .file-upload-box label { color: #92400e; font-size: 13px; }
         .file-preview { margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 13px; color: #475569; display: none; }
         .home-service-box { background: #f0fdf4; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #10b981; }
         .home-service-box h4 { color: #065f46; font-size: 14px; margin-bottom: 12px; }
-        .home-service-box label { color: #065f46; }
         .vitalab-box { background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-top: 10px; }
         .vitalab-box h4 { color: #065f46; font-size: 14px; margin-bottom: 10px; }
         .vitalab-box p { font-size: 13px; color: #065f46; margin: 5px 0; }
-        .vitalab-box .note { font-size: 12px; color: #10b981; margin-top: 10px; }
         .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
         .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .payment-overlay.active { display: flex; }
@@ -85,10 +54,8 @@
             body { padding: 10px; }
             .form-container { padding: 20px 15px; }
             .logo-header img { height: 80px; }
-            h2 { font-size: 18px; }
             input, select, textarea { font-size: 16px; }
             .payment-modal { padding: 20px; margin: 10px; }
-            .kvkk-label input[type="checkbox"] { width: 32px; height: 32px; min-width: 32px; }
         }
     </style>
 </head>
@@ -141,27 +108,20 @@
 
             <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
                 <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
-
                 <div class="form-group">
                     <label for="appointmentDate">Randevu Tarihi *</label>
                     <input type="date" id="appointmentDate" min="">
                 </div>
-
                 <div class="form-group">
                     <label for="appointmentTime">Randevu Saati *</label>
                     <select id="appointmentTime">
                         <option value="">Tarih seçiniz...</option>
                     </select>
-                    <div class="hint" id="timeHint" style="font-size:11px; color:#64748b; margin-top:5px;"></div>
+                    <div id="timeHint" style="font-size:11px; color:#64748b; margin-top:5px;"></div>
                 </div>
-
                 <div class="form-group">
                     <label for="appointmentNote">Randevu Notu</label>
                     <textarea id="appointmentNote" rows="2" placeholder="Eklemek istediğiniz not..."></textarea>
-                </div>
-
-                <div style="background:#fff; padding:10px; border-radius:6px; font-size:12px; color:#065f46;">
-                    ℹ️ Psikolog randevunuzu onayladıktan sonra görüşme linki tarafınıza iletilecektir.
                 </div>
             </div>
 
@@ -189,9 +149,6 @@
                 <p><strong>📍 Adres:</strong> Bağdat Caddesi No: 145, Kadıköy / İstanbul</p>
                 <p><strong>📞 Telefon:</strong> 0216 555 44 33</p>
                 <p><strong>✉️ E-posta:</strong> info@vitalab.com.tr</p>
-                <p><strong>🕐 Çalışma Saatleri:</strong> Hafta içi: 08:00 - 18:00 / Cumartesi: 09:00 - 14:00</p>
-                <p><strong>🧪 Hizmetler:</strong> Kan tahlili, idrar tahlili, hormon testleri, vitamin testleri</p>
-                <p class="note">✅ Başvurunuz sonrası VitaLab randevu bilgisi mail ile gönderilecektir.</p>
             </div>
 
             <div class="file-upload-box" id="fileUploadBox" style="display:none;">
@@ -200,6 +157,7 @@
                 <p style="font-size: 12px; color: #92400e; margin-top: 6px;">PDF, JPG veya PNG. Maksimum 10 MB.</p>
                 <div class="file-preview" id="filePreview"></div>
             </div>
+
             <div class="info-box" id="needTestInfo" style="display:none;">
                 <strong>ℹ️ Yeni Tahlil Bilgisi</strong>
                 <p style="margin-top: 8px;">Tahlilinizi anlaşmalı laboratuvarımızda veya kendi tercih ettiğiniz laboratuvarda yaptırabilirsiniz.</p>
@@ -244,9 +202,6 @@
                     <label for="home_note">Evde Hizmet Notu</label>
                     <textarea id="home_note" rows="2" placeholder="Örn: Zile basmayın, kapıyı çalın."></textarea>
                 </div>
-                <div style="background:#ecfdf5; padding:10px; border-radius:6px; font-size:12px; color:#065f46;">
-                    ℹ️ Evde hizmet ücreti toplam tutara eklenir. Bölgenizdeki hemşire otomatik atanır.
-                </div>
             </div>
 
             <div class="form-group">
@@ -258,16 +213,18 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <div class="kvkk-box">
-                <label class="kvkk-label" for="kvkk_consent">
-                    <input type="checkbox" id="kvkk_consent" required>
-                    <span class="kvkk-text">
+            <!-- KVKK - BASİT VE ÇALIŞAN -->
+            <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <input type="checkbox" id="kvkk_consent" required 
+                           style="width:28px; height:28px; min-width:28px; margin:0; cursor:pointer; accent-color:#10b981; flex-shrink:0; display:block;">
+                    <label for="kvkk_consent" style="cursor:pointer; font-size:13px; color:#475569; line-height:1.5; margin:0; font-weight:normal; display:block; flex:1;">
                         <strong>Sağlık verilerimin işlenmesine açık rıza veriyorum.</strong> *
                         <span style="display:block; margin-top:6px; font-size:12px; color:#64748b;">
-                            Detaylı bilgi için: <a href="kvkk.html" target="_blank">KVKK Aydınlatma Metni →</a>
+                            Detaylı bilgi için: <a href="kvkk.html" target="_blank" style="color:#10b981; font-weight:bold; text-decoration:none;">KVKK Aydınlatma Metni →</a>
                         </span>
-                    </span>
-                </label>
+                    </label>
+                </div>
             </div>
 
             <button type="submit" id="submitBtn">💳 Ödemeye Geç</button>
@@ -408,7 +365,7 @@
             } catch (err) {
                 console.error('Saat yükleme hatası:', err);
                 timeSelect.innerHTML = '<option value="">Hata oluştu</option>';
-                hint.textContent = '⚠️ Saatler yüklenemedi, tekrar deneyin.';
+                hint.textContent = '⚠️ Saatler yüklenemedi.';
             }
         }
 
