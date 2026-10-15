@@ -82,6 +82,13 @@ button[type="submit"]:disabled { background: #94a3b8; cursor: not-allowed; }
             </button>
 
             <button class="role-btn" onclick="selectRole('psychologist', '🧠', 'Psikolog')">
+                <button class="role-btn" onclick="selectRole('nurse', '🏠', 'Hemşire')">
+    <span class="icon">🏠</span>
+    <div>
+        <div class="label">Hemşire</div>
+        <div class="desc">Evde hizmet paneli</div>
+    </div>
+</button>
                 <span class="icon">🧠</span>
                 <div>
                     <div class="label">Psikolog</div>
@@ -213,11 +220,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         }
 
         const roleMap = {
-            'admin': ['admin'],
-            'doctor': ['doctor'],
-            'psychologist': ['doctor'],
-            'lab': ['lab']
-        };
+    'admin': ['admin'],
+    'doctor': ['doctor'],
+    'psychologist': ['doctor'],
+    'lab': ['lab'],
+    'nurse': ['nurse']
+};
         const expected = roleMap[selectedRole] || [];
 
         if (!expected.includes(roleData.role)) {
@@ -229,10 +237,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         }
 
         if (selectedRole === 'lab') {
-            window.location.href = 'lab.html';
-        } else {
-            window.location.href = 'admin.html';
-        }
+    window.location.href = 'lab.html';
+} else if (selectedRole === 'nurse') {
+    window.location.href = 'nurse.html';
+} else {
+    window.location.href = 'admin.html';
+}
 
     } catch (ex) {
         console.error(ex);
