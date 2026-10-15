@@ -213,16 +213,19 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <!-- KVKK ONAY -->
-            <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981; display:flex; align-items:flex-start; gap:12px;">
-                <input type="checkbox" id="kvkk_consent" required 
-                       style="width:22px; height:22px; min-width:22px; margin:2px 0 0 0; cursor:pointer; accent-color:#10b981; flex-shrink:0;">
-                <label for="kvkk_consent" style="cursor:pointer; font-size:13px; color:#475569; line-height:1.5; margin:0; font-weight:normal; flex:1;">
+            <!-- KVKK ONAY - YEŞİL BUTON -->
+            <input type="checkbox" id="kvkk_consent" style="display:none;">
+            <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
+                <button type="button" id="kvkkBtn" 
+                        style="display:inline-block; width:auto; padding:10px 20px; background:#f0fdf4; border:2px solid #10b981; border-radius:8px; color:#065f46; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:12px; transition:all 0.2s; font-family:inherit;">
+                    ⬜ KVKK Onayı Ver
+                </button>
+                <div style="font-size:13px; color:#475569; line-height:1.5;">
                     <strong>Sağlık verilerimin işlenmesine açık rıza veriyorum.</strong> *
                     <span style="display:block; margin-top:6px; font-size:12px; color:#64748b;">
                         Detaylı bilgi için: <a href="kvkk.html" target="_blank" style="color:#10b981; font-weight:bold; text-decoration:none;">KVKK Aydınlatma Metni →</a>
                     </span>
-                </label>
+                </div>
             </div>
 
             <button type="submit" id="submitBtn" class="submit-btn">💳 Ödemeye Geç</button>
@@ -266,6 +269,24 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+        });
+
+        // KVKK ONAY BUTONU
+        document.getElementById('kvkkBtn').addEventListener('click', function() {
+            const cb = document.getElementById('kvkk_consent');
+            cb.checked = !cb.checked;
+            
+            if (cb.checked) {
+                this.innerHTML = '✅ KVKK Onayı Verildi';
+                this.style.background = '#10b981';
+                this.style.color = 'white';
+                this.style.borderColor = '#059669';
+            } else {
+                this.innerHTML = '⬜ KVKK Onayı Ver';
+                this.style.background = '#f0fdf4';
+                this.style.color = '#065f46';
+                this.style.borderColor = '#10b981';
+            }
         });
 
         const APPOINTMENT_SERVICES = ['Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme'];
@@ -431,7 +452,7 @@
             e.preventDefault();
 
             if (!document.getElementById('kvkk_consent').checked) {
-                showMessage('❌ KVKK onay kutusunu işaretlemeniz gerekiyor.', 'error');
+                showMessage('❌ KVKK onay butonuna basmanız gerekiyor.', 'error');
                 return;
             }
 
