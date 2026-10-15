@@ -22,7 +22,7 @@
         .user-banner { background: #ecfdf5; border-left: 4px solid #10b981; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #065f46; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-family: inherit; -webkit-appearance: none; appearance: none; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-family: inherit; -webkit-appearance: none; appearance: none; background: white; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         button { background-color: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; touch-action: manipulation; }
         button:hover { background-color: #059669; }
@@ -31,11 +31,11 @@
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
         .kvkk-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #10b981; }
-        .kvkk-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin: 0; padding: 8px; margin: -8px; border-radius: 6px; -webkit-tap-highlight-color: rgba(16, 185, 129, 0.2); user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+        .kvkk-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin: 0; padding: 8px; margin: -8px; border-radius: 6px; user-select: none; -webkit-user-select: none; }
         .kvkk-label:active { background: #ecfdf5; }
-        .kvkk-label input[type="checkbox"] { width: 28px; height: 28px; min-width: 28px; margin: 0; flex-shrink: 0; cursor: pointer; accent-color: #10b981; pointer-events: auto; -webkit-appearance: checkbox; appearance: checkbox; position: relative; z-index: 1; }
+        .kvkk-label input[type="checkbox"] { width: 28px; height: 28px; min-width: 28px; margin: 0; flex-shrink: 0; cursor: pointer; accent-color: #10b981; }
         .kvkk-text { font-size: 13px; color: #475569; line-height: 1.5; margin: 0; font-weight: normal; display: block; }
-        .kvkk-text a { color: #10b981; font-weight: bold; text-decoration: none; position: relative; z-index: 2; }
+        .kvkk-text a { color: #10b981; font-weight: bold; text-decoration: none; }
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e40af; }
         .file-upload-box { background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f59e0b; }
         .file-upload-box label { color: #92400e; font-size: 13px; }
@@ -121,7 +121,7 @@
                 </select>
             </div>
 
-            <!-- RANDEVU ALANI (sadece online hizmetler için) -->
+            <!-- RANDEVU ALANI -->
             <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
                 <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
 
@@ -158,7 +158,6 @@
                 </select>
             </div>
 
-            <!-- TAHLİL YERİ SEÇİMİ -->
             <div class="form-group" id="testLocationGroup" style="display:none;">
                 <label for="test_location">Tahlil Yeri *</label>
                 <select id="test_location">
@@ -168,7 +167,6 @@
                 </select>
             </div>
 
-            <!-- VITALAB BİLGİ KUTUSU -->
             <div class="vitalab-box" id="vitalabInfo" style="display:none;">
                 <h4>🏥 VitaLab Sağlık Laboratuvarı</h4>
                 <p><strong>📍 Adres:</strong> Bağdat Caddesi No: 145, Kadıköy / İstanbul</p>
@@ -193,6 +191,8 @@
                 <strong>🏥 Anlaşmalı Laboratuvar</strong>
                 <p style="margin-top: 8px;">Size en yakın anlaşmalı laboratuvar bilgisi, başvurunuz sonrası e-posta ile gönderilecektir.</p>
             </div>
+
+            <!-- EVDE HİZMET ALANI -->
             <div class="home-service-box" id="homeServiceBox" style="display:none;">
                 <h4>🏠 Evde Hizmet Bilgileri</h4>
                 <div class="form-group">
@@ -200,8 +200,16 @@
                     <textarea id="home_address" rows="2" placeholder="Mahalle, sokak, bina no, daire..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="home_city">İl / İlçe *</label>
-                    <input type="text" id="home_city" placeholder="Örn: İstanbul / Kadıköy">
+                    <label for="home_city">İl *</label>
+                    <select id="home_city" required>
+                        <option value="">İl yükleniyor...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="home_district">İlçe *</label>
+                    <select id="home_district" required>
+                        <option value="">Önce il seçin</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="home_date">Randevu Tarihi *</label>
@@ -221,9 +229,10 @@
                     <textarea id="home_note" rows="2" placeholder="Örn: Zile basmayın, kapıyı çalın."></textarea>
                 </div>
                 <div style="background:#ecfdf5; padding:10px; border-radius:6px; font-size:12px; color:#065f46;">
-                    ℹ️ Evde hizmet ücreti toplam tutara eklenir.
+                    ℹ️ Evde hizmet ücreti toplam tutara eklenir. Bölgenizdeki hemşire otomatik atanır.
                 </div>
             </div>
+
             <div class="form-group">
                 <label for="medical_history">Tıbbi Geçmiş</label>
                 <textarea id="medical_history" rows="3" placeholder="Mevcut hastalıklar, kullandığınız ilaçlar..."></textarea>
@@ -308,9 +317,59 @@
             '14:00', '15:00', '16:00', '17:00', '18:00'
         ];
 
+        // ============================================
+        // İL / İLÇE LİSTESİ
+        // ============================================
+        let IL_ILCE_DATA = {};
+        let currentUser = null;
+        let pendingFormData = null;
+        let pendingAmount = 0;
+
+        // İl listesini JSON'dan yükle
+        async function loadIlIlce() {
+            try {
+                const res = await fetch('il-ilce.json');
+                IL_ILCE_DATA = await res.json();
+
+                const citySelect = document.getElementById('home_city');
+                const cities = Object.keys(IL_ILCE_DATA).sort((a, b) => a.localeCompare(b, 'tr'));
+
+                citySelect.innerHTML = '<option value="">İl seçiniz</option>' +
+                    cities.map(city => `<option value="${city}">${city}</option>`).join('');
+
+                console.log('✅ İl listesi yüklendi:', cities.length, 'il');
+            } catch (err) {
+                console.error('❌ İl listesi yüklenemedi:', err);
+                document.getElementById('home_city').innerHTML = '<option value="">İl listesi yüklenemedi</option>';
+            }
+        }
+
+        // İl değişince ilçeleri yükle
+        document.getElementById('home_city').addEventListener('change', function() {
+            const city = this.value;
+            const districtSelect = document.getElementById('home_district');
+
+            if (!city) {
+                districtSelect.innerHTML = '<option value="">Önce il seçin</option>';
+                return;
+            }
+
+            const districts = IL_ILCE_DATA[city] || [];
+            if (districts.length === 0) {
+                districtSelect.innerHTML = '<option value="">İlçe bulunamadı</option>';
+                return;
+            }
+
+            districtSelect.innerHTML = '<option value="">İlçe seçiniz</option>' +
+                districts.sort((a, b) => a.localeCompare(b, 'tr'))
+                    .map(d => `<option value="${d}">${d}</option>`).join('');
+        });
+
+        // Hizmet türü değişince randevu ve evde hizmet alanlarını göster/gizle
         document.getElementById('service_type').addEventListener('change', function() {
             const serviceType = this.value;
             const appointmentBox = document.getElementById('appointmentBox');
+            const homeBox = document.getElementById('homeServiceBox');
 
             // Randevu alanı
             if (APPOINTMENT_SERVICES.includes(serviceType)) {
@@ -333,7 +392,6 @@
             }
 
             // Evde hizmet kutusu
-            const homeBox = document.getElementById('homeServiceBox');
             if (serviceType === 'Evde Numune Alma' || serviceType === 'Evde Kronik Takip') {
                 homeBox.style.display = 'block';
             } else {
@@ -385,10 +443,6 @@
             }
         }
 
-        let currentUser = null;
-        let pendingFormData = null;
-        let pendingAmount = 0;
-
         function showMessage(text, type) {
             const el = document.getElementById('message');
             el.textContent = text; el.className = 'message ' + type;
@@ -400,6 +454,7 @@
             if (session) {
                 currentUser = session.user;
                 document.getElementById('userEmail').textContent = session.user.email;
+                loadIlIlce(); // İl listesini yükle
             } else {
                 window.location.href = 'giris.html';
             }
@@ -460,9 +515,7 @@
                 return;
             }
 
-            // ============================================
-            // RANDEVU VALİDASYONU
-            // ============================================
+            // Randevu validasyonu
             const serviceTypeCheck = document.getElementById('service_type').value;
             if (APPOINTMENT_SERVICES.includes(serviceTypeCheck)) {
                 const appointmentDate = document.getElementById('appointmentDate').value;
@@ -493,11 +546,13 @@
 
             if (isHomeService) {
                 const homeAddress = document.getElementById('home_address').value.trim();
-                const homeCity = document.getElementById('home_city').value.trim();
+                const homeCity = document.getElementById('home_city').value;
+                const homeDistrict = document.getElementById('home_district').value;
                 const homeDate = document.getElementById('home_date').value;
                 const homeTime = document.getElementById('home_time').value;
-                if (!homeAddress || !homeCity || !homeDate || !homeTime) {
-                    showMessage('❌ Evde hizmet için adres, il/ilçe, tarih ve saat zorunludur.', 'error');
+
+                if (!homeAddress || !homeCity || !homeDistrict || !homeDate || !homeTime) {
+                    showMessage('❌ Evde hizmet için adres, il, ilçe, tarih ve saat zorunludur.', 'error');
                     submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç'; return;
                 }
             }
@@ -562,7 +617,8 @@
 
                 if (isHomeService) {
                     pendingFormData.home_address = document.getElementById('home_address').value.trim();
-                    pendingFormData.home_city = document.getElementById('home_city').value.trim();
+                    pendingFormData.home_city = document.getElementById('home_city').value;
+                    pendingFormData.home_district = document.getElementById('home_district').value;
                     pendingFormData.home_date = document.getElementById('home_date').value;
                     pendingFormData.home_time = document.getElementById('home_time').value;
                     pendingFormData.home_note = document.getElementById('home_note').value.trim() || null;
