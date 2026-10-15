@@ -19,9 +19,9 @@
         label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; font-size: 14px; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-family: inherit; -webkit-appearance: none; appearance: none; background: white; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        button { background-color: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #059669; }
-        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .submit-btn { background-color: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .submit-btn:hover { background-color: #059669; }
+        .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
         .message { padding: 12px; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; }
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
@@ -214,7 +214,7 @@
             </div>
 
             <!-- KVKK ONAY BUTONU -->
-            <input type="checkbox" id="kvkk_consent" required style="display:none;">
+            <input type="checkbox" id="kvkk_consent" style="display:none;">
             <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
                 <button type="button" id="kvkkBtn" 
                         style="width:100%; padding:14px; background:#f0fdf4; border:2px solid #10b981; border-radius:8px; color:#065f46; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:12px; transition:all 0.2s; font-family:inherit;">
@@ -228,7 +228,7 @@
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn">💳 Ödemeye Geç</button>
+            <button type="submit" id="submitBtn" class="submit-btn">💳 Ödemeye Geç</button>
         </form>
         <p class="footer-text">© 2026 HELUNEXA. Tüm hakları saklıdır.</p>
     </div>
@@ -271,9 +271,7 @@
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
 
-        // ============================================
         // KVKK ONAY BUTONU
-        // ============================================
         document.getElementById('kvkkBtn').addEventListener('click', function() {
             const cb = document.getElementById('kvkk_consent');
             cb.checked = !cb.checked;
