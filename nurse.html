@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HELUNEXA - Hemşire Paneli</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, Arial, sans-serif; background: #f1f5f9; color: #0f172a; }
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100dvh; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 20px; overflow-y: auto; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto; }
+        .logo-container { text-align: center; margin-bottom: 25px; }
+        .logo-container img { height: 100px; width: auto; }
+        .login-box p { color: #64748b; text-align: center; margin-bottom: 25px; font-size: 14px; }
+        .login-box input { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; font-size: 16px; -webkit-appearance: none; }
+        .login-box input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); }
+        .login-box button { width: 100%; padding: 14px; background: #f59e0b; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .login-box button:hover { background: #d97706; }
+        .login-box button:disabled { background: #94a3b8; cursor: not-allowed; }
+        .login-error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .header { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; }
+        .header-left img { height: 100px; width: auto; }
+        .header-info { display: flex; align-items: center; gap: 15px; }
+        .role-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; background: #fef3c7; color: #92400e; }
+        .user-info { font-size: 13px; color: #64748b; }
+        .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .logout-btn:hover { background: #dc2626; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .info-box { background: #fef3c7; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b; font-size: 14px; color: #92400e; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-card .num { font-size: 28px; font-weight: bold; color: #f59e0b; }
+        .stat-card .label { font-size: 13px; color: #64748b; margin-top: 5px; }
+        .filters { background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .filters button { padding: 8px 16px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px; color: #475569; }
+        .filters button.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+        .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 14px 15px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        tr:hover { background: #f8fafc; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge.pending { background: #fef3c7; color: #92400e; }
+        .badge.collected { background: #dbeafe; color: #1e40af; }
+        .badge.completed { background: #d1fae5; color: #065f46; }
+        .badge.paid { background: #dbeafe; color: #1e40af; }
+        .home-badge { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .action-btn { padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; }
+        .action-btn:hover { background: #d97706; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 18px; }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
+        .modal-body { padding: 25px; }
+        .detail-row { margin-bottom: 15px; }
+        .detail-row label { display: block; font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+        .detail-row .value { font-size: 15px; color: #0f172a; }
+        .modal-footer { padding: 20px 25px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .btn-primary { background: #f59e0b; color: white; }
+        .btn-primary:hover { background: #d97706; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-secondary { background: #e2e8f0; color: #475569; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 80px; }
+        .home-info-box { background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 15px; }
+        .home-info-box label { color: #92400e; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .home-info-box .value { font-size: 14px; margin-top: 5px; color: #0f172a; }
+        .empty-state { padding: 60px 20px; text-align: center; color: #94a3b8; }
+        .loading { text-align: center; padding: 40px; color: #64748b; }
+
+        @media (max-width: 768px) {
+            .login-container { padding: 15px; align-items: flex-start; padding-top: 40px; }
+            .login-box { padding: 30px 20px; }
+            .logo-container img { height: 80px; }
+            .header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
+            .header-left img { height: 70px; }
+            .header-info { flex-wrap: wrap; gap: 8px; }
+            .user-info { font-size: 11px; }
+            .role-badge { font-size: 11px; padding: 4px 8px; }
+            .logout-btn { padding: 6px 12px; font-size: 12px; }
+            .container { padding: 15px; }
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 15px; }
+            .stat-card .num { font-size: 22px; }
+            .filters { padding: 10px; gap: 5px; }
+            .filters button { padding: 6px 10px; font-size: 12px; }
+            table { min-width: 700px; }
+            th, td { padding: 10px 8px; font-size: 12px; white-space: nowrap; }
+            .modal { max-width: 100%; max-height: 95vh; border-radius: 12px 12px 0 0; }
+            .modal-header { padding: 15px; }
+            .modal-body { padding: 15px; }
+            .modal-footer { padding: 15px; }
+            .btn { padding: 10px 15px; font-size: 13px; }
+            textarea { font-size: 16px; }
+        }
+    </style>
+</head>
+<body class="notranslate">
+
+    <!-- GİRİŞ EKRANI -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <div class="logo-container">
+                <img src="logo.png" alt="HELUNEXA">
+            </div>
+            <p>🏠 Hemşire Paneli Girişi</p>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="E-posta" autocomplete="email" required>
+                <input type="password" id="loginPassword" placeholder="Şifre" autocomplete="current-password" required>
+                <button type="submit" id="loginBtn">Giriş Yap</button>
+            </form>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <!-- PANEL -->
+    <div class="panel" id="panelScreen">
+        <div class="header">
+            <div class="header-left">
+                <img src="logo.png" alt="HELUNEXA">
+            </div>
+            <div class="header-info">
+                <span class="role-badge">🏠 Hemşire</span>
+                <span id="userEmail" class="user-info"></span>
+                <button class="logout-btn" id="logoutBtn">Çıkış</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="info-box">
+                <strong>ℹ️ Bilgi:</strong> Evde hizmet başvuruları burada görünür. Adrese gidip numune aldıktan sonra "Numune Alındı" butonuna basın.
+            </div>
+
+            <div class="stats">
+                <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">Toplam Başvuru</div></div>
+                <div class="stat-card"><div class="num" id="statPending">-</div><div class="label">Numune Bekliyor</div></div>
+                <div class="stat-card"><div class="num" id="statCollected">-</div><div class="label">Numune Alındı</div></div>
+                <div class="stat-card"><div class="num" id="statToday">-</div><div class="label">Bugün Randevu</div></div>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Tümü</button>
+                <button class="filter-btn" data-filter="pending">⏳ Numune Bekliyor</button>
+                <button class="filter-btn" data-filter="collected">✅ Numune Alındı</button>
+                <button class="filter-btn" data-filter="today">📅 Bugün</button>
+            </div>
+
+            <div class="table-container">
+                <div id="tableContent"><div class="loading">Yükleniyor...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Başvuru Detayı</h2>
+                <button class="close-btn" id="closeModal">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Kapat</button>
+                <button class="btn btn-success" id="collectedBtn" style="display:none;">✅ Numune Alındı</button>
+                <button class="btn btn-primary" id="saveNoteBtn">Notu Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { persistSession: true, storageKey: 'helunexa-nurse-auth' },
+            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+        });
+
+        let allApplications = [];
+        let currentApplication = null;
+        let currentFilter = 'all';
+        let currentUserId = null;
+
+        async function checkSession() {
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (session) {
+                    currentUserId = session.user.id;
+                    const { data: roleData } = await _supabase.from('user_roles').select('*').eq('user_id', session.user.id).single();
+                    if (!roleData || roleData.role !== 'nurse') {
+                        await _supabase.auth.signOut();
+                        showLogin();
+                        document.getElementById('loginError').textContent = 'Bu panele sadece hemşireler girebilir.';
+                        return;
+                    }
+                    showPanel(session.user);
+                    loadApplications();
+                } else {
+                    showLogin();
+                }
+            } catch (err) { console.error('Session error:', err); showLogin(); }
+        }
+
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('panelScreen').classList.remove('active');
+        }
+
+        function showPanel(user) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('panelScreen').classList.add('active');
+            document.getElementById('userEmail').textContent = user.email;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('loginError');
+
+            if (!email || !password) { err.textContent = 'E-posta ve şifre gerekli'; return; }
+            btn.disabled = true; btn.textContent = 'Giriş yapılıyor...'; err.textContent = '';
+
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) { err.textContent = '❌ ' + error.message; btn.disabled = false; btn.textContent = 'Giriş Yap'; return; }
+
+                const { data: roleData } = await _supabase.from('user_roles').select('*').eq('user_id', data.user.id).single();
+                if (!roleData || roleData.role !== 'nurse') {
+                    err.textContent = '❌ Bu panele sadece hemşireler girebilir.';
+                    await _supabase.auth.signOut();
+                    btn.disabled = false; btn.textContent = 'Giriş Yap'; return;
+                }
+                currentUserId = data.user.id;
+                showPanel(data.user); loadApplications();
+            } catch (ex) {
+                console.error('Login error:', ex);
+                err.textContent = '❌ Bağlantı hatası: ' + ex.message;
+                btn.disabled = false; btn.textContent = 'Giriş Yap';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await _supabase.auth.signOut(); showLogin(); });
+
+        async function loadApplications() {
+            // Sadece evde hizmetler
+            const { data, error } = await _supabase
+                .from('applications')
+                .select('*')
+                .in('service_type', ['Evde Numune Alma', 'Evde Kronik Takip'])
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                document.getElementById('tableContent').innerHTML = '<div class="empty-state">Hata: ' + error.message + '</div>';
+                return;
+            }
+            allApplications = data || [];
+            updateStats();
+            renderTable();
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('statTotal').textContent = allApplications.length;
+            document.getElementById('statPending').textContent = allApplications.filter(a => a.home_service_status !== 'collected').length;
+            document.getElementById('statCollected').textContent = allApplications.filter(a => a.home_service_status === 'collected').length;
+            document.getElementById('statToday').textContent = allApplications.filter(a => a.home_date === today).length;
+        }
+
+        function renderTable() {
+            let filtered = allApplications;
+            if (currentFilter === 'pending') filtered = allApplications.filter(a => a.home_service_status !== 'collected');
+            else if (currentFilter === 'collected') filtered = allApplications.filter(a => a.home_service_status === 'collected');
+            else if (currentFilter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                filtered = allApplications.filter(a => a.home_date === today);
+            }
+
+            const container = document.getElementById('tableContent');
+            if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Bu filtrede başvuru yok.</div>'; return; }
+
+            let html = `<table><thead><tr><th>Tarih</th><th>Hasta</th><th>Hizmet</th><th>Adres</th><th>Randevu</th><th>Durum</th><th></th></tr></thead><tbody>`;
+            filtered.forEach(app => {
+                const date = new Date(app.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const collected = app.home_service_status === 'collected';
+                const statusBadge = collected
+                    ? '<span class="badge collected">✅ Numune Alındı</span>'
+                    : '<span class="badge pending">⏳ Numune Bekliyor</span>';
+
+                html += `<tr>
+                    <td>${date}</td>
+                    <td><strong>${escapeHtml(app.fullname)}</strong><br><small style="color:#94a3b8;">${escapeHtml(app.phone)}</small></td>
+                    <td>${escapeHtml(app.service_type)}</td>
+                    <td><small>${escapeHtml(app.home_city) || '-'}<br>${escapeHtml(app.home_address).substring(0, 30)}...</small></td>
+                    <td><small>${app.home_date || '-'}<br>${escapeHtml(app.home_time) || '-'}</small></td>
+                    <td>${statusBadge}</td>
+                    <td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderTable();
+            });
+        });
+
+        window.openDetail = function(id) {
+            const app = allApplications.find(a => a.id === id);
+            if (!app) return;
+            currentApplication = app;
+
+            document.getElementById('modalTitle').textContent = app.fullname;
+
+            const collected = app.home_service_status === 'collected';
+
+            document.getElementById('modalBody').innerHTML = `
+                <div class="home-info-box">
+                    <label>🏠 Evde Hizmet Bilgileri</label>
+                    <div class="value"><strong>Adres:</strong> ${escapeHtml(app.home_address)}</div>
+                    <div class="value"><strong>İl/İlçe:</strong> ${escapeHtml(app.home_city) || '-'}</div>
+                    <div class="value"><strong>Tarih:</strong> ${app.home_date || '-'}</div>
+                    <div class="value"><strong>Saat:</strong> ${escapeHtml(app.home_time) || '-'}</div>
+                    ${app.home_note ? `<div class="value"><strong>Not:</strong> ${escapeHtml(app.home_note)}</div>` : ''}
+                    <div class="value" style="margin-top:8px;"><strong>Durum:</strong> ${collected ? '<span style="color:#10b981;">✅ Numune Alındı</span>' : '<span style="color:#f59e0b;">⏳ Numune Bekliyor</span>'}</div>
+                </div>
+
+                <div class="detail-row"><label>Hasta</label><div class="value">${escapeHtml(app.fullname)} (${app.age} yaş)</div></div>
+                <div class="detail-row"><label>Telefon</label><div class="value">${escapeHtml(app.phone)}</div></div>
+                <div class="detail-row"><label>E-posta</label><div class="value">${escapeHtml(app.email)}</div></div>
+                <div class="detail-row"><label>Hizmet Türü</label><div class="value">${escapeHtml(app.service_type)}</div></div>
+                <div class="detail-row"><label>Tıbbi Geçmiş</label><div class="value">${escapeHtml(app.medical_history) || '<em>Belirtilmemiş</em>'}</div></div>
+
+                <div class="detail-row" style="margin-top:20px;">
+                    <label>📝 Hemşire Notu</label>
+                    <textarea id="nurseNote" placeholder="Evde yapılan işlemler, hasta durumu...">${escapeHtml(app.lab_note) || ''}</textarea>
+                </div>
+            `;
+
+            const collectedBtn = document.getElementById('collectedBtn');
+            collectedBtn.style.display = collected ? 'none' : 'inline-block';
+
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); currentApplication = null; }
+
+        document.getElementById('collectedBtn').addEventListener('click', async () => {
+            if (!currentApplication) return;
+            const btn = document.getElementById('collectedBtn');
+            btn.disabled = true; btn.textContent = 'İşaretleniyor...';
+
+            const note = document.getElementById('nurseNote')?.value.trim() || '';
+
+            const { error } = await _supabase
+                .from('applications')
+                .update({
+                    home_service_status: 'collected',
+                    lab_note: note || currentApplication.lab_note
+                })
+                .eq('id', currentApplication.id);
+
+            if (error) {
+                alert('❌ Hata: ' + error.message);
+                btn.disabled = false; btn.textContent = '✅ Numune Alındı';
+                return;
+            }
+            alert('✅ Numune alındı olarak işaretlendi!');
+            await loadApplications();
+            closeModal();
+        });
+
+        document.getElementById('saveNoteBtn').addEventListener('click', async () => {
+            if (!currentApplication) return;
+            const btn = document.getElementById('saveNoteBtn');
+            btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+
+            const note = document.getElementById('nurseNote')?.value.trim() || '';
+
+            const { error } = await _supabase
+                .from('applications')
+                .update({ lab_note: note || null })
+                .eq('id', currentApplication.id);
+
+            if (error) {
+                alert('❌ Hata: ' + error.message);
+                btn.disabled = false; btn.textContent = 'Notu Kaydet';
+                return;
+            }
+            alert('✅ Not kaydedildi!');
+            await loadApplications();
+            closeModal();
+        });
+
+        checkSession();
+    </script>
+</body>
+</html>
