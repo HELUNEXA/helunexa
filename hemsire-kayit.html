@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HELUNEXA - Hemşire Kayıt</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, Arial, sans-serif; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .box { background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 100%; max-width: 500px; }
+        .logo-container { text-align: center; margin-bottom: 20px; }
+        .logo-container img { height: 80px; width: auto; }
+        h1 { text-align: center; font-size: 22px; color: #0f172a; margin-bottom: 8px; }
+        .subtitle { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: #334155; font-weight: bold; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; font-family: inherit; -webkit-appearance: none; background: white; }
+        input:focus, select:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .region-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .region-row button { grid-column: span 2; padding: 12px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .region-row button:hover { background: #d97706; }
+        .regions-list { background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; display: none; }
+        .region-item { padding: 8px 10px; background: white; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid #f59e0b; display: flex; justify-content: space-between; align-items: center; }
+        .region-item button { background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 18px; padding: 0 5px; }
+        button[type="submit"] { width: 100%; padding: 14px; background: #f59e0b; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button[type="submit"]:hover { background: #d97706; }
+        button[type="submit"]:disabled { background: #94a3b8; cursor: not-allowed; }
+        .message { padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; display: none; }
+        .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
+        .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
+        .info-box { background: #fef3c7; padding: 12px; border-radius: 8px; font-size: 13px; color: #92400e; border-left: 4px solid #f59e0b; margin-bottom: 15px; }
+        .links { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
+        .links a { color: #f59e0b; font-weight: bold; text-decoration: none; }
+        @media (max-width: 480px) {
+            body { padding: 15px; align-items: flex-start; padding-top: 30px; }
+            .box { padding: 30px 20px; }
+            .logo-container img { height: 70px; }
+        }
+    </style>
+</head>
+<body class="notranslate">
+<div class="box">
+    <div class="logo-container">
+        <img src="logo.png" alt="HELUNEXA">
+    </div>
+    <h1>🏠 Hemşire Kayıt</h1>
+    <p class="subtitle">Evde hizmet verecek hemşireler için</p>
+
+    <div id="message" class="message"></div>
+
+    <div class="info-box">
+        <strong>ℹ️ Bilgi:</strong> Kaydınız admin onayına düşer. Onaylandıktan sonra panele giriş yapabilirsiniz.
+    </div>
+
+    <form id="registerForm">
+        <div class="form-group">
+            <label for="fullname">Ad Soyad *</label>
+            <input type="text" id="fullname" required minlength="3" placeholder="Adınız ve soyadınız">
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-posta *</label>
+            <input type="email" id="email" required placeholder="ornek@helunexa.com">
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Telefon *</label>
+            <input type="tel" id="phone" required placeholder="05XX XXX XX XX">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Şifre * (en az 6 karakter)</label>
+            <input type="password" id="password" required minlength="6" placeholder="••••••••">
+        </div>
+
+        <div class="form-group">
+            <label>Çalıştığınız Bölgeler * (birden fazla ekleyebilirsiniz)</label>
+            <div class="region-row">
+                <div>
+                    <label style="font-size:12px; color:#64748b; font-weight:normal;">İl</label>
+                    <select id="regionCity">
+                        <option value="">İl seçiniz</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:12px; color:#64748b; font-weight:normal;">İlçe</label>
+                    <select id="regionDistrict">
+                        <option value="">Önce il seçin</option>
+                    </select>
+                </div>
+                <button type="button" onclick="addRegion()">+ Bölge Ekle</button>
+            </div>
+
+            <div class="regions-list" id="regionsList">
+                <label style="font-size:12px; color:#64748b; text-transform:uppercase;">Seçilen Bölgeler:</label>
+                <div id="regionsItems" style="margin-top:8px;"></div>
+            </div>
+        </div>
+
+        <button type="submit" id="registerBtn">Kayıt Ol</button>
+    </form>
+
+    <div class="links">
+        Hesabınız var mı? <a href="giris.html">Giriş Yap</a>
+    </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false },
+    global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+});
+
+let IL_ILCE_DATA = {};
+let selectedRegions = [];
+
+async function loadIlIlce() {
+    try {
+        const res = await fetch('il-ilce.json');
+        IL_ILCE_DATA = await res.json();
+
+        const citySelect = document.getElementById('regionCity');
+        const cities = Object.keys(IL_ILCE_DATA).sort((a, b) => a.localeCompare(b, 'tr'));
+
+        citySelect.innerHTML = '<option value="">İl seçiniz</option>' +
+            cities.map(c => `<option value="${c}">${c}</option>`).join('');
+    } catch (err) {
+        console.error('İl listesi yüklenemedi:', err);
+        document.getElementById('regionCity').innerHTML = '<option value="">İl listesi yüklenemedi</option>';
+    }
+}
+
+document.getElementById('regionCity').addEventListener('change', function() {
+    const city = this.value;
+    const districtSelect = document.getElementById('regionDistrict');
+
+    if (!city) {
+        districtSelect.innerHTML = '<option value="">Önce il seçin</option>';
+        return;
+    }
+
+    const districts = IL_ILCE_DATA[city] || [];
+    districtSelect.innerHTML = '<option value="">İlçe seçiniz</option>' +
+        districts.sort((a, b) => a.localeCompare(b, 'tr'))
+            .map(d => `<option value="${d}">${d}</option>`).join('');
+});
+
+function addRegion() {
+    const city = document.getElementById('regionCity').value;
+    const district = document.getElementById('regionDistrict').value;
+
+    if (!city || !district) {
+        showMessage('❌ Lütfen il ve ilçe seçin.', 'error');
+        return;
+    }
+
+    if (selectedRegions.some(r => r.city === city && r.district === district)) {
+        showMessage('❌ Bu bölge zaten eklenmiş.', 'error');
+        return;
+    }
+
+    selectedRegions.push({ city, district });
+    renderRegions();
+
+    document.getElementById('regionCity').value = '';
+    document.getElementById('regionDistrict').innerHTML = '<option value="">Önce il seçin</option>';
+    document.getElementById('message').style.display = 'none';
+}
+
+function removeRegion(index) {
+    selectedRegions.splice(index, 1);
+    renderRegions();
+}
+
+function renderRegions() {
+    const listDiv = document.getElementById('regionsList');
+    const itemsDiv = document.getElementById('regionsItems');
+
+    if (selectedRegions.length === 0) {
+        listDiv.style.display = 'none';
+        return;
+    }
+
+    listDiv.style.display = 'block';
+    itemsDiv.innerHTML = selectedRegions.map((r, i) => `
+        <div class="region-item">
+            <span>📍 ${r.city} / ${r.district}</span>
+            <button type="button" onclick="removeRegion(${i})">×</button>
+        </div>
+    `).join('');
+}
+
+function showMessage(text, type) {
+    const el = document.getElementById('message');
+    el.textContent = text;
+    el.className = 'message ' + type;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fullname = document.getElementById('fullname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('registerBtn');
+
+    if (!fullname || !email || !phone || !password) {
+        showMessage('❌ Lütfen tüm alanları doldurun.', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showMessage('❌ Şifre en az 6 karakter olmalı.', 'error');
+        return;
+    }
+    if (selectedRegions.length === 0) {
+        showMessage('❌ En az bir bölge ekleyin.', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Kayıt yapılıyor...';
+
+    try {
+        const { data: authData, error: authError } = await _supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { fullname: fullname, phone: phone } }
+        });
+
+        if (authError) {
+            showMessage('❌ ' + authError.message, 'error');
+            btn.disabled = false; btn.textContent = 'Kayıt Ol';
+            return;
+        }
+
+        if (!authData.user) {
+            showMessage('❌ Kullanıcı oluşturulamadı.', 'error');
+            btn.disabled = false; btn.textContent = 'Kayıt Ol';
+            return;
+        }
+
+        const userId = authData.user.id;
+        const firstRegion = selectedRegions[0];
+
+        const { error: roleError } = await _supabase.from('user_roles').insert({
+            user_id: userId,
+            email: email,
+            role: 'nurse',
+            specialty: 'home_care',
+            display_name: fullname,
+            region_city: firstRegion.city,
+            region_district: firstRegion.district,
+            region_list: selectedRegions,
+            status: 'pending'
+        });
+
+        if (roleError) {
+            console.error('Role ekleme hatası:', roleError);
+            showMessage('⚠️ Kayıt oluştu ama rol atanamadı: ' + roleError.message, 'error');
+            btn.disabled = false; btn.textContent = 'Kayıt Ol';
+            return;
+        }
+
+        showMessage('✅ Kayıt başarılı! Admin onayından sonra giriş yapabilirsiniz. Giriş sayfasına yönlendiriliyorsunuz...', 'success');
+
+        setTimeout(() => {
+            window.location.href = 'giris.html';
+        }, 3000);
+
+    } catch (err) {
+        console.error('Kayıt hatası:', err);
+        showMessage('❌ Bir hata oluştu: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = 'Kayıt Ol';
+    }
+});
+
+loadIlIlce();
+</script>
+</body>
+</html>
