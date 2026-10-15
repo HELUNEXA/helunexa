@@ -213,17 +213,18 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <!-- KVKK - BASİT VE ÇALIŞAN -->
+            <!-- KVKK ONAY BUTONU -->
+            <input type="checkbox" id="kvkk_consent" required style="display:none;">
             <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <input type="checkbox" id="kvkk_consent" required 
-                           style="width:28px; height:28px; min-width:28px; margin:0; cursor:pointer; accent-color:#10b981; flex-shrink:0; display:block;">
-                    <label for="kvkk_consent" style="cursor:pointer; font-size:13px; color:#475569; line-height:1.5; margin:0; font-weight:normal; display:block; flex:1;">
-                        <strong>Sağlık verilerimin işlenmesine açık rıza veriyorum.</strong> *
-                        <span style="display:block; margin-top:6px; font-size:12px; color:#64748b;">
-                            Detaylı bilgi için: <a href="kvkk.html" target="_blank" style="color:#10b981; font-weight:bold; text-decoration:none;">KVKK Aydınlatma Metni →</a>
-                        </span>
-                    </label>
+                <button type="button" id="kvkkBtn" 
+                        style="width:100%; padding:14px; background:#f0fdf4; border:2px solid #10b981; border-radius:8px; color:#065f46; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:12px; transition:all 0.2s; font-family:inherit;">
+                    ⬜ KVKK Onayını İşaretle
+                </button>
+                <div style="font-size:13px; color:#475569; line-height:1.5;">
+                    <strong>Sağlık verilerimin işlenmesine açık rıza veriyorum.</strong> *
+                    <span style="display:block; margin-top:6px; font-size:12px; color:#64748b;">
+                        Detaylı bilgi için: <a href="kvkk.html" target="_blank" style="color:#10b981; font-weight:bold; text-decoration:none;">KVKK Aydınlatma Metni →</a>
+                    </span>
                 </div>
             </div>
 
@@ -268,6 +269,26 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+        });
+
+        // ============================================
+        // KVKK ONAY BUTONU
+        // ============================================
+        document.getElementById('kvkkBtn').addEventListener('click', function() {
+            const cb = document.getElementById('kvkk_consent');
+            cb.checked = !cb.checked;
+            
+            if (cb.checked) {
+                this.innerHTML = '✅ KVKK Onayı Verildi';
+                this.style.background = '#10b981';
+                this.style.color = 'white';
+                this.style.borderColor = '#059669';
+            } else {
+                this.innerHTML = '⬜ KVKK Onayını İşaretle';
+                this.style.background = '#f0fdf4';
+                this.style.color = '#065f46';
+                this.style.borderColor = '#10b981';
+            }
         });
 
         const APPOINTMENT_SERVICES = ['Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme'];
@@ -433,7 +454,7 @@
             e.preventDefault();
 
             if (!document.getElementById('kvkk_consent').checked) {
-                showMessage('❌ KVKK onay kutusunu işaretlemeniz gerekiyor.', 'error');
+                showMessage('❌ KVKK onay butonuna basmanız gerekiyor.', 'error');
                 return;
             }
 
