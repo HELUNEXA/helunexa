@@ -130,7 +130,7 @@
                 <img src="logo.png" alt="HELUNEXA">
             </div>
             <div class="header-info">
-                <span class="role-badge">🏠 Hemşire</span>
+                <span class="role-badge" id="nurseNameBadge">🏠 Hemşire</span>
                 <span id="userEmail" class="user-info"></span>
                 <button class="logout-btn" id="logoutBtn">Çıkış</button>
             </div>
@@ -216,11 +216,24 @@
             document.getElementById('panelScreen').classList.remove('active');
         }
 
-        function showPanel(user) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('panelScreen').classList.add('active');
-            document.getElementById('userEmail').textContent = user.email;
+        async function showPanel(user) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('panelScreen').classList.add('active');
+    document.getElementById('userEmail').textContent = user.email;
+
+    // Hemşire adını çek
+    try {
+        const { data: roleData } = await _supabase
+            .from('user_roles')
+            .select('display_name')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+        if (roleData?.display_name) {
+            document.getElementById('nurseNameBadge').textContent = '👩‍⚕️ ' + roleData.display_name;
         }
+    } catch(e) { console.warn(e); }
+}
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
