@@ -323,9 +323,9 @@
             }
         }
 
-        function showLogin() {
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('panelScreen').classList.remove('active');
+                function showLogin() {
+            // Artık admin.html'de login yok - giris.html'e yönlendir
+            window.location.href = 'giris.html';
         }
 
         function showPanel(user) {
