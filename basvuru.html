@@ -109,11 +109,11 @@
             <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
                 <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
                 <div class="form-group">
-                    <label for="appointmentDate">Randevu Tarihi *</label>
+                    <label for="appointmentDate">Randevu Tarihi</label>
                     <input type="date" id="appointmentDate" min="">
                 </div>
                 <div class="form-group">
-                    <label for="appointmentTime">Randevu Saati *</label>
+                    <label for="appointmentTime">Randevu Saati</label>
                     <select id="appointmentTime">
                         <option value="">Tarih seçiniz...</option>
                     </select>
@@ -136,7 +136,7 @@
             </div>
 
             <div class="form-group" id="testLocationGroup" style="display:none;">
-                <label for="test_location">Tahlil Yeri *</label>
+                <label for="test_location">Tahlil Yeri</label>
                 <select id="test_location">
                     <option value="">Seçiniz</option>
                     <option value="vitalab">🏥 VitaLab Sağlık Laboratuvarı (Anlaşmalı)</option>
@@ -170,27 +170,27 @@
             <div class="home-service-box" id="homeServiceBox" style="display:none;">
                 <h4>🏠 Evde Hizmet Bilgileri</h4>
                 <div class="form-group">
-                    <label for="home_address">Adres *</label>
+                    <label for="home_address">Adres</label>
                     <textarea id="home_address" rows="2" placeholder="Mahalle, sokak, bina no, daire..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="home_city">İl *</label>
-                    <select id="home_city" required>
+                    <label for="home_city">İl</label>
+                    <select id="home_city">
                         <option value="">İl yükleniyor...</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="home_district">İlçe *</label>
-                    <select id="home_district" required>
+                    <label for="home_district">İlçe</label>
+                    <select id="home_district">
                         <option value="">Önce il seçin</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="home_date">Randevu Tarihi *</label>
+                    <label for="home_date">Randevu Tarihi</label>
                     <input type="date" id="home_date">
                 </div>
                 <div class="form-group">
-                    <label for="home_time">Randevu Saati *</label>
+                    <label for="home_time">Randevu Saati</label>
                     <select id="home_time">
                         <option value="">Seçiniz</option>
                         <option value="Sabah (09:00-12:00)">Sabah (09:00-12:00)</option>
@@ -213,7 +213,7 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <!-- KVKK ONAY - GİZLİ CHECKBOX, BUTON İLE KONTROL -->
+            <!-- KVKK ONAY - GİZLİ CHECKBOX, REQUIRED YOK -->
             <input type="checkbox" id="kvkk_consent" style="display:none;">
             <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
                 <button type="button" id="kvkkBtn" 
@@ -271,11 +271,9 @@
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
 
-        // KVKK ONAY BUTONU
         document.getElementById('kvkkBtn').addEventListener('click', function() {
             const cb = document.getElementById('kvkk_consent');
             cb.checked = !cb.checked;
-            
             if (cb.checked) {
                 this.innerHTML = '✅ KVKK Onayı Verildi';
                 this.style.background = '#10b981';
@@ -290,13 +288,11 @@
         });
 
         const APPOINTMENT_SERVICES = ['Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme'];
-
         const DOCTOR_UID_BY_SERVICE = {
             'Psikolojik Destek': 'c5b92d85-569f-4bf8-8f1b-2b23c70b88bd',
             'Longevity Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
             'Dijital Değerlendirme': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
         };
-
         const ALL_TIME_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
         let IL_ILCE_DATA = {};
