@@ -446,9 +446,7 @@
             document.getElementById('testLocationGroup').style.display = (value === 'need_test') ? 'block' : 'none';
         });
 
-        document.getElementById('test_location').addEventListener('change', function() {
-            document.getElementById('vitalabInfo').style.display = (this.value === 'vitalab') ? 'block' : 'none';
-        });
+        
 
         document.getElementById('test_file').addEventListener('change', function() {
             const file = this.files[0];
