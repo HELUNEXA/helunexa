@@ -412,14 +412,35 @@
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
 
-        const APPOINTMENT_SERVICES = ['Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme', 'Kanser Taraması', 'Gebelik Takibi'];
+        // TÜM HİZMETLER İÇİN RANDEVU ZORUNLULUĞU EKLENDİ
+        const APPOINTMENT_SERVICES = [
+            'Psikolojik Destek', 
+            'Longevity Takibi', 
+            'Dijital Değerlendirme', 
+            'Kanser Taraması', 
+            'Gebelik Takibi',
+            'Kurumsal Sağlık',
+            'Yaşlı Takip',
+            'Rutin Kontrol',
+            'Kronik Takip - Diyabet',
+            'Kronik Takip - Hipertansiyon',
+            'Kronik Takip - Tiroid'
+        ];
+
         const DOCTOR_UID_BY_SERVICE = {
             'Psikolojik Destek': 'c5b92d85-569f-4bf8-8f1b-2b23c70b88bd',
             'Longevity Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
             'Dijital Değerlendirme': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
             'Kanser Taraması': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Gebelik Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616'
+            'Gebelik Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Kurumsal Sağlık': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Yaşlı Takip': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Rutin Kontrol': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Kronik Takip - Diyabet': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Kronik Takip - Hipertansiyon': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Kronik Takip - Tiroid': 'cf9bcba8-796e-4886-8fee-a52fb9b82616'
         };
+
         const ALL_TIME_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
 
         let IL_ILCE_DATA = {};
@@ -628,7 +649,7 @@
 
             if (APPOINTMENT_SERVICES.includes(serviceType)) {
                 if (!document.getElementById('appointmentDate').value || !document.getElementById('appointmentTime').value) {
-                    showMessage('❌ Lütfen randevu tarihi ve saatini seçin.', 'error'); return;
+                    showMessage('❌ Lütfen online görüşme için randevu tarihi ve saatini seçin.', 'error'); return;
                 }
             }
 
@@ -643,7 +664,6 @@
             submitBtn.disabled = true; submitBtn.textContent = 'Kontrol Ediliyor...';
 
             try {
-                // Dosya Yükleme
                 let fileUrl = null, fileName = null;
                 const fileInput = document.getElementById('test_file');
                 if (document.getElementById('test_status').value === 'have_results' && fileInput.files.length > 0) {
@@ -705,36 +725,37 @@
                 const employeeNumber = document.getElementById('employee_number').value.trim();
                 let isCorporate = false;
 
-                // KURUMSAL DOĞRULAMA (BizPilot senaryosu)
                 if (corporateCode.length > 0) {
                     submitBtn.textContent = 'Şirket Doğrulanıyor...';
                     
+                    // 406 HATASI ÇÖZÜMÜ: single() yerine limit(1) ve maybeSingle() kullanımı
                     const { data: companyData, error: companyError } = await _supabase
                         .from('companies')
                         .select('id, name')
                         .eq('company_code', corporateCode)
-                        .single();
+                        .limit(1);
 
-                    if (companyError || !companyData) {
+                    if (companyError || !companyData || companyData.length === 0) {
                         showMessage('❌ Geçersiz Şirket Kodu! Lütfen İK biriminizden doğru kodu alın.', 'error');
                         submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
                         return;
                     }
+                    
+                    const companyId = companyData[0].id;
 
                     const { data: employeeData, error: empError } = await _supabase
                         .from('employees')
                         .select('id')
-                        .eq('company_id', companyData.id)
+                        .eq('company_id', companyId)
                         .eq('employee_number', employeeNumber)
-                        .single();
+                        .limit(1);
 
-                    if (empError || !employeeData) {
+                    if (empError || !employeeData || employeeData.length === 0) {
                         showMessage('❌ Çalışan numaranız bu şirkete kayıtlı değil. Lütfen sicil numaranızı kontrol edin.', 'error');
                         submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
                         return;
                     }
 
-                    // Başarılı! Ödeme alınmayacak
                     price = 0;
                     isCorporate = true;
                 }
@@ -784,7 +805,6 @@
                     pendingFormData.home_service_status = 'pending';
                 }
 
-                // EĞER KURUMSAL İSE ÖDEMEYİ ATLA VE DİREKT HASTANEYE GİT
                 if (isCorporate) {
                     document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
                     document.getElementById('paymentService').textContent = serviceType + " (Kurumsal)";
@@ -795,10 +815,9 @@
                     await loadHospitals();
                     document.getElementById('paymentModal').classList.add('active');
                     submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
-                    return; // Ödeme ekranını açmadan fonksiyondan çık
+                    return; 
                 }
 
-                // Normal Hasta İse Ödeme Ekranını Aç
                 document.getElementById('payPatient').textContent = pendingFormData.fullname;
                 document.getElementById('payService').textContent = serviceType;
                 document.getElementById('payAmount').textContent = '₺' + price.toLocaleString('tr-TR');
