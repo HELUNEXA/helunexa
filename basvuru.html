@@ -115,10 +115,12 @@
                 <input type="tel" id="phone" required placeholder="05XX XXX XX XX">
             </div>
 
-            <!-- KURUMSAL ŞİRKET KODU ALANI -->
-            <div class="form-group">
-                <label for="corporate_code">Şirket Kodu (Varsa)</label>
-                <input type="text" id="corporate_code" placeholder="Örn: HELUNEXA01 (Kurumsal çalışanlar için)">
+            <!-- KURUMSAL ŞİRKET KODU VE ÇALIŞAN NO ALANLARI -->
+            <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px dashed #cbd5e1;">
+                <label for="corporate_code" style="color:#3b82f6;">🏢 Kurumsal Çalışan Girişi (Ödeme Yapmaz)</label>
+                <input type="text" id="corporate_code" placeholder="Şirket Kodu (Örn: PILOT01)" style="margin-bottom:8px;">
+                <input type="text" id="employee_number" placeholder="Çalışan / Sicil No (Örn: EMP-1001)">
+                <small style="color:#64748b; font-size:12px; display:block; margin-top:5px;">* Şirket anlaşmanız varsa doldurun. Boş bırakırsanız normal ödeme alınır.</small>
             </div>
 
             <div class="form-group">
@@ -385,9 +387,9 @@
             <div class="payment-summary">
                 <div><span style="color:#64748b;">Hasta Adı:</span><strong id="paymentPatient">-</strong></div>
                 <div><span style="color:#64748b;">Hizmet:</span><strong id="paymentService">-</strong></div>
-                <div><span style="color:#64748b;">Ödeme:</span><strong style="color:#059669;">✅ Ödendi</strong></div>
+                <div><span style="color:#64748b;">Ödeme:</span><strong id="paymentStatusDisplay" style="color:#059669;">✅ Ödendi</strong></div>
             </div>
-            <div class="demo-warning">
+            <div class="demo-warning" id="hospitalWarning">
                 ✅ <strong>Ödemeniz alındı.</strong> Şimdi hizmet almak istediğiniz anlaşmalı hastaneyi seçiniz.
             </div>
             <label style="font-size:14px; color:#334155; font-weight:bold; display:block; margin-bottom:8px;">Size En Yakın Anlaşmalı Hastane *</label>
@@ -476,17 +478,11 @@
             districtSelect.innerHTML = '<option value="">İlçe seçiniz</option>' + districts.sort((a, b) => a.localeCompare(b, 'tr')).map(d => `<option value="${d}">${d}</option>`).join('');
         });
 
-        // Hizmet seçimi değiştiğinde kutuları göster/gizle
         document.getElementById('service_type').addEventListener('change', function() {
             const serviceType = this.value;
-            
-            // Kanser Kutusu
             document.getElementById('cancerScreeningBox').style.display = (serviceType === 'Kanser Taraması') ? 'block' : 'none';
-            
-            // Gebelik Kutusu
             document.getElementById('pregnancyBox').style.display = (serviceType === 'Gebelik Takibi') ? 'block' : 'none';
             
-            // Randevu Kutusu
             const appointmentBox = document.getElementById('appointmentBox');
             if (APPOINTMENT_SERVICES.includes(serviceType)) {
                 appointmentBox.style.display = 'block';
@@ -497,7 +493,6 @@
                 appointmentBox.style.display = 'none';
             }
 
-            // Evde Hizmet Kutusu
             const homeBox = document.getElementById('homeServiceBox');
             if (serviceType === 'Evde Numune Alma' || serviceType === 'Evde Kronik Takip' || serviceType === 'Evde Bakım') {
                 homeBox.style.display = 'block';
@@ -516,12 +511,11 @@
             document.getElementById('cs_symptoms_detail').style.display = (this.value === 'alarm') ? 'block' : 'none';
         });
 
-        // Gebelik Haftası ve TDT Hesaplama
         document.getElementById('preg_lmp').addEventListener('change', function() {
             const lmpDate = new Date(this.value);
             if (!isNaN(lmpDate.getTime())) {
                 const edd = new Date(lmpDate);
-                edd.setDate(edd.getDate() + 280); // 40 hafta
+                edd.setDate(edd.getDate() + 280);
                 const formattedEdd = edd.toLocaleDateString('tr-TR');
                 document.getElementById('preg_edd_display').textContent = formattedEdd + " (Yaklaşık 40. Hafta)";
             } else {
@@ -578,7 +572,6 @@
             }
         });
 
-        // --- KART FORMATLAYICILARI ---
         const cardNumberEl = document.getElementById('card_number');
         const cardExpiryEl = document.getElementById('card_expiry');
         const cardCvvEl = document.getElementById('card_cvv');
@@ -609,7 +602,6 @@
             this.value = this.value.replace(/\D/g, '').slice(0, 4);
         });
 
-        // --- FORM SUBMIT ---
         document.getElementById('healthForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -648,7 +640,7 @@
             }
 
             const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true; submitBtn.textContent = 'Hazırlanıyor...';
+            submitBtn.disabled = true; submitBtn.textContent = 'Kontrol Ediliyor...';
 
             try {
                 // Dosya Yükleme
@@ -663,7 +655,6 @@
                     fileUrl = urlData.publicUrl; fileName = file.name;
                 }
 
-                // Kanser Tarama Karar Destek
                 let kanserOnerisi = "";
                 if (serviceType === 'Kanser Taraması') {
                     const gender = document.getElementById('cs_gender').value;
@@ -710,11 +701,41 @@
                 const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
                 let price = parseFloat(selectedOption.getAttribute('data-price') || '0');
                 
-                const corporateCode = document.getElementById('corporate_code').value.trim();
+                const corporateCode = document.getElementById('corporate_code').value.trim().toUpperCase();
+                const employeeNumber = document.getElementById('employee_number').value.trim();
                 let isCorporate = false;
 
-                if (serviceType === 'Kurumsal Sağlık' || corporateCode.length > 0) {
-                    price = 0; // Kurumsal ise hasta ödeme yapmaz
+                // KURUMSAL DOĞRULAMA (BizPilot senaryosu)
+                if (corporateCode.length > 0) {
+                    submitBtn.textContent = 'Şirket Doğrulanıyor...';
+                    
+                    const { data: companyData, error: companyError } = await _supabase
+                        .from('companies')
+                        .select('id, name')
+                        .eq('company_code', corporateCode)
+                        .single();
+
+                    if (companyError || !companyData) {
+                        showMessage('❌ Geçersiz Şirket Kodu! Lütfen İK biriminizden doğru kodu alın.', 'error');
+                        submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
+                        return;
+                    }
+
+                    const { data: employeeData, error: empError } = await _supabase
+                        .from('employees')
+                        .select('id')
+                        .eq('company_id', companyData.id)
+                        .eq('employee_number', employeeNumber)
+                        .single();
+
+                    if (empError || !employeeData) {
+                        showMessage('❌ Çalışan numaranız bu şirkete kayıtlı değil. Lütfen sicil numaranızı kontrol edin.', 'error');
+                        submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
+                        return;
+                    }
+
+                    // Başarılı! Ödeme alınmayacak
+                    price = 0;
                     isCorporate = true;
                 }
 
@@ -742,12 +763,11 @@
                     is_corporate: isCorporate
                 };
 
-                // Eğer kurumsal kod girildiyse forma ekle
                 if (isCorporate) {
                     pendingFormData.corporate_code = corporateCode;
+                    pendingFormData.employee_number = employeeNumber;
                 }
 
-                // Gebelik Verilerini Ekle
                 if (serviceType === 'Gebelik Takibi') {
                     pendingFormData.pregnancy_lmp = document.getElementById('preg_lmp').value;
                     pendingFormData.pregnancy_weight = document.getElementById('preg_weight').value;
@@ -768,6 +788,9 @@
                 if (isCorporate) {
                     document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
                     document.getElementById('paymentService').textContent = serviceType + " (Kurumsal)";
+                    document.getElementById('paymentStatusDisplay').textContent = "🏢 Şirket Ödemeli";
+                    document.getElementById('paymentStatusDisplay').style.color = "#3b82f6";
+                    document.getElementById('hospitalWarning').innerHTML = "🏢 <strong>Kurumsal Çalışan:</strong> Ödeme şirketiniz tarafından yapılacaktır. Lütfen hastane seçiniz.";
                     
                     await loadHospitals();
                     document.getElementById('paymentModal').classList.add('active');
@@ -775,7 +798,7 @@
                     return; // Ödeme ekranını açmadan fonksiyondan çık
                 }
 
-                // Ödeme ekranını doldur ve aç
+                // Normal Hasta İse Ödeme Ekranını Aç
                 document.getElementById('payPatient').textContent = pendingFormData.fullname;
                 document.getElementById('payService').textContent = serviceType;
                 document.getElementById('payAmount').textContent = '₺' + price.toLocaleString('tr-TR');
@@ -800,7 +823,6 @@
             }
         });
 
-        // --- ÖDEME YAPMA ---
         document.getElementById('payBtn').addEventListener('click', async function() {
             const cardNum = document.getElementById('card_number').value.replace(/\s/g, '');
             const cardName = document.getElementById('card_name').value.trim();
@@ -836,6 +858,10 @@
 
             document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
             document.getElementById('paymentService').textContent = pendingFormData.service_type;
+            document.getElementById('paymentStatusDisplay').textContent = "✅ Ödendi";
+            document.getElementById('paymentStatusDisplay').style.color = "#059669";
+            document.getElementById('hospitalWarning').innerHTML = "✅ <strong>Ödemeniz alındı.</strong> Şimdi hizmet almak istediğiniz anlaşmalı hastaneyi seçiniz.";
+            
             await loadHospitals();
             document.getElementById('paymentModal').classList.add('active');
         });
@@ -847,7 +873,6 @@
             document.getElementById('submitBtn').textContent = '💳 Ödemeye Geç';
         });
 
-        // --- HASTANE SEÇİMİ VE KAYIT ---
         document.getElementById('completePayment').addEventListener('click', async () => {
             const selectEl = document.getElementById('selectedHospital');
             const selectedHospitalId = selectEl.value;
