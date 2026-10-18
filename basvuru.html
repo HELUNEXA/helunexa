@@ -41,19 +41,45 @@
         
         .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
         
-        /* Hastane Yönlendirme Modalı */
+        /* Modal genel */
         .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .payment-overlay.active { display: flex; }
         .payment-modal { background: white; border-radius: 12px; max-width: 450px; width: 100%; padding: 30px; max-height: 90vh; overflow-y: auto; }
         .payment-modal h3 { color: #0f172a; margin-bottom: 20px; font-size: 20px; }
         .payment-summary { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6; }
         .payment-summary div { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .payment-summary div:last-child { margin-bottom: 0; }
+        .payment-summary strong { color: #0f172a; }
         .demo-warning { background: #fef3c7; padding: 12px; border-radius: 6px; font-size: 13px; color: #92400e; margin-bottom: 15px; border-left: 4px solid #f59e0b; }
         .payment-buttons { display: flex; gap: 10px; margin-top: 20px; }
         .payment-buttons button { flex: 1; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; border: none; }
         .btn-cancel { background: #e2e8f0; color: #475569; }
         .btn-pay { background: #3b82f6; color: white; }
         .btn-pay:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        /* Kart formu */
+        .card-input-row { display: flex; gap: 10px; }
+        .card-input-row .form-group { flex: 1; }
+        .card-number-wrap { position: relative; }
+        .card-number-wrap input { padding-right: 60px; letter-spacing: 1px; }
+        .card-brand { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: bold; color: #3b82f6; }
+        .payment-total { display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; }
+        .payment-total span { font-size: 14px; color: #065f46; font-weight: bold; }
+        .payment-total strong { font-size: 22px; color: #059669; }
+        .payment-loader { display: none; text-align: center; padding: 20px; }
+        .payment-loader.active { display: block; }
+        .spinner { border: 4px solid #e2e8f0; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Adım göstergesi */
+        .step-indicator { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-size: 12px; color: #94a3b8; }
+        .step-indicator .step { display: flex; align-items: center; gap: 6px; }
+        .step-indicator .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .step-indicator .step.active .step-num { background: #3b82f6; color: white; }
+        .step-indicator .step.done .step-num { background: #10b981; color: white; }
+        .step-indicator .step.active { color: #1e40af; font-weight: bold; }
+        .step-indicator .step.done { color: #065f46; }
+        .step-indicator .divider { width: 20px; height: 2px; background: #e2e8f0; }
         
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -271,22 +297,90 @@
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="submit-btn">🏥 Başvuruyu Tamamla ve Yönlendir</button>
+            <button type="submit" id="submitBtn" class="submit-btn">💳 Ödemeye Geç</button>
         </form>
     </div>
 
-    <!-- HASTANE SEÇİM MODALI -->
+    <!-- ADIM 1: ÖDEME MODALI -->
+    <div class="payment-overlay" id="paymentGatewayModal">
+        <div class="payment-modal">
+            <div class="step-indicator">
+                <div class="step active" id="step1"><span class="step-num">1</span> Ödeme</div>
+                <div class="divider"></div>
+                <div class="step" id="step2"><span class="step-num">2</span> Hastane</div>
+            </div>
+
+            <h3>💳 Güvenli Ödeme</h3>
+
+            <div class="payment-summary">
+                <div><span style="color:#64748b;">Hasta Adı:</span><strong id="payPatient">-</strong></div>
+                <div><span style="color:#64748b;">Hizmet:</span><strong id="payService">-</strong></div>
+            </div>
+
+            <div class="payment-total">
+                <span>Ödenecek Tutar</span>
+                <strong id="payAmount">₺0</strong>
+            </div>
+
+            <div class="demo-warning">
+                ⚠️ <strong>Demo Ödeme:</strong> Bu bir test ödeme ekranıdır. Gerçek kart bilgisi girmeyiniz. Herhangi bir 16 haneli numara ve geçerli formatta CVV/son kullanma tarihi yeterlidir.
+            </div>
+
+            <div id="cardForm">
+                <div class="form-group">
+                    <label for="card_number">Kart Numarası *</label>
+                    <div class="card-number-wrap">
+                        <input type="text" id="card_number" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" autocomplete="cc-number">
+                        <span class="card-brand" id="cardBrand"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="card_name">Kart Üzerindeki İsim *</label>
+                    <input type="text" id="card_name" placeholder="Ad Soyad" autocomplete="cc-name">
+                </div>
+                <div class="card-input-row">
+                    <div class="form-group">
+                        <label for="card_expiry">Son Kullanma *</label>
+                        <input type="text" id="card_expiry" inputmode="numeric" maxlength="5" placeholder="AA/YY" autocomplete="cc-exp">
+                    </div>
+                    <div class="form-group">
+                        <label for="card_cvv">CVV *</label>
+                        <input type="text" id="card_cvv" inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc">
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-loader" id="paymentLoader">
+                <div class="spinner"></div>
+                <p style="color:#475569; font-size:14px;">Ödeme işleniyor, lütfen bekleyin...</p>
+            </div>
+
+            <div class="payment-buttons" id="paymentButtons">
+                <button type="button" class="btn-cancel" id="cancelPaymentBtn">İptal</button>
+                <button type="button" class="btn-pay" id="payBtn">Ödemeyi Tamamla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADIM 2: HASTANE SEÇİM MODALI -->
     <div class="payment-overlay" id="paymentModal">
         <div class="payment-modal">
+            <div class="step-indicator">
+                <div class="step done" id="step1b"><span class="step-num">✓</span> Ödeme</div>
+                <div class="divider"></div>
+                <div class="step active" id="step2b"><span class="step-num">2</span> Hastane</div>
+            </div>
+
             <h3>🏥 Anlaşmalı Hastane Seçimi</h3>
             
             <div class="payment-summary">
                 <div><span style="color:#64748b;">Hasta Adı:</span><strong id="paymentPatient">-</strong></div>
                 <div><span style="color:#64748b;">Hizmet:</span><strong id="paymentService">-</strong></div>
+                <div><span style="color:#64748b;">Ödeme:</span><strong style="color:#059669;">✅ Ödendi</strong></div>
             </div>
             
             <div class="demo-warning">
-                ⚠️ <strong>Bilgilendirme:</strong> Platformumuz hasta kullanıcılardan ödeme almaz. Hizmet bedelini seçtiğiniz anlaşmalı hastanenin veznesinde ödeyeceksiniz.
+                ✅ <strong>Ödemeniz alındı.</strong> Şimdi hizmet almak istediğiniz anlaşmalı hastaneyi seçiniz.
             </div>
             
             <label style="font-size:14px; color:#334155; font-weight:bold; display:block; margin-bottom:8px;">Size En Yakın Anlaşmalı Hastane *</label>
@@ -295,7 +389,7 @@
             </select>
 
             <div class="payment-buttons">
-                <button type="button" class="btn-cancel" id="cancelPayment">İptal</button>
+                <button type="button" class="btn-cancel" id="cancelHospitalBtn">İptal</button>
                 <button type="button" class="btn-pay" id="completePayment">Yönlendirmeyi Onayla</button>
             </div>
         </div>
@@ -310,6 +404,22 @@
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
 
+        const APPOINTMENT_SERVICES = ['Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme', 'Kanser Taraması', 'Gebelik Takibi'];
+        const DOCTOR_UID_BY_SERVICE = {
+            'Psikolojik Destek': 'c5b92d85-569f-4bf8-8f1b-2b23c70b88bd',
+            'Longevity Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Dijital Değerlendirme': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Kanser Taraması': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
+            'Gebelik Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616'
+        };
+        const ALL_TIME_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+
+        let IL_ILCE_DATA = {};
+        let currentUser = null;
+        let pendingFormData = null;
+        let paymentInfo = null; // { amount, transaction_id, paid_at }
+
+        // ---------- KVKK ----------
         document.getElementById('kvkkBtn').addEventListener('click', function() {
             const cb = document.getElementById('kvkk_consent');
             cb.checked = !cb.checked;
@@ -326,20 +436,7 @@
             }
         });
 
-        const APPOINTMENT_SERVICES = ['Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme', 'Kanser Taraması', 'Gebelik Takibi'];
-        const DOCTOR_UID_BY_SERVICE = {
-            'Psikolojik Destek': 'c5b92d85-569f-4bf8-8f1b-2b23c70b88bd',
-            'Longevity Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Dijital Değerlendirme': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Kanser Taraması': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Gebelik Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616'
-        };
-        const ALL_TIME_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
-
-        let IL_ILCE_DATA = {};
-        let currentUser = null;
-        let pendingFormData = null;
-
+        // ---------- İl/İlçe ----------
         async function loadIlIlce() {
             try {
                 const res = await fetch('il-ilce.json');
@@ -350,22 +447,18 @@
             } catch (err) { console.error('İl listesi yüklenemedi:', err); }
         }
 
-        // HASTANELERİ SUPABASE'DEN ÇEK
+        // ---------- Hastaneleri Supabase'den çek ----------
         async function loadHospitals() {
             try {
                 const select = document.getElementById('selectedHospital');
                 select.innerHTML = '<option value="">Hastaneler Yükleniyor...</option>';
-                
                 const { data: hospitals, error } = await _supabase.from('hospitals').select('*');
-                
                 if (error) throw error;
-                
                 if (!hospitals || hospitals.length === 0) {
                     select.innerHTML = '<option value="">Sistemde kayıtlı hastane bulunamadı</option>';
                     return;
                 }
-
-                select.innerHTML = '<option value="">Lütfen Hastane Seçiniz</option>' + 
+                select.innerHTML = '<option value="">Lütfen Hastane Seçiniz</option>' +
                     hospitals.map(h => `<option value="${h.id}" data-name="${h.name}">${h.name} (${h.district})</option>`).join('');
             } catch (err) {
                 console.error('Hastaneler yüklenemedi:', err);
@@ -381,6 +474,7 @@
             districtSelect.innerHTML = '<option value="">İlçe seçiniz</option>' + districts.sort((a, b) => a.localeCompare(b, 'tr')).map(d => `<option value="${d}">${d}</option>`).join('');
         });
 
+        // ---------- Hizmet türü değişiklikleri ----------
         document.getElementById('service_type').addEventListener('change', function() {
             const serviceType = this.value;
             document.getElementById('cancerScreeningBox').style.display = (serviceType === 'Kanser Taraması') ? 'block' : 'none';
@@ -403,6 +497,7 @@
             }
         });
 
+        // ---------- Kanser tarama dinamik alanlar ----------
         document.getElementById('cs_smoking').addEventListener('change', function() {
             document.getElementById('cs_smoking_detail').style.display = (this.value === 'none' || this.value === '') ? 'none' : 'block';
         });
@@ -413,6 +508,7 @@
             document.getElementById('cs_symptoms_detail').style.display = (this.value === 'alarm') ? 'block' : 'none';
         });
 
+        // ---------- Randevu saatleri ----------
         async function loadAvailableTimes() {
             const date = document.getElementById('appointmentDate').value;
             const serviceType = document.getElementById('service_type').value;
@@ -435,6 +531,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ---------- Oturum ----------
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
@@ -446,6 +543,7 @@
             }
         }
 
+        // ---------- Tahlil durumu ----------
         document.getElementById('test_status').addEventListener('change', function() {
             const value = this.value;
             document.getElementById('fileUploadBox').style.display = (value === 'have_results') ? 'block' : 'none';
@@ -462,7 +560,38 @@
             }
         });
 
-        // FORM GÖNDERİMİ
+        // ---------- Kart formatlayıcıları ----------
+        const cardNumberEl = document.getElementById('card_number');
+        const cardExpiryEl = document.getElementById('card_expiry');
+        const cardCvvEl = document.getElementById('card_cvv');
+        const cardBrandEl = document.getElementById('cardBrand');
+
+        function detectCardBrand(num) {
+            const n = num.replace(/\s/g, '');
+            if (/^4/.test(n)) return { name: 'VISA', color: '#1a1f71' };
+            if (/^5[1-5]/.test(n) || /^2[2-7]/.test(n)) return { name: 'MC', color: '#eb001b' };
+            if (/^3[47]/.test(n)) return { name: 'AMEX', color: '#006fcf' };
+            if (/^6/.test(n)) return { name: 'TROY', color: '#00a9e0' };
+            return null;
+        }
+
+        cardNumberEl.addEventListener('input', function() {
+            let v = this.value.replace(/\D/g, '').slice(0, 16);
+            this.value = v.replace(/(.{4})/g, '$1 ').trim();
+            const brand = detectCardBrand(this.value);
+            if (brand) { cardBrandEl.textContent = brand.name; cardBrandEl.style.color = brand.color; }
+            else { cardBrandEl.textContent = ''; }
+        });
+        cardExpiryEl.addEventListener('input', function() {
+            let v = this.value.replace(/\D/g, '').slice(0, 4);
+            if (v.length >= 3) this.value = v.slice(0, 2) + '/' + v.slice(2);
+            else this.value = v;
+        });
+        cardCvvEl.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+
+        // ---------- ADIM 1: Form submit → ödeme modalı ----------
         document.getElementById('healthForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -471,8 +600,10 @@
             }
 
             const serviceType = document.getElementById('service_type').value;
-            const submitBtn = document.getElementById('submitBtn');
-            
+            if (!serviceType) {
+                showMessage('❌ Lütfen hizmet türü seçin.', 'error'); return;
+            }
+
             if (serviceType === 'Kanser Taraması') {
                 if (!document.getElementById('cs_gender').value || !document.getElementById('cs_smoking').value || !document.getElementById('cs_family').value || !document.getElementById('cs_symptoms').value) {
                     showMessage('❌ Lütfen kanser tarama anketindeki yıldızlı (*) alanları doldurun.', 'error'); return;
@@ -492,9 +623,11 @@
                 }
             }
 
+            const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true; submitBtn.textContent = 'Hazırlanıyor...';
 
             try {
+                // Dosya yükleme (varsa)
                 let fileUrl = null, fileName = null;
                 const fileInput = document.getElementById('test_file');
                 if (document.getElementById('test_status').value === 'have_results' && fileInput.files.length > 0) {
@@ -506,7 +639,7 @@
                     fileUrl = urlData.publicUrl; fileName = file.name;
                 }
 
-                // Klinik Karar Destek Mantığı
+                // Klinik karar destek mantığı
                 let kanserOnerisi = "";
                 if (serviceType === 'Kanser Taraması') {
                     const gender = document.getElementById('cs_gender').value;
@@ -550,6 +683,11 @@
 
                 const needsAppointment = APPOINTMENT_SERVICES.includes(serviceType);
 
+                // Ücreti seçili option'dan al
+                const serviceSelect = document.getElementById('service_type');
+                const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+                const price = parseFloat(selectedOption.getAttribute('data-price') || '0');
+
                 pendingFormData = {
                     user_id: currentUser.id,
                     specialty: specialtyMap[serviceType] || 'internal',
@@ -569,7 +707,8 @@
                     appointment_time: needsAppointment ? document.getElementById('appointmentTime').value : null,
                     appointment_type: needsAppointment ? 'online' : null,
                     appointment_status: needsAppointment ? 'pending' : null,
-                    appointment_doctor_id: needsAppointment ? DOCTOR_UID_BY_SERVICE[serviceType] : null
+                    appointment_doctor_id: needsAppointment ? DOCTOR_UID_BY_SERVICE[serviceType] : null,
+                    payment_amount: price
                 };
 
                 if (isHomeService) {
@@ -581,21 +720,94 @@
                     pendingFormData.home_service_status = 'pending';
                 }
 
-                document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
-                document.getElementById('paymentService').textContent = serviceType;
-                
-                // KRİTİK NOKTA: Modal açılmadan hemen önce hastaneleri çek!
-                await loadHospitals(); 
-                document.getElementById('paymentModal').classList.add('active');
-                submitBtn.disabled = false; submitBtn.textContent = '🏥 Başvuruyu Tamamla ve Yönlendir';
-                
+                // Ödeme modalını doldur ve aç
+                document.getElementById('payPatient').textContent = pendingFormData.fullname;
+                document.getElementById('payService').textContent = serviceType;
+                document.getElementById('payAmount').textContent = '₺' + price.toLocaleString('tr-TR');
+
+                // Kart formunu temizle
+                document.getElementById('card_number').value = '';
+                document.getElementById('card_name').value = '';
+                document.getElementById('card_expiry').value = '';
+                document.getElementById('card_cvv').value = '';
+                cardBrandEl.textContent = '';
+                document.getElementById('paymentLoader').classList.remove('active');
+                document.getElementById('cardForm').style.display = 'block';
+                document.getElementById('paymentButtons').style.display = 'flex';
+                document.getElementById('payBtn').disabled = false;
+                document.getElementById('payBtn').textContent = 'Ödemeyi Tamamla';
+
+                document.getElementById('paymentGatewayModal').classList.add('active');
+                submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
+
             } catch (err) {
                 showMessage('❌ Bir hata oluştu: ' + err.message, 'error');
-                submitBtn.disabled = false; submitBtn.textContent = '🏥 Başvuruyu Tamamla ve Yönlendir';
+                submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
             }
         });
 
-        // HASTANE YÖNLENDİRMEYİ ONAYLA
+        // ---------- ADIM 2: Ödeme yap → hastane modalı ----------
+        document.getElementById('payBtn').addEventListener('click', async function() {
+            const cardNum = document.getElementById('card_number').value.replace(/\s/g, '');
+            const cardName = document.getElementById('card_name').value.trim();
+            const cardExp = document.getElementById('card_expiry').value;
+            const cardCvv = document.getElementById('card_cvv').value;
+
+            // Doğrulama
+            if (cardNum.length < 16) { alert('Lütfen 16 haneli kart numarası girin.'); return; }
+            if (cardName.length < 3) { alert('Lütfen kart üzerindeki ismi girin.'); return; }
+            if (!/^\d{2}\/\d{2}$/.test(cardExp)) { alert('Son kullanma tarihi AA/YY formatında olmalıdır.'); return; }
+            const [mm, yy] = cardExp.split('/').map(Number);
+            if (mm < 1 || mm > 12) { alert('Geçersiz son kullanma ayı.'); return; }
+            const now = new Date();
+            const expDate = new Date(2000 + yy, mm, 0);
+            if (expDate < now) { alert('Kartın son kullanma tarihi geçmiş.'); return; }
+            if (cardCvv.length < 3) { alert('Lütfen geçerli bir CVV girin.'); return; }
+
+            // Loader göster
+            document.getElementById('cardForm').style.display = 'none';
+            document.getElementById('paymentButtons').style.display = 'none';
+            document.getElementById('paymentLoader').classList.add('active');
+
+            // Demo ödeme simülasyonu (2 sn)
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Başarılı kabul et
+            const transactionId = 'DEMO-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+            const paidAt = new Date().toISOString();
+            paymentInfo = {
+                amount: pendingFormData.payment_amount,
+                transaction_id: transactionId,
+                paid_at: paidAt
+            };
+
+            // Pending form data'ya ödeme bilgisini ekle
+            pendingFormData.payment_status = 'paid';
+            pendingFormData.payment_transaction_id = transactionId;
+            pendingFormData.payment_date = paidAt;
+            // Kart son 4 hanesi (güvenlik için sadece bu saklanır)
+            pendingFormData.payment_card_last4 = cardNum.slice(-4);
+
+            // Ödeme modalını kapat, hastane modalını aç
+            document.getElementById('paymentGatewayModal').classList.remove('active');
+            document.getElementById('paymentLoader').classList.remove('active');
+
+            // Hastane modalını doldur
+            document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
+            document.getElementById('paymentService').textContent = pendingFormData.service_type;
+            await loadHospitals();
+            document.getElementById('paymentModal').classList.add('active');
+        });
+
+        document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
+            document.getElementById('paymentGatewayModal').classList.remove('active');
+            pendingFormData = null;
+            paymentInfo = null;
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '💳 Ödemeye Geç';
+        });
+
+        // ---------- ADIM 3: Hastane seç → veritabanına kaydet ----------
         document.getElementById('completePayment').addEventListener('click', async () => {
             const selectEl = document.getElementById('selectedHospital');
             const selectedHospitalId = selectEl.value;
@@ -609,18 +821,11 @@
             const btn = document.getElementById('completePayment');
             btn.disabled = true; btn.textContent = 'Kaydediliyor...';
 
-                        // Hastane ID'sini kaydet
+            // Hastane bilgilerini ekle
             pendingFormData.hospital_id = selectedHospitalId;
-            
-            // Hekim panelinde direkt görünmesi için "Hekim Notu" kısmına yazıyoruz
-            // (Böylece 'Belirtilmemiş' yazısı yerine hastane adı çıkacak)
             pendingFormData.doctor_note = '🏥 Yönlendirilen Hastane: ' + selectedHospitalName;
-            
-            // Test notlarına da ekleyelim
             const mevcutNot = pendingFormData.test_notes || '';
             pendingFormData.test_notes = (mevcutNot ? mevcutNot + ' | ' : '') + 'Hastane: ' + selectedHospitalName;
-            
-            // Tahlil yerini de güncelle
             if (!pendingFormData.test_location) {
                 pendingFormData.test_location = selectedHospitalName;
             }
@@ -632,15 +837,16 @@
             }
 
             document.getElementById('paymentModal').classList.remove('active');
-            showMessage(`✅ Başvurunuz alındı! ${selectedHospitalName} hastanesine bilgi verildi.`, 'success');
+            showMessage(`✅ Ödemeniz alındı ve başvurunuz ${selectedHospitalName} hastanesine iletildi. Hasta paneline yönlendiriliyorsunuz...`, 'success');
             setTimeout(() => window.location.href = 'hasta-panel.html', 3000);
         });
 
-        document.getElementById('cancelPayment').addEventListener('click', () => {
+        document.getElementById('cancelHospitalBtn').addEventListener('click', () => {
             document.getElementById('paymentModal').classList.remove('active');
             pendingFormData = null;
+            paymentInfo = null;
             document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').textContent = '🏥 Başvuruyu Tamamla ve Yönlendir';
+            document.getElementById('submitBtn').textContent = '💳 Ödemeye Geç';
         });
 
         checkSession();
