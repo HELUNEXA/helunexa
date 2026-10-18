@@ -609,9 +609,18 @@
             const btn = document.getElementById('completePayment');
             btn.disabled = true; btn.textContent = 'Kaydediliyor...';
 
+                        // Hastane ID'sini kaydet
             pendingFormData.hospital_id = selectedHospitalId;
-            pendingFormData.test_notes = (pendingFormData.test_notes ? pendingFormData.test_notes + ' | ' : '') + 'Yönlendirilen Hastane: ' + selectedHospitalName;
             
+            // Hekim panelinde direkt görünmesi için "Hekim Notu" kısmına yazıyoruz
+            // (Böylece 'Belirtilmemiş' yazısı yerine hastane adı çıkacak)
+            pendingFormData.doctor_note = '🏥 Yönlendirilen Hastane: ' + selectedHospitalName;
+            
+            // Test notlarına da ekleyelim
+            const mevcutNot = pendingFormData.test_notes || '';
+            pendingFormData.test_notes = (mevcutNot ? mevcutNot + ' | ' : '') + 'Hastane: ' + selectedHospitalName;
+            
+            // Tahlil yerini de güncelle
             if (!pendingFormData.test_location) {
                 pendingFormData.test_location = selectedHospitalName;
             }
