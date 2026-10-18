@@ -231,11 +231,11 @@
                 </div>
                 <div class="form-group">
                     <label for="home_city">İl *</label>
-                    <select id="home_city" ><option value="">İl yükleniyor...</option></select>
+                    <select id="home_city"><option value="">İl yükleniyor...</option></select>
                 </div>
                 <div class="form-group">
                     <label for="home_district">İlçe *</label>
-                    <select id="home_district" ><option value="">Önce il seçin</option></select>
+                    <select id="home_district"><option value="">Önce il seçin</option></select>
                 </div>
                 <div class="form-group">
                     <label for="home_date">Randevu Tarihi *</label>
@@ -353,15 +353,23 @@
         // HASTANELERİ SUPABASE'DEN ÇEK
         async function loadHospitals() {
             try {
+                const select = document.getElementById('selectedHospital');
+                select.innerHTML = '<option value="">Hastaneler Yükleniyor...</option>';
+                
                 const { data: hospitals, error } = await _supabase.from('hospitals').select('*');
+                
                 if (error) throw error;
                 
-                const select = document.getElementById('selectedHospital');
+                if (!hospitals || hospitals.length === 0) {
+                    select.innerHTML = '<option value="">Sistemde kayıtlı hastane bulunamadı</option>';
+                    return;
+                }
+
                 select.innerHTML = '<option value="">Lütfen Hastane Seçiniz</option>' + 
                     hospitals.map(h => `<option value="${h.id}" data-name="${h.name}">${h.name} (${h.district})</option>`).join('');
             } catch (err) {
                 console.error('Hastaneler yüklenemedi:', err);
-                document.getElementById('selectedHospital').innerHTML = '<option value="">Hastaneler yüklenemedi</option>';
+                document.getElementById('selectedHospital').innerHTML = '<option value="">Hata: ' + err.message + '</option>';
             }
         }
 
@@ -433,7 +441,6 @@
                 currentUser = session.user;
                 document.getElementById('userEmail').textContent = session.user.email;
                 loadIlIlce();
-                loadHospitals(); // Hastaneleri yükle
             } else {
                 window.location.href = 'giris.html';
             }
@@ -445,8 +452,6 @@
             document.getElementById('needTestInfo').style.display = (value === 'need_test') ? 'block' : 'none';
             document.getElementById('testLocationGroup').style.display = (value === 'need_test') ? 'block' : 'none';
         });
-
-        
 
         document.getElementById('test_file').addEventListener('change', function() {
             const file = this.files[0];
@@ -559,7 +564,7 @@
                     medical_history: document.getElementById('medical_history').value.trim() || null,
                     test_notes: (serviceType === 'Kanser Taraması' ? kanserOnerisi : document.getElementById('test_notes').value.trim()) || null,
                     kvkk_consent: true, 
-                    status: 'pending', // Ödeme yok, yönlendirme bekliyor
+                    status: 'pending', 
                     appointment_date: needsAppointment ? document.getElementById('appointmentDate').value : null,
                     appointment_time: needsAppointment ? document.getElementById('appointmentTime').value : null,
                     appointment_type: needsAppointment ? 'online' : null,
@@ -576,11 +581,11 @@
                     pendingFormData.home_service_status = 'pending';
                 }
 
-                // Modal'a bilgileri doldur
                 document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
                 document.getElementById('paymentService').textContent = serviceType;
                 
-                // Hastane seçim ekranını aç
+                // KRİTİK NOKTA: Modal açılmadan hemen önce hastaneleri çek!
+                await loadHospitals(); 
                 document.getElementById('paymentModal').classList.add('active');
                 submitBtn.disabled = false; submitBtn.textContent = '🏥 Başvuruyu Tamamla ve Yönlendir';
                 
@@ -590,7 +595,7 @@
             }
         });
 
-        // HASTANE YÖNLENDİRMEYİ ONAYLA VE BİLDİRİM GÖNDER
+        // HASTANE YÖNLENDİRMEYİ ONAYLA
         document.getElementById('completePayment').addEventListener('click', async () => {
             const selectEl = document.getElementById('selectedHospital');
             const selectedHospitalId = selectEl.value;
@@ -602,9 +607,8 @@
             }
 
             const btn = document.getElementById('completePayment');
-            btn.disabled = true; btn.textContent = 'Kaydediliyor ve Bildirim Gönderiliyor...';
+            btn.disabled = true; btn.textContent = 'Kaydediliyor...';
 
-            // Seçilen hastane ID'sini ve ismini kaydet
             pendingFormData.hospital_id = selectedHospitalId;
             pendingFormData.test_notes = (pendingFormData.test_notes ? pendingFormData.test_notes + ' | ' : '') + 'Yönlendirilen Hastane: ' + selectedHospitalName;
             
@@ -618,13 +622,8 @@
                 btn.disabled = false; btn.textContent = 'Yönlendirmeyi Onayla'; return; 
             }
 
-            // --- HASTANEYE BİLDİRİM SİMÜLASYONU ---
-            console.log(`📧 [SİSTEM BİLDİRİMİ] -> ${selectedHospitalName} (ID: ${selectedHospitalId}) hastanesine e-posta/WhatsApp gönderildi.`);
-            console.log(`Hasta: ${pendingFormData.fullname} | Hizmet: ${pendingFormData.service_type} | Tel: ${pendingFormData.phone}`);
-            console.log(`Mesaj: "HELUNEXA üzerinden yönlendirilen hastanız yolda. Lütfen sisteminizden kontrol ediniz."`);
-            
             document.getElementById('paymentModal').classList.remove('active');
-            showMessage(`✅ Başvurunuz alındı! ${selectedHospitalName} hastanesine bilgi verildi. Panele yönlendiriliyorsunuz...`, 'success');
+            showMessage(`✅ Başvurunuz alındı! ${selectedHospitalName} hastanesine bilgi verildi.`, 'success');
             setTimeout(() => window.location.href = 'hasta-panel.html', 3000);
         });
 
