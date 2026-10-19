@@ -303,8 +303,9 @@
     <script>
         const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        
+        // TEK BİR İSTEMCİ OLUŞTURUYORUZ (Çakışmayı önlemek için)
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
@@ -314,6 +315,7 @@
         let currentApplication = null;
         let currentRole = 'doctor';
         let currentSpecialty = null;
+        let currentDisplayName = '';
         
         let currentWeekStart = getMonday(new Date());
 
@@ -344,6 +346,7 @@
                     }
                     currentRole = roleData.role;
                     currentSpecialty = roleData.specialty;
+                    currentDisplayName = roleData.display_name || session.user.email;
                     
                     if (currentRole !== 'admin' && currentRole !== 'doctor' && currentRole !== 'lab') {
                         await _supabase.auth.signOut();
@@ -375,9 +378,47 @@
                 document.getElementById('tabAddDoctorBtn').style.display = 'block';
             }
             else if (currentRole === 'lab') { roleBadge.textContent = '🔬 Laboratuvar'; roleBadge.className = 'role-badge lab'; }
-            else { roleBadge.textContent = '🩺 ' + (roleData.display_name || user.email); roleBadge.className = 'role-badge doctor'; }
+            else { roleBadge.textContent = '🩺 ' + currentDisplayName; roleBadge.className = 'role-badge doctor'; }
             document.getElementById('userEmail').textContent = user.email;
         }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('loginError');
+
+            if (!email || !password) { err.textContent = 'E-posta ve şifre gerekli'; return; }
+
+            btn.disabled = true; btn.textContent = 'Giriş yapılıyor...'; err.textContent = '';
+
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) { err.textContent = '❌ ' + error.message; btn.disabled = false; btn.textContent = 'Giriş Yap'; return; }
+
+                const { data: roleData } = await _supabase.from('user_roles').select('*').eq('user_id', data.user.id).single();
+                if (!roleData) {
+                    await _supabase.auth.signOut();
+                    err.textContent = '❌ Bu panele sadece yetkili kullanıcılar girebilir.';
+                    btn.disabled = false; btn.textContent = 'Giriş Yap'; return;
+                }
+                currentRole = roleData.role;
+                currentSpecialty = roleData.specialty;
+                currentDisplayName = roleData.display_name || data.user.email;
+                
+                if (currentRole !== 'admin' && currentRole !== 'doctor' && currentRole !== 'lab') {
+                    await _supabase.auth.signOut();
+                    err.textContent = '❌ Yetkisiz erişim.';
+                    btn.disabled = false; btn.textContent = 'Giriş Yap'; return;
+                }
+                showPanel(data.user); loadApplications();
+            } catch (ex) {
+                console.error('Login error:', ex);
+                err.textContent = '❌ Bağlantı hatası: ' + ex.message;
+                btn.disabled = false; btn.textContent = 'Giriş Yap';
+            }
+        });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => { await _supabase.auth.signOut(); showLogin(); });
 
@@ -770,7 +811,7 @@
             btn.disabled = false; btn.textContent = 'Kaydet';
         });
 
-        // YENİ DOKTOR KAYIT İŞLEMİ
+        // YENİ DOKTOR KAYIT İŞLEMİ (Hatasız Versiyon)
         document.getElementById('saveDoctorBtn').addEventListener('click', async () => {
             const name = document.getElementById('newDocName').value.trim();
             const email = document.getElementById('newDocEmail').value.trim();
@@ -786,21 +827,29 @@
             msg.style.color = '#3b82f6'; msg.textContent = 'Sisteme ekleniyor, lütfen bekleyin...';
 
             try {
-                const { createClient } = supabase;
-                const tempSupabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                    auth: { persistSession: false, autoRefreshToken: false }
-                });
-
-                const { data: authData, error: authError } = await tempSupabase.auth.signUp({
+                // Supabase Auth'a kayıt (Oturumu etkilememesi için ayrı bir istemci kullanmıyoruz, mevcut istemci üzerinden gidiyoruz)
+                const { data: authData, error: authError } = await _supabase.auth.signUp({
                     email: email,
                     password: password,
                     options: { data: { full_name: name } }
                 });
 
-                if (authError) throw new Error(authError.message);
+                if (authError) {
+                    // Eğer hata "User already registered" ise, bu e-postanın zaten var olduğunu gösterir.
+                    if (authError.message.includes('already registered')) {
+                        throw new Error('Bu e-posta adresi zaten sisteme kayıtlı. Lütfen farklı bir e-posta deneyin.');
+                    }
+                    throw new Error(authError.message);
+                }
 
+                if (!authData.user) {
+                    throw new Error('Kullanıcı oluşturulamadı.');
+                }
+
+                // Rol tablosuna ekleme (email sütununu da ekleyerek hatayı önlüyoruz)
                 const { error: roleError } = await _supabase.from('user_roles').insert([{
                     user_id: authData.user.id,
+                    email: email,
                     role: 'doctor',
                     display_name: name,
                     specialty: specialty
