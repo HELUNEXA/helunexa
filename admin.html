@@ -41,7 +41,6 @@
         .logout-btn:hover { background: #dc2626; }
         .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
 
-        /* SEKMELER */
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
         .tab-btn { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: bold; color: #64748b; }
         .tab-btn.active { color: #10b981; border-bottom-color: #10b981; }
@@ -111,7 +110,6 @@
         .appointment-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
         .appointment-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; margin-bottom: 8px; }
 
-        /* TAKVİM */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .calendar-header h3 { font-size: 18px; color: #0f172a; }
         .calendar-header button { padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
@@ -274,7 +272,6 @@
         let currentUserId = null;
         let currentDisplayName = '';
 
-        // Takvim için
         let currentWeekStart = getMonday(new Date());
 
         const ALL_TIME_SLOTS = [
@@ -323,8 +320,7 @@
             }
         }
 
-                function showLogin() {
-            // Artık admin.html'de login yok - giris.html'e yönlendir
+        function showLogin() {
             window.location.href = 'giris.html';
         }
 
@@ -379,7 +375,6 @@
 
         document.getElementById('logoutBtn').addEventListener('click', async () => { await _supabase.auth.signOut(); showLogin(); });
 
-        // SEKMELER
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -451,9 +446,6 @@
             });
         });
 
-        // ============================================
-        // TAKVİM FONKSİYONLARI
-        // ============================================
         function prevWeek() {
             currentWeekStart.setDate(currentWeekStart.getDate() - 7);
             renderCalendar();
@@ -478,7 +470,6 @@
             const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
             weekLabel.textContent = `${currentWeekStart.getDate()} ${months[currentWeekStart.getMonth()]} - ${weekEnd.getDate()} ${months[weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
 
-            // Günleri oluştur
             const days = [];
             const dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
             for (let i = 0; i < 7; i++) {
@@ -487,7 +478,6 @@
                 days.push(d);
             }
 
-            // Randevuları filtrele
             const weekStartStr = formatDate(currentWeekStart);
             const weekEndStr = formatDate(weekEnd);
             const weekAppointments = allApplications.filter(a =>
@@ -496,7 +486,6 @@
                 a.appointment_date <= weekEndStr
             );
 
-            // Header satırı
             let html = '<div class="cal-header" style="background:#0f172a; color:white;">Saat</div>';
             const today = formatDate(new Date());
             days.forEach((d, i) => {
@@ -508,7 +497,6 @@
                 </div>`;
             });
 
-            // Saat satırları
             ALL_TIME_SLOTS.forEach(time => {
                 html += `<div class="cal-hour">${time}</div>`;
                 days.forEach(d => {
@@ -530,9 +518,6 @@
             grid.innerHTML = html;
         }
 
-        // ============================================
-        // RANDEVU KARTI
-        // ============================================
         function buildAppointmentCard(app) {
             if (!app.appointment_date) return '';
 
@@ -609,10 +594,17 @@
                 <div class="detail-row"><label>E-posta</label><div class="value">${escapeHtml(app.email)}</div></div>
                 <div class="detail-row"><label>Hizmet Türü</label><div class="value">${escapeHtml(app.service_type)}</div></div>
                 <div class="detail-row"><label>Tıbbi Geçmiş</label><div class="value">${escapeHtml(app.medical_history) || '<em>Belirtilmemiş</em>'}</div></div>
+                
+                <!-- TEST SONUÇLARI BURAYA GELECEK -->
+                <div id="testResultsContainer" style="margin-top: 20px;">
+                    <div class="loading" style="padding: 10px;">Test sonuçları kontrol ediliyor...</div>
+                </div>
+
                 ${app.test_file_url ? `<div class="test-box"><label>📄 Hastanın Yüklediği Tahlil</label><div class="value"><a href="${app.test_file_url}" target="_blank">📎 ${escapeHtml(app.test_file_name) || 'Dosyayı Görüntüle'}</a></div></div>` : ''}
                 ${app.lab_result_url ? `
                 <div class="lab-box"><label>🔬 Laboratuvar Sonucu</label><div class="value"><a href="${app.lab_result_url}" target="_blank">📎 ${escapeHtml(app.lab_result_name) || 'Sonucu Görüntüle'}</a></div></div>
                 ${app.lab_note ? `<div class="lab-box"><label>🔬 Laboratuvar Notu</label><div class="value">${escapeHtml(app.lab_note)}</div></div>` : ''}` : ''}
+                
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
                 <div class="detail-row"><label>Durum</label><select id="editStatus">
                     <option value="pending" ${status === 'pending' ? 'selected' : ''}>Bekliyor</option>
@@ -625,8 +617,76 @@
                 <div class="evaluation-box"><label>🩺 Hekim Değerlendirmesi</label><textarea id="editEvaluation" placeholder="Klinik değerlendirme, tanı, öneriler..." style="margin-top:8px; min-height:100px;">${escapeHtml(app.evaluation) || ''}</textarea></div>
                 <div class="prescription-box"><label>💊 Reçete</label><textarea id="editPrescription" placeholder="İlaç adı, doz, kullanım..." style="margin-top:8px; min-height:120px; font-family:monospace;">${escapeHtml(app.prescription) || ''}</textarea></div>
             `;
+            
+            loadPatientTestResults(app.user_id);
             document.getElementById('modalOverlay').classList.add('active');
         };
+
+        async function loadPatientTestResults(userId) {
+            const container = document.getElementById('testResultsContainer');
+            if (!container) return;
+            
+            try {
+                const { data: psychData, error: psychError } = await _supabase
+                    .from('psych_results')
+                    .select('*')
+                    .eq('email', currentApplication.email)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                    
+                const { data: longData, error: longError } = await _supabase
+                    .from('longevity_results')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .limit(1);
+
+                let html = '';
+
+                if (psychData && psychData.length > 0) {
+                    const p = psychData[0];
+                    let riskColor = p.risk_flag === 'suicidal_ideation' || p.risk_flag === 'severe' ? 'red' : (p.risk_flag === 'moderate' ? 'orange' : 'green');
+                    html += `
+                        <div class="test-box" style="border-left-color: #3b82f6; background: #eff6ff;">
+                            <label style="color: #1e40af;">🧠 Psikolojik Test Sonuçları (Son: ${new Date(p.created_at).toLocaleDateString('tr-TR')})</label>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:8px; font-size:13px;">
+                                <div><strong>GAD-7:</strong> ${p.gad7 ?? '-'}/21</div>
+                                <div><strong>PHQ-9:</strong> ${p.phq9 ?? '-'}/27</div>
+                                <div><strong>Stres (PSS):</strong> ${p.pss10 ?? '-'}/40</div>
+                            </div>
+                            <div style="margin-top:8px; font-size:13px;">
+                                <strong>Bileşik Skor:</strong> ${p.composite_score ?? '-'}/100 | 
+                                <strong>Risk:</strong> <span style="color:${riskColor}; font-weight:bold;">${p.risk_flag || 'Normal'}</span>
+                            </div>
+                            ${p.risk_flag === 'suicidal_ideation' ? '<div style="color:red; font-weight:bold; margin-top:8px;">🚨 ACİL: İntihar düşüncesi riski tespit edildi!</div>' : ''}
+                        </div>
+                    `;
+                }
+
+                if (longData && longData.length > 0) {
+                    const l = longData[0];
+                    html += `
+                        <div class="test-box" style="border-left-color: #8b5cf6; background: #f3e8ff;">
+                            <label style="color: #6b21a8;">🧬 Longevity Sonuçları (Son: ${new Date(l.updated_at).toLocaleDateString('tr-TR')})</label>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px; font-size:13px;">
+                                <div><strong>Kronolojik Yaş:</strong> ${l.chrono_age ?? '-'}</div>
+                                <div><strong>Biyolojik Yaş:</strong> <span style="color:#8b5cf6; font-weight:bold;">${l.bio_age ?? '-'}</span></div>
+                                <div><strong>Longevity Skoru:</strong> ${l.longevity_score ?? '-'}/100</div>
+                                <div><strong>Yaş Farkı:</strong> ${l.age_diff ?? '-'} yıl</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (html === '') {
+                    html = '<div class="info-box yellow" style="margin-top:10px; padding:10px; background:#fef3c7; color:#92400e; border-radius:6px;">⚠️ Bu hasta henüz psikolojik veya longevity testi çözmemiş.</div>';
+                }
+
+                container.innerHTML = html;
+            } catch (err) {
+                console.error("Test sonuçları yüklenemedi:", err);
+                container.innerHTML = '<div class="info-box red" style="padding:10px; background:#fee2e2; color:#991b1b; border-radius:6px;">Test sonuçları yüklenirken hata oluştu.</div>';
+            }
+        }
 
         document.getElementById('closeModal').addEventListener('click', closeModal);
         document.getElementById('cancelBtn').addEventListener('click', closeModal);

@@ -39,14 +39,12 @@
         .home-service-box { background: #f0fdf4; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #10b981; }
         .home-service-box h4 { color: #065f46; font-size: 14px; margin-bottom: 12px; }
 
-        /* GEBELİK KUTUSU STİLLERİ */
         .pregnancy-box { display: none; background: #fdf2f8; padding: 15px; border-radius: 8px; border-left: 4px solid #ec4899; margin-bottom: 15px; }
         .pregnancy-box h4 { color: #be185d; font-size: 14px; margin-bottom: 12px; }
         .pregnancy-box label { color: #be185d; }
         
         .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
         
-        /* Modallar */
         .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .payment-overlay.active { display: flex; }
         .payment-modal { background: white; border-radius: 12px; max-width: 450px; width: 100%; padding: 30px; max-height: 90vh; overflow-y: auto; }
@@ -62,7 +60,6 @@
         .btn-pay { background: #3b82f6; color: white; }
         .btn-pay:disabled { background: #94a3b8; cursor: not-allowed; }
 
-        /* Kart formu */
         .card-input-row { display: flex; gap: 10px; }
         .card-input-row .form-group { flex: 1; }
         .card-number-wrap { position: relative; }
@@ -115,7 +112,6 @@
                 <input type="tel" id="phone" required placeholder="05XX XXX XX XX">
             </div>
 
-            <!-- KURUMSAL ŞİRKET KODU VE ÇALIŞAN NO ALANLARI -->
             <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px dashed #cbd5e1;">
                 <label for="corporate_code" style="color:#3b82f6;">🏢 Kurumsal Çalışan Girişi (Ödeme Yapmaz)</label>
                 <input type="text" id="corporate_code" placeholder="Şirket Kodu (Örn: PILOT01)" style="margin-bottom:8px;">
@@ -153,7 +149,6 @@
                 </select>
             </div>
 
-            <!-- KANSER TARAMA KUTUSU -->
             <div id="cancerScreeningBox" class="cancer-box">
                 <h4>🔬 Kişiselleştirilmiş Kanser Tarama Anketi</h4>
                 <div class="form-group">
@@ -196,7 +191,6 @@
                 </div>
             </div>
 
-            <!-- GEBELİK TAKİP KUTUSU -->
             <div id="pregnancyBox" class="pregnancy-box">
                 <h4>🤰 Anne & Bebek Takip Bilgileri</h4>
                 <div class="form-group">
@@ -217,14 +211,12 @@
                         <option value="dizziness">Baş Dönmesi</option>
                     </select>
                 </div>
-                <!-- TDT Sonucu -->
                 <div class="dynamic-detail" style="display:block; border-color:#fbcfe8; background:#fff0f5;">
                     <label style="color:#be185d;">Tahmini Doğum Tarihiniz (Otomatik):</label>
                     <strong id="preg_edd_display" style="color:#db2777;">Tarih seçiniz...</strong>
                 </div>
             </div>
 
-            <!-- RANDEVU KUTUSU -->
             <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
                 <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
                 <div class="form-group">
@@ -412,19 +404,9 @@
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
 
-        // TÜM HİZMETLER İÇİN RANDEVU ZORUNLULUĞU EKLENDİ
         const APPOINTMENT_SERVICES = [
-            'Psikolojik Destek', 
-            'Longevity Takibi', 
-            'Dijital Değerlendirme', 
-            'Kanser Taraması', 
-            'Gebelik Takibi',
-            'Kurumsal Sağlık',
-            'Yaşlı Takip',
-            'Rutin Kontrol',
-            'Kronik Takip - Diyabet',
-            'Kronik Takip - Hipertansiyon',
-            'Kronik Takip - Tiroid'
+            'Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme', 'Kanser Taraması', 'Gebelik Takibi',
+            'Kurumsal Sağlık', 'Yaşlı Takip', 'Rutin Kontrol', 'Kronik Takip - Diyabet', 'Kronik Takip - Hipertansiyon', 'Kronik Takip - Tiroid'
         ];
 
         const DOCTOR_UID_BY_SERVICE = {
@@ -728,7 +710,6 @@
                 if (corporateCode.length > 0) {
                     submitBtn.textContent = 'Şirket Doğrulanıyor...';
                     
-                    // 406 HATASI ÇÖZÜMÜ: single() yerine limit(1) ve maybeSingle() kullanımı
                     const { data: companyData, error: companyError } = await _supabase
                         .from('companies')
                         .select('id, name')
@@ -920,8 +901,21 @@
             }
 
             document.getElementById('paymentModal').classList.remove('active');
-            showMessage(`✅ Başvurunuz alındı ve ${selectedHospitalName} hastanesine iletildi. Hasta paneline yönlendiriliyorsunuz...`, 'success');
-            setTimeout(() => window.location.href = 'hasta-panel.html', 3000);
+            
+            // YÖNLENDİRME MANTIĞI BURADA
+            let redirectMessage = "✅ Başvurunuz alındı ve hastaneye iletildi. Hasta paneline yönlendiriliyorsunuz...";
+            let redirectUrl = 'hasta-panel.html';
+
+            if (pendingFormData.service_type === 'Psikolojik Destek') {
+                redirectMessage = "🧠 Ödemeniz alındı. Lütfen psikolog görüşmesi öncesi testleri tamamlayın. Test sayfasına yönlendiriliyorsunuz...";
+                redirectUrl = 'psikolojik.html';
+            } else if (pendingFormData.service_type === 'Longevity Takibi') {
+                redirectMessage = "🧬 Ödemeniz alındı. Lütfen biyolojik yaşınızı hesaplamak için formu doldurun. Longevity paneline yönlendiriliyorsunuz...";
+                redirectUrl = 'longevity.html';
+            }
+
+            showMessage(redirectMessage, 'success');
+            setTimeout(() => window.location.href = redirectUrl, 3000);
         });
 
         document.getElementById('cancelHospitalBtn').addEventListener('click', () => {
