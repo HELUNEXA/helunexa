@@ -26,25 +26,19 @@
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
         
-        .cancer-box { display: none; background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 15px; }
-        .cancer-box h4 { color: #1e40af; font-size: 14px; margin-bottom: 12px; }
-        .cancer-box label { color: #1e40af; }
-        .dynamic-detail { display: none; margin-top: 8px; padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #bfdbfe; }
+        /* DİNAMİK MODÜL KUTULARI */
+        .dynamic-box { display: none; background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 15px; }
+        .dynamic-box h4 { color: #1e40af; font-size: 14px; margin-bottom: 12px; }
+        .dynamic-box label { color: #1e40af; }
         
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e40af; }
         .file-upload-box { background: #fef3c7; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #f59e0b; }
         .file-upload-box label { color: #92400e; font-size: 13px; }
         .file-preview { margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 13px; color: #475569; display: none; }
         
-        .home-service-box { background: #f0fdf4; padding: 15px; border-radius: 8px; margin-top: 10px; border-left: 4px solid #10b981; }
-        .home-service-box h4 { color: #065f46; font-size: 14px; margin-bottom: 12px; }
-
-        .pregnancy-box { display: none; background: #fdf2f8; padding: 15px; border-radius: 8px; border-left: 4px solid #ec4899; margin-bottom: 15px; }
-        .pregnancy-box h4 { color: #be185d; font-size: 14px; margin-bottom: 12px; }
-        .pregnancy-box label { color: #be185d; }
-        
         .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
         
+        /* Modallar */
         .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .payment-overlay.active { display: flex; }
         .payment-modal { background: white; border-radius: 12px; max-width: 450px; width: 100%; padding: 30px; max-height: 90vh; overflow-y: auto; }
@@ -60,6 +54,7 @@
         .btn-pay { background: #3b82f6; color: white; }
         .btn-pay:disabled { background: #94a3b8; cursor: not-allowed; }
 
+        /* Kart formu */
         .card-input-row { display: flex; gap: 10px; }
         .card-input-row .form-group { flex: 1; }
         .card-number-wrap { position: relative; }
@@ -94,11 +89,12 @@
         <div class="logo-header">
             <img src="logo.png" alt="HELUNEXA">
         </div>
-        <p class="subtitle">Yeni Başvuru</p>
+        <p class="subtitle">Hasta Başvuru Formu</p>
         <div class="user-banner">👤 <strong id="userEmail">Yükleniyor...</strong> olarak giriş yapıldı</div>
         <div id="message" class="message"></div>
 
         <form id="healthForm" novalidate>
+            <!-- TEMEL BİLGİLER -->
             <div class="form-group">
                 <label for="fullname">Ad Soyad *</label>
                 <input type="text" id="fullname" required minlength="3" placeholder="Adınız ve soyadınız">
@@ -112,45 +108,73 @@
                 <input type="tel" id="phone" required placeholder="05XX XXX XX XX">
             </div>
 
+            <!-- KURUMSAL GİRİŞ (KORUNDU) -->
             <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px dashed #cbd5e1;">
-                <label for="corporate_code" style="color:#3b82f6;">🏢 Kurumsal Çalışan Girişi (Ödeme Yapmaz)</label>
+                <label for="corporate_code" style="color:#3b82f6;">🏢 Kurumsal Çalışan Girişi (Varsa)</label>
                 <input type="text" id="corporate_code" placeholder="Şirket Kodu (Örn: PILOT01)" style="margin-bottom:8px;">
                 <input type="text" id="employee_number" placeholder="Çalışan / Sicil No (Örn: EMP-1001)">
-                <small style="color:#64748b; font-size:12px; display:block; margin-top:5px;">* Şirket anlaşmanız varsa doldurun. Boş bırakırsanız normal ödeme alınır.</small>
             </div>
 
+            <!-- 8 ANA MODÜL SEÇİMİ -->
             <div class="form-group">
-                <label for="service_type">Hizmet Türü *</label>
+                <label for="service_type">Hizmet Seçimi *</label>
                 <select id="service_type" required>
                     <option value="">Seçiniz</option>
-                    <optgroup label="1. Koruyucu ve Rutin Sağlık">
-                        <option value="Rutin Kontrol" data-price="500">Rutin Sağlık Kontrolü / Check-up</option>
-                        <option value="Kronik Takip - Diyabet" data-price="1500">Kronik Hastalık Takibi (Diyabet)</option>
-                        <option value="Kronik Takip - Hipertansiyon" data-price="1500">Kronik Hastalık Takibi (Hipertansiyon)</option>
-                        <option value="Kronik Takip - Tiroid" data-price="1500">Kronik Hastalık Takibi (Tiroid)</option>
-                        <option value="İlaç Raporu Yenileme" data-price="500">Kronik Hastalık İlaç Raporu Yenileme</option>
-                    </optgroup>
-                    <optgroup label="2. Uzun Yaşam ve Kişiselleştirilmiş Sağlık">
-                        <option value="Longevity Takibi" data-price="2500">Longevity / Healthy Aging</option>
-                        <option value="Kanser Taraması" data-price="1000">Kişiselleştirilmiş Kanser Tarama Programı</option>
-                        <option value="Dijital Değerlendirme" data-price="500">Dijital Hekim Değerlendirmesi</option>
-                    </optgroup>
-                    <optgroup label="3. Özel Sağlık ve Bakım">
-                        <option value="Evde Bakım" data-price="2000">Evde Bakım Hizmetleri</option>
-                        <option value="Evde Numune Alma" data-price="350">Evde Numune Alma</option>
-                        <option value="Evde Kronik Takip" data-price="2000">Evde Kronik Takip</option>
-                        <option value="Gebelik Takibi" data-price="1500">Anne & Bebek Sağlığı / Gebelik</option>
-                        <option value="Kurumsal Sağlık" data-price="0">Kurumsal Sağlık / Çalışan Takibi</option>
-                        <option value="Yaşlı Takip" data-price="750">Yaşlı / Taburculuk Sonrası Takip</option>
-                    </optgroup>
-                    <optgroup label="4. Ruh Sağlığı">
-                        <option value="Psikolojik Destek" data-price="1500">Psikolojik Destek</option>
-                    </optgroup>
+                    <option value="Rutin Kontrol" data-price="500">1. Rutin Kontrol / Check-up</option>
+                    <option value="Kronik Hastalık Takibi" data-price="1500">2. Kronik Hastalık Takibi</option>
+                    <option value="İlaç Raporu Yenileme" data-price="500">3. Kronik Hastalık İlaç Raporu Yenileme</option>
+                    <option value="Longevity Takibi" data-price="2500">4. Longevity / Healthy Aging</option>
+                    <option value="Kanser Taraması" data-price="1000">5. Kişiselleştirilmiş Kanser Tarama Programı</option>
+                    <option value="Evde Bakım" data-price="2000">6. Evde Bakım Hizmetleri</option>
+                    <option value="Gebelik Takibi" data-price="1500">7. Anne & Bebek Sağlığı – Gebelik Yolculuğu</option>
+                    <option value="Kurumsal Sağlık" data-price="0">8. Kurumsal Sağlık ve Çalışan Takibi</option>
                 </select>
             </div>
 
-            <div id="cancerScreeningBox" class="cancer-box">
-                <h4>🔬 Kişiselleştirilmiş Kanser Tarama Anketi</h4>
+            <!-- DİNAMİK ALANLAR (Seçime göre açılır) -->
+
+            <!-- 2. Kronik Hastalık Takibi -->
+            <div id="box_chronic" class="dynamic-box">
+                <h4>🩺 Kronik Hastalık Takibi</h4>
+                <div class="form-group">
+                    <label for="chronic_diseases">Takip edilmesini istediğiniz kronik hastalıklarınız nelerdir? *</label>
+                    <textarea id="chronic_diseases" rows="2" placeholder="Örn: Diyabet, Hipertansiyon, Tiroid..."></textarea>
+                </div>
+            </div>
+
+            <!-- 3. İlaç Raporu Yenileme -->
+            <div id="box_prescription" class="dynamic-box">
+                <h4>📄 İlaç Raporu Yenileme</h4>
+                <div class="form-group">
+                    <label for="rx_disease">Hastalık *</label>
+                    <input type="text" id="rx_disease" placeholder="Örn: Astım">
+                </div>
+                <div class="form-group">
+                    <label for="rx_meds">Kullanılan İlaçlar *</label>
+                    <textarea id="rx_meds" rows="2" placeholder="İlaç adları..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="rx_end_date">Rapor Bitiş Tarihi *</label>
+                    <input type="date" id="rx_end_date">
+                </div>
+            </div>
+
+            <!-- 4. Longevity -->
+            <div id="box_longevity" class="dynamic-box">
+                <h4>🧬 Longevity / Healthy Aging</h4>
+                <div class="form-group">
+                    <label for="long_goals">Sağlık hedefleriniz nelerdir? *</label>
+                    <textarea id="long_goals" rows="2" placeholder="Örn: Daha enerjik hissetmek, kilo kontrolü..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="long_prev_tests">Varsa önceki tetkikleriniz</label>
+                    <textarea id="long_prev_tests" rows="2" placeholder="Örn: Son 6 ayda yapılan kan tahlilleri..."></textarea>
+                </div>
+            </div>
+
+            <!-- 5. Kanser Taraması (Mevcut Anket) -->
+            <div id="box_cancer" class="dynamic-box" style="border-left-color: #8b5cf6;">
+                <h4 style="color: #6b21a8;">🔬 Kişiselleştirilmiş Kanser Tarama Anketi</h4>
                 <div class="form-group">
                     <label for="cs_gender">Cinsiyetiniz *</label>
                     <select id="cs_gender"><option value="">Seçiniz</option><option value="female">Kadın</option><option value="male">Erkek</option></select>
@@ -159,64 +183,62 @@
                     <label for="cs_smoking">Sigara kullanımınız? *</label>
                     <select id="cs_smoking"><option value="">Seçiniz</option><option value="none">Hiç kullanmadım</option><option value="current">Kullanıyorum</option><option value="former">Bıraktım</option></select>
                 </div>
-                <div class="form-group dynamic-detail" id="cs_smoking_detail">
-                    <label for="cs_smoking_years">Kaç yıl ve günde ne kadar içtiniz?</label>
-                    <input type="text" id="cs_smoking_years" placeholder="Örn: 15 yıl, günde 1 paket">
-                </div>
                 <div class="form-group">
                     <label for="cs_family">Ailenizde kanser tanısı alan var mı? *</label>
                     <select id="cs_family"><option value="">Seçiniz</option><option value="no">Hayır</option><option value="yes">Evet</option></select>
-                </div>
-                <div class="form-group dynamic-detail" id="cs_family_detail">
-                    <label for="cs_family_info">Hangi yakınınız, hangi kanser türü, kaç yaşında?</label>
-                    <textarea id="cs_family_info" rows="2" placeholder="Örn: Annem, meme kanseri, 45 yaşında"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="cs_special_risk">Özel Risk Durumunuz</label>
-                    <select id="cs_special_risk" multiple style="height: 90px;">
-                        <option value="none">Hiçbiri / Bilmiyorum</option>
-                        <option value="previous_cancer">Daha önce kanser tanısı aldım</option>
-                        <option value="ibd">İnflamatuvar Bağırsak Hastalığım var</option>
-                        <option value="hepatitis">Hepatit B/C veya Siroz hastasıyım</option>
-                        <option value="genetic">BRCA / Lynch gen mutasyonu var</option>
-                    </select>
                 </div>
                 <div class="form-group">
                     <label for="cs_symptoms">Şu an bir şikayetiniz var mı? *</label>
                     <select id="cs_symptoms"><option value="">Seçiniz</option><option value="none">Şikayetim yok</option><option value="alarm">Var (Açıklayınız)</option></select>
                 </div>
-                <div class="form-group dynamic-detail" id="cs_symptoms_detail">
+                <div class="form-group">
                     <label for="cs_symptoms_info">Şikayetiniz nedir?</label>
                     <textarea id="cs_symptoms_info" rows="2" placeholder="Lütfen belirtin..."></textarea>
                 </div>
             </div>
 
-            <div id="pregnancyBox" class="pregnancy-box">
-                <h4>🤰 Anne & Bebek Takip Bilgileri</h4>
+            <!-- 6. Evde Bakım -->
+            <div id="box_homecare" class="dynamic-box" style="border-left-color: #f59e0b;">
+                <h4 style="color: #92400e;">🏠 Evde Bakım Hizmetleri</h4>
                 <div class="form-group">
-                    <label for="preg_lmp">Son Adet Tarihiniz (SAT) *</label>
-                    <input type="date" id="preg_lmp">
+                    <label for="home_service_req">İstenen Hizmet *</label>
+                    <input type="text" id="home_service_req" placeholder="Örn: Pansuman, Enjeksiyon, Genel bakım...">
                 </div>
                 <div class="form-group">
-                    <label for="preg_weight">Mevcut Kilonuz (kg)</label>
-                    <input type="number" id="preg_weight" placeholder="Örn: 65">
+                    <label for="home_care_need">Hastanın Bakım İhtiyacı *</label>
+                    <textarea id="home_care_need" rows="2" placeholder="Kısaca durumu..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="preg_complaints">Mevcut Şikayetleriniz</label>
-                    <select id="preg_complaints" multiple style="height: 80px;">
-                        <option value="none">Şikayetim yok</option>
-                        <option value="nausea">Bulantı / Kusma</option>
-                        <option value="pain">Karın / Kasık Ağrısı</option>
-                        <option value="bleeding">Vajinal Kanama</option>
-                        <option value="dizziness">Baş Dönmesi</option>
-                    </select>
-                </div>
-                <div class="dynamic-detail" style="display:block; border-color:#fbcfe8; background:#fff0f5;">
-                    <label style="color:#be185d;">Tahmini Doğum Tarihiniz (Otomatik):</label>
-                    <strong id="preg_edd_display" style="color:#db2777;">Tarih seçiniz...</strong>
+                    <label for="home_contact">İletişim Bilgileri (Adres vb.) *</label>
+                    <textarea id="home_contact" rows="2" placeholder="Mahalle, sokak, no..."></textarea>
                 </div>
             </div>
 
+            <!-- 7. Gebelik Yolculuğu -->
+            <div id="box_pregnancy" class="dynamic-box" style="border-left-color: #ec4899;">
+                <h4 style="color: #be185d;">🤰 Anne & Bebek Sağlığı</h4>
+                <div class="form-group">
+                    <label for="preg_stage">Hangi aşamadasınız? *</label>
+                    <select id="preg_stage">
+                        <option value="">Seçiniz</option>
+                        <option value="pre">Gebelik Öncesi (Planlama)</option>
+                        <option value="during">Gebelik Dönemi</option>
+                        <option value="post">Doğum Sonrası</option>
+                    </select>
+                </div>
+                <div id="preg_during_details" style="display:none; margin-top:10px; padding:10px; background:white; border-radius:6px;">
+                    <div class="form-group">
+                        <label for="preg_lmp">Son Adet Tarihiniz (SAT) *</label>
+                        <input type="date" id="preg_lmp">
+                    </div>
+                    <div class="form-group">
+                        <label for="preg_complaints">Mevcut Şikayetleriniz</label>
+                        <textarea id="preg_complaints" rows="2" placeholder="Bulantı, ağrı vb..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RANDEVU KUTUSU (Tüm hizmetler için) -->
             <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
                 <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
                 <div class="form-group">
@@ -231,6 +253,7 @@
                 </div>
             </div>
 
+            <!-- ORTAK ALANLAR -->
             <div class="form-group">
                 <label for="test_status">Tahlil Durumu *</label>
                 <select id="test_status" required>
@@ -241,64 +264,23 @@
                 </select>
             </div>
 
-            <div class="form-group" id="testLocationGroup" style="display:none;">
-                <label for="test_location">Tahlil Yeri *</label>
-                <select id="test_location">
-                    <option value="">Seçiniz</option>
-                    <option value="vitalab">🏥 VitaLab Sağlık Laboratuvarı (Anlaşmalı)</option>
-                    <option value="own_lab">🔬 Kendi laboratuvarım</option>
-                </select>
-            </div>
-
             <div class="file-upload-box" id="fileUploadBox" style="display:none;">
                 <label>📎 Mevcut Sonuçlarınızı Yükleyin</label>
                 <input type="file" id="test_file" accept=".pdf,.jpg,.jpeg,.png" style="margin-top: 8px; background: white;">
                 <div class="file-preview" id="filePreview"></div>
             </div>
 
-            <div class="info-box" id="needTestInfo" style="display:none;">
-                <strong>ℹ️ Yeni Tahlil Bilgisi</strong>
-                <p style="margin-top: 8px;">Tahlilleriniz için size en yakın anlaşmalı hastane/laboratuvar yönlendirmesi yapılacaktır.</p>
-            </div>
-
-            <div class="home-service-box" id="homeServiceBox" style="display:none;">
-                <h4>🏠 Evde Hizmet Bilgileri</h4>
-                <div class="form-group">
-                    <label for="home_address">Adres *</label>
-                    <textarea id="home_address" rows="2" placeholder="Mahalle, sokak, bina no, daire..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="home_city">İl *</label>
-                    <select id="home_city"><option value="">İl yükleniyor...</option></select>
-                </div>
-                <div class="form-group">
-                    <label for="home_district">İlçe *</label>
-                    <select id="home_district"><option value="">Önce il seçin</option></select>
-                </div>
-                <div class="form-group">
-                    <label for="home_date">Randevu Tarihi *</label>
-                    <input type="date" id="home_date">
-                </div>
-                <div class="form-group">
-                    <label for="home_time">Randevu Saati *</label>
-                    <select id="home_time">
-                        <option value="">Seçiniz</option>
-                        <option value="Sabah (09:00-12:00)">Sabah (09:00-12:00)</option>
-                        <option value="Öğlen (12:00-15:00)">Öğlen (12:00-15:00)</option>
-                        <option value="Akşam (15:00-18:00)">Akşam (15:00-18:00)</option>
-                    </select>
-                </div>
-            </div>
-
             <div class="form-group">
                 <label for="medical_history">Tıbbi Geçmiş</label>
                 <textarea id="medical_history" rows="3" placeholder="Mevcut hastalıklar, kullandığınız ilaçlar..."></textarea>
             </div>
+            
             <div class="form-group">
                 <label for="test_notes">Ek Notlar</label>
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
+            <!-- KVKK -->
             <input type="checkbox" id="kvkk_consent" style="display:none;">
             <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
                 <button type="button" id="kvkkBtn" style="display:inline-block; width:auto; padding:10px 20px; background:#f0fdf4; border:2px solid #10b981; border-radius:8px; color:#065f46; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:12px; transition:all 0.2s; font-family:inherit;">
@@ -313,7 +295,7 @@
         </form>
     </div>
 
-    <!-- ADIM 1: ÖDEME MODALI -->
+    <!-- ADIM 1: ÖDEME MODALI (Aynı kalacak) -->
     <div class="payment-overlay" id="paymentGatewayModal">
         <div class="payment-modal">
             <div class="step-indicator">
@@ -331,14 +313,13 @@
                 <strong id="payAmount">₺0</strong>
             </div>
             <div class="demo-warning">
-                ⚠️ <strong>Demo Ödeme:</strong> Bu bir test ödeme ekranıdır. Gerçek kart bilgisi girmeyiniz.
+                ⚠️ <strong>Demo Ödeme:</strong> Bu bir test ödeme ekranıdır.
             </div>
             <div id="cardForm">
                 <div class="form-group">
                     <label for="card_number">Kart Numarası *</label>
                     <div class="card-number-wrap">
                         <input type="text" id="card_number" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
-                        <span class="card-brand" id="cardBrand"></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -367,7 +348,7 @@
         </div>
     </div>
 
-    <!-- ADIM 2: HASTANE SEÇİM MODALI -->
+    <!-- ADIM 2: HASTANE SEÇİM MODALI (Aynı kalacak) -->
     <div class="payment-overlay" id="paymentModal">
         <div class="payment-modal">
             <div class="step-indicator">
@@ -382,7 +363,7 @@
                 <div><span style="color:#64748b;">Ödeme:</span><strong id="paymentStatusDisplay" style="color:#059669;">✅ Ödendi</strong></div>
             </div>
             <div class="demo-warning" id="hospitalWarning">
-                ✅ <strong>Ödemeniz alındı.</strong> Şimdi hizmet almak istediğiniz anlaşmalı hastaneyi seçiniz.
+                ✅ <strong>Ödemeniz alındı.</strong> Şimdi anlaşmalı hastaneyi seçiniz.
             </div>
             <label style="font-size:14px; color:#334155; font-weight:bold; display:block; margin-bottom:8px;">Size En Yakın Anlaşmalı Hastane *</label>
             <select id="selectedHospital" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; margin-bottom: 20px; background:#f8fafc;">
@@ -404,31 +385,10 @@
             global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
         });
 
-        const APPOINTMENT_SERVICES = [
-            'Psikolojik Destek', 'Longevity Takibi', 'Dijital Değerlendirme', 'Kanser Taraması', 'Gebelik Takibi',
-            'Kurumsal Sağlık', 'Yaşlı Takip', 'Rutin Kontrol', 'Kronik Takip - Diyabet', 'Kronik Takip - Hipertansiyon', 'Kronik Takip - Tiroid'
-        ];
-
-        const DOCTOR_UID_BY_SERVICE = {
-            'Psikolojik Destek': 'c5b92d85-569f-4bf8-8f1b-2b23c70b88bd',
-            'Longevity Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Dijital Değerlendirme': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Kanser Taraması': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Gebelik Takibi': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Kurumsal Sağlık': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Yaşlı Takip': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Rutin Kontrol': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Kronik Takip - Diyabet': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Kronik Takip - Hipertansiyon': 'cf9bcba8-796e-4886-8fee-a52fb9b82616',
-            'Kronik Takip - Tiroid': 'cf9bcba8-796e-4886-8fee-a52fb9b82616'
-        };
-
-        const ALL_TIME_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'];
-
-        let IL_ILCE_DATA = {};
         let currentUser = null;
         let pendingFormData = null;
 
+        // KVKK Butonu
         document.getElementById('kvkkBtn').addEventListener('click', function() {
             const cb = document.getElementById('kvkk_consent');
             cb.checked = !cb.checked;
@@ -436,494 +396,172 @@
                 this.innerHTML = '✅ KVKK Onayı Verildi';
                 this.style.background = '#10b981';
                 this.style.color = 'white';
-                this.style.borderColor = '#059669';
             } else {
                 this.innerHTML = '⬜ KVKK Onayı Ver';
                 this.style.background = '#f0fdf4';
                 this.style.color = '#065f46';
-                this.style.borderColor = '#10b981';
             }
         });
 
-        async function loadIlIlce() {
-            try {
-                const res = await fetch('il-ilce.json');
-                IL_ILCE_DATA = await res.json();
-                const citySelect = document.getElementById('home_city');
-                const cities = Object.keys(IL_ILCE_DATA).sort((a, b) => a.localeCompare(b, 'tr'));
-                citySelect.innerHTML = '<option value="">İl seçiniz</option>' + cities.map(city => `<option value="${city}">${city}</option>`).join('');
-            } catch (err) { console.error('İl listesi yüklenemedi:', err); }
-        }
-
-        async function loadHospitals() {
-            try {
-                const select = document.getElementById('selectedHospital');
-                select.innerHTML = '<option value="">Hastaneler Yükleniyor...</option>';
-                const { data: hospitals, error } = await _supabase.from('hospitals').select('*');
-                if (error) throw error;
-                if (!hospitals || hospitals.length === 0) {
-                    select.innerHTML = '<option value="">Sistemde kayıtlı hastane bulunamadı</option>';
-                    return;
-                }
-                select.innerHTML = '<option value="">Lütfen Hastane Seçiniz</option>' +
-                    hospitals.map(h => `<option value="${h.id}" data-name="${h.name}">${h.name} (${h.district})</option>`).join('');
-            } catch (err) {
-                console.error('Hastaneler yüklenemedi:', err);
-                document.getElementById('selectedHospital').innerHTML = '<option value="">Hata: ' + err.message + '</option>';
-            }
-        }
-
-        document.getElementById('home_city').addEventListener('change', function() {
-            const city = this.value;
-            const districtSelect = document.getElementById('home_district');
-            if (!city) { districtSelect.innerHTML = '<option value="">Önce il seçin</option>'; return; }
-            const districts = IL_ILCE_DATA[city] || [];
-            districtSelect.innerHTML = '<option value="">İlçe seçiniz</option>' + districts.sort((a, b) => a.localeCompare(b, 'tr')).map(d => `<option value="${d}">${d}</option>`).join('');
-        });
-
+        // Dinamik Form Mantığı
         document.getElementById('service_type').addEventListener('change', function() {
-            const serviceType = this.value;
-            document.getElementById('cancerScreeningBox').style.display = (serviceType === 'Kanser Taraması') ? 'block' : 'none';
-            document.getElementById('pregnancyBox').style.display = (serviceType === 'Gebelik Takibi') ? 'block' : 'none';
+            const val = this.value;
             
-            const appointmentBox = document.getElementById('appointmentBox');
-            if (APPOINTMENT_SERVICES.includes(serviceType)) {
-                appointmentBox.style.display = 'block';
-                document.getElementById('appointmentDate').min = new Date().toISOString().split('T')[0];
-                document.getElementById('appointmentDate').value = '';
-                document.getElementById('appointmentDate').onchange = loadAvailableTimes;
-            } else {
-                appointmentBox.style.display = 'none';
-            }
+            // Tüm dinamik kutuları gizle
+            document.querySelectorAll('.dynamic-box').forEach(box => box.style.display = 'none');
+            document.getElementById('appointmentBox').style.display = 'none';
 
-            const homeBox = document.getElementById('homeServiceBox');
-            if (serviceType === 'Evde Numune Alma' || serviceType === 'Evde Kronik Takip' || serviceType === 'Evde Bakım') {
-                homeBox.style.display = 'block';
-            } else {
-                homeBox.style.display = 'none';
-            }
-        });
+            // Seçime göre ilgili kutuyu aç
+            if (val === 'Kronik Hastalık Takibi') document.getElementById('box_chronic').style.display = 'block';
+            if (val === 'İlaç Raporu Yenileme') document.getElementById('box_prescription').style.display = 'block';
+            if (val === 'Longevity Takibi') document.getElementById('box_longevity').style.display = 'block';
+            if (val === 'Kanser Taraması') document.getElementById('box_cancer').style.display = 'block';
+            if (val === 'Evde Bakım') document.getElementById('box_homecare').style.display = 'block';
+            if (val === 'Gebelik Takibi') document.getElementById('box_pregnancy').style.display = 'block';
 
-        document.getElementById('cs_smoking').addEventListener('change', function() {
-            document.getElementById('cs_smoking_detail').style.display = (this.value === 'none' || this.value === '') ? 'none' : 'block';
-        });
-        document.getElementById('cs_family').addEventListener('change', function() {
-            document.getElementById('cs_family_detail').style.display = (this.value === 'yes') ? 'block' : 'none';
-        });
-        document.getElementById('cs_symptoms').addEventListener('change', function() {
-            document.getElementById('cs_symptoms_detail').style.display = (this.value === 'alarm') ? 'block' : 'none';
-        });
-
-        document.getElementById('preg_lmp').addEventListener('change', function() {
-            const lmpDate = new Date(this.value);
-            if (!isNaN(lmpDate.getTime())) {
-                const edd = new Date(lmpDate);
-                edd.setDate(edd.getDate() + 280);
-                const formattedEdd = edd.toLocaleDateString('tr-TR');
-                document.getElementById('preg_edd_display').textContent = formattedEdd + " (Yaklaşık 40. Hafta)";
-            } else {
-                document.getElementById('preg_edd_display').textContent = "Tarih seçiniz...";
+            // Randevu kutusunu her hizmet için göster (Şimdilik tümü için randevu alıyoruz)
+            if (val) {
+                document.getElementById('appointmentBox').style.display = 'block';
             }
         });
 
-        async function loadAvailableTimes() {
-            const date = document.getElementById('appointmentDate').value;
-            const serviceType = document.getElementById('service_type').value;
-            const timeSelect = document.getElementById('appointmentTime');
-            if (!date) return;
-            timeSelect.innerHTML = '<option value="">Yükleniyor...</option>';
-            const doctorId = DOCTOR_UID_BY_SERVICE[serviceType];
-            try {
-                const { data, error } = await _supabase.from('applications').select('appointment_time').eq('appointment_date', date).eq('appointment_doctor_id', doctorId).in('appointment_status', ['pending', 'confirmed']);
-                if (error) throw error;
-                const bookedTimes = (data || []).map(r => r.appointment_time);
-                const availableTimes = ALL_TIME_SLOTS.filter(t => !bookedTimes.includes(t));
-                timeSelect.innerHTML = '<option value="">Saat seçiniz</option>' + availableTimes.map(t => `<option value="${t}">${t}</option>`).join('');
-            } catch (err) { console.error(err); }
-        }
+        // Gebelik Aşaması Seçimi
+        document.getElementById('preg_stage').addEventListener('change', function() {
+            if (this.value === 'during') {
+                document.getElementById('preg_during_details').style.display = 'block';
+            } else {
+                document.getElementById('preg_during_details').style.display = 'none';
+            }
+        });
 
-        function showMessage(text, type) {
-            const el = document.getElementById('message');
-            el.textContent = text; el.className = 'message ' + type;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        // Tahlil Durumu
+        document.getElementById('test_status').addEventListener('change', function() {
+            document.getElementById('fileUploadBox').style.display = (this.value === 'have_results') ? 'block' : 'none';
+        });
 
+        // Dosya Önizleme
+        document.getElementById('test_file').addEventListener('change', function() {
+            const file = this.files[0];
+            const preview = document.getElementById('filePreview');
+            if (file) {
+                preview.textContent = '✅ ' + file.name;
+                preview.style.display = 'block';
+            }
+        });
+
+        // Oturum Kontrol
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (session) {
                 currentUser = session.user;
                 document.getElementById('userEmail').textContent = session.user.email;
-                loadIlIlce();
             } else {
                 window.location.href = 'giris.html';
             }
         }
 
-        document.getElementById('test_status').addEventListener('change', function() {
-            const value = this.value;
-            document.getElementById('fileUploadBox').style.display = (value === 'have_results') ? 'block' : 'none';
-            document.getElementById('needTestInfo').style.display = (value === 'need_test') ? 'block' : 'none';
-            document.getElementById('testLocationGroup').style.display = (value === 'need_test') ? 'block' : 'none';
-        });
-
-        document.getElementById('test_file').addEventListener('change', function() {
-            const file = this.files[0];
-            const preview = document.getElementById('filePreview');
-            if (file) {
-                preview.textContent = '✅ ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-                preview.style.display = 'block';
+        // HASTANE YÜKLEME (Ödeme ekranı için)
+        async function loadHospitals() {
+            const select = document.getElementById('selectedHospital');
+            select.innerHTML = '<option value="">Yükleniyor...</option>';
+            const { data } = await _supabase.from('hospitals').select('*');
+            if (data && data.length > 0) {
+                select.innerHTML = '<option value="">Seçiniz</option>' + 
+                    data.map(h => `<option value="${h.id}" data-name="${h.name}">${h.name}</option>`).join('');
+            } else {
+                select.innerHTML = '<option value="">Hastane bulunamadı</option>';
             }
-        });
-
-        const cardNumberEl = document.getElementById('card_number');
-        const cardExpiryEl = document.getElementById('card_expiry');
-        const cardCvvEl = document.getElementById('card_cvv');
-        const cardBrandEl = document.getElementById('cardBrand');
-
-        function detectCardBrand(num) {
-            const n = num.replace(/\s/g, '');
-            if (/^4/.test(n)) return { name: 'VISA', color: '#1a1f71' };
-            if (/^5[1-5]/.test(n) || /^2[2-7]/.test(n)) return { name: 'MC', color: '#eb001b' };
-            if (/^3[47]/.test(n)) return { name: 'AMEX', color: '#006fcf' };
-            if (/^6/.test(n)) return { name: 'TROY', color: '#00a9e0' };
-            return null;
         }
 
-        cardNumberEl.addEventListener('input', function() {
-            let v = this.value.replace(/\D/g, '').slice(0, 16);
-            this.value = v.replace(/(.{4})/g, '$1 ').trim();
-            const brand = detectCardBrand(this.value);
-            if (brand) { cardBrandEl.textContent = brand.name; cardBrandEl.style.color = brand.color; }
-            else { cardBrandEl.textContent = ''; }
-        });
-        cardExpiryEl.addEventListener('input', function() {
-            let v = this.value.replace(/\D/g, '').slice(0, 4);
-            if (v.length >= 3) this.value = v.slice(0, 2) + '/' + v.slice(2);
-            else this.value = v;
-        });
-        cardCvvEl.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '').slice(0, 4);
-        });
-
+        // FORM GÖNDERİMİ (Demo Ödeme Akışı)
         document.getElementById('healthForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             if (!document.getElementById('kvkk_consent').checked) {
-                showMessage('❌ KVKK onay butonuna basmanız gerekiyor.', 'error'); return;
+                alert('Lütfen KVKK onayını verin.'); return;
             }
 
-            const serviceType = document.getElementById('service_type').value;
-            if (!serviceType) {
-                showMessage('❌ Lütfen hizmet türü seçin.', 'error'); return;
+            const service = document.getElementById('service_type').value;
+            const selectedOpt = document.getElementById('service_type').options[document.getElementById('service_type').selectedIndex];
+            let price = parseFloat(selectedOpt.getAttribute('data-price') || '0');
+            
+            const corpCode = document.getElementById('corporate_code').value.trim();
+            const isCorporate = corpCode.length > 0;
+            if (isCorporate) price = 0; // Kurumsal ise ödeme yok
+
+            // Form verilerini topla
+            pendingFormData = {
+                user_id: currentUser.id,
+                email: currentUser.email,
+                fullname: document.getElementById('fullname').value.trim(),
+                age: parseInt(document.getElementById('age').value),
+                phone: document.getElementById('phone').value.trim(),
+                service_type: service,
+                test_status: document.getElementById('test_status').value,
+                medical_history: document.getElementById('medical_history').value.trim(),
+                test_notes: document.getElementById('test_notes').value.trim(),
+                payment_amount: price,
+                status: 'pending',
+                appointment_date: document.getElementById('appointmentDate').value || null,
+                appointment_time: document.getElementById('appointmentTime').value || null,
+                is_corporate: isCorporate
+            };
+
+            // Dinamik verileri ekle
+            if (service === 'Kronik Hastalık Takibi') pendingFormData.test_notes = "Kronik: " + document.getElementById('chronic_diseases').value;
+            if (service === 'İlaç Raporu Yenileme') pendingFormData.test_notes = "İlaç: " + document.getElementById('rx_meds').value;
+            if (service === 'Longevity Takibi') pendingFormData.test_notes = "Hedef: " + document.getElementById('long_goals').value;
+            if (service === 'Gebelik Takibi') {
+                pendingFormData.test_notes = "Gebelik Aşaması: " + document.getElementById('preg_stage').value;
+                if(document.getElementById('preg_lmp').value) pendingFormData.test_notes += " | SAT: " + document.getElementById('preg_lmp').value;
             }
 
-            if (serviceType === 'Kanser Taraması') {
-                if (!document.getElementById('cs_gender').value || !document.getElementById('cs_smoking').value || !document.getElementById('cs_family').value || !document.getElementById('cs_symptoms').value) {
-                    showMessage('❌ Lütfen kanser tarama anketindeki yıldızlı (*) alanları doldurun.', 'error'); return;
-                }
-            }
-
-            if (serviceType === 'Gebelik Takibi') {
-                if (!document.getElementById('preg_lmp').value) {
-                    showMessage('❌ Lütfen Son Adet Tarihinizi (SAT) giriniz.', 'error'); return;
-                }
-            }
-
-            if (APPOINTMENT_SERVICES.includes(serviceType)) {
-                if (!document.getElementById('appointmentDate').value || !document.getElementById('appointmentTime').value) {
-                    showMessage('❌ Lütfen online görüşme için randevu tarihi ve saatini seçin.', 'error'); return;
-                }
-            }
-
-            const isHomeService = serviceType === 'Evde Numune Alma' || serviceType === 'Evde Kronik Takip' || serviceType === 'Evde Bakım';
-            if (isHomeService) {
-                if (!document.getElementById('home_address').value.trim() || !document.getElementById('home_city').value || !document.getElementById('home_district').value || !document.getElementById('home_date').value || !document.getElementById('home_time').value) {
-                    showMessage('❌ Evde hizmet için adres, il, ilçe, tarih ve saat zorunludur.', 'error'); return;
-                }
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true; submitBtn.textContent = 'Kontrol Ediliyor...';
-
-            try {
-                let fileUrl = null, fileName = null;
-                const fileInput = document.getElementById('test_file');
-                if (document.getElementById('test_status').value === 'have_results' && fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const fileName_upload = `${Date.now()}_${file.name}`;
-                    const { error: uploadError } = await _supabase.storage.from('test-results').upload(fileName_upload, file);
-                    if (uploadError) throw uploadError;
-                    const { data: urlData } = _supabase.storage.from('test-results').getPublicUrl(fileName_upload);
-                    fileUrl = urlData.publicUrl; fileName = file.name;
-                }
-
-                let kanserOnerisi = "";
-                if (serviceType === 'Kanser Taraması') {
-                    const gender = document.getElementById('cs_gender').value;
-                    const age = parseInt(document.getElementById('age').value);
-                    const smoking = document.getElementById('cs_smoking').value;
-                    const family = document.getElementById('cs_family').value;
-                    const symptoms = document.getElementById('cs_symptoms').value;
-                    const symDetails = document.getElementById('cs_symptoms_info') ? document.getElementById('cs_symptoms_info').value : "";
-                    const famDetails = document.getElementById('cs_family_info') ? document.getElementById('cs_family_info').value : "";
-                    const specialRisks = Array.from(document.getElementById('cs_special_risk').selectedOptions).map(opt => opt.value).filter(v => v !== 'none');
-
-                    if (specialRisks.includes('previous_cancer')) {
-                        kanserOnerisi = "🚨 ÖZEL DURUM: Kişisel kanser öyküsü var. Hekim değerlendirmesi gerekir.";
-                    } else if (symptoms === 'alarm') {
-                        kanserOnerisi = "🚨 ALARM: Şikayet var (" + symDetails + "). Tanısal değerlendirme gerekli.";
-                    } else {
-                        let taramalar = [];
-                        if (gender === 'female') {
-                            if (age >= 40) taramalar.push("Mamografi");
-                            if (age >= 30) taramalar.push("HPV");
-                        }
-                        if (age >= 50) taramalar.push("Kolonoskopi/Gaitada Gizli Kan");
-                        if (gender === 'male' && age >= 50) taramalar.push("PSA");
-                        if (smoking === 'current' && age >= 50) taramalar.push("Düşük Doz BT");
-                        if (specialRisks.includes('ibd')) taramalar.push("Erken Kolonoskopi (İBH)");
-                        if (specialRisks.includes('hepatitis')) taramalar.push("Karaciğer USG + AFP");
-                        if (specialRisks.includes('genetic') || family === 'yes') taramalar.push("Genetik Danışmanlık");
-
-                        kanserOnerisi = taramalar.length > 0 ? "Sistem Önerisi: " + taramalar.join(", ") + "." : "Standart tarama endikasyonu yok.";
-                        if (family === 'yes') kanserOnerisi += " (Aile: " + famDetails + ")";
-                    }
-                }
-
-                const specialtyMap = {
-                    'Rutin Kontrol': 'internal', 'Kronik Takip - Diyabet': 'internal', 'Kronik Takip - Hipertansiyon': 'internal', 
-                    'Kronik Takip - Tiroid': 'internal', 'İlaç Raporu Yenileme': 'internal', 'Longevity Takibi': 'internal', 
-                    'Kanser Taraması': 'internal', 'Evde Bakım': 'internal', 'Gebelik Takibi': 'internal', 'Kurumsal Sağlık': 'internal',
-                    'Dijital Değerlendirme': 'internal', 'Psikolojik Destek': 'psychology', 'Yaşlı Takip': 'internal', 
-                    'Evde Numune Alma': 'internal', 'Evde Kronik Takip': 'internal'
-                };
-
-                const needsAppointment = APPOINTMENT_SERVICES.includes(serviceType);
-                const serviceSelect = document.getElementById('service_type');
-                const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-                let price = parseFloat(selectedOption.getAttribute('data-price') || '0');
-                
-                const corporateCode = document.getElementById('corporate_code').value.trim().toUpperCase();
-                const employeeNumber = document.getElementById('employee_number').value.trim();
-                let isCorporate = false;
-
-                if (corporateCode.length > 0) {
-                    submitBtn.textContent = 'Şirket Doğrulanıyor...';
-                    
-                    const { data: companyData, error: companyError } = await _supabase
-                        .from('companies')
-                        .select('id, name')
-                        .eq('company_code', corporateCode)
-                        .limit(1);
-
-                    if (companyError || !companyData || companyData.length === 0) {
-                        showMessage('❌ Geçersiz Şirket Kodu! Lütfen İK biriminizden doğru kodu alın.', 'error');
-                        submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
-                        return;
-                    }
-                    
-                    const companyId = companyData[0].id;
-
-                    const { data: employeeData, error: empError } = await _supabase
-                        .from('employees')
-                        .select('id')
-                        .eq('company_id', companyId)
-                        .eq('employee_number', employeeNumber)
-                        .limit(1);
-
-                    if (empError || !employeeData || employeeData.length === 0) {
-                        showMessage('❌ Çalışan numaranız bu şirkete kayıtlı değil. Lütfen sicil numaranızı kontrol edin.', 'error');
-                        submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
-                        return;
-                    }
-
-                    price = 0;
-                    isCorporate = true;
-                }
-
-                pendingFormData = {
-                    user_id: currentUser.id,
-                    specialty: specialtyMap[serviceType] || 'internal',
-                    fullname: document.getElementById('fullname').value.trim(),
-                    age: parseInt(document.getElementById('age').value),
-                    phone: document.getElementById('phone').value.trim(),
-                    email: currentUser.email,
-                    service_type: serviceType, 
-                    test_status: document.getElementById('test_status').value,
-                    test_location: document.getElementById('test_location') ? document.getElementById('test_location').value : null,
-                    test_file_url: fileUrl, test_file_name: fileName,
-                    medical_history: document.getElementById('medical_history').value.trim() || null,
-                    test_notes: (serviceType === 'Kanser Taraması' ? kanserOnerisi : document.getElementById('test_notes').value.trim()) || null,
-                    kvkk_consent: true, 
-                    status: 'pending', 
-                    appointment_date: needsAppointment ? document.getElementById('appointmentDate').value : null,
-                    appointment_time: needsAppointment ? document.getElementById('appointmentTime').value : null,
-                    appointment_type: needsAppointment ? 'online' : null,
-                    appointment_status: needsAppointment ? 'pending' : null,
-                    appointment_doctor_id: needsAppointment ? DOCTOR_UID_BY_SERVICE[serviceType] : null,
-                    payment_amount: price,
-                    is_corporate: isCorporate
-                };
-
-                if (isCorporate) {
-                    pendingFormData.corporate_code = corporateCode;
-                    pendingFormData.employee_number = employeeNumber;
-                }
-
-                if (serviceType === 'Gebelik Takibi') {
-                    pendingFormData.pregnancy_lmp = document.getElementById('preg_lmp').value;
-                    pendingFormData.pregnancy_weight = document.getElementById('preg_weight').value;
-                    const complaints = Array.from(document.getElementById('preg_complaints').selectedOptions).map(o => o.value).join(',');
-                    pendingFormData.pregnancy_complaints = complaints;
-                }
-
-                if (isHomeService) {
-                    pendingFormData.home_address = document.getElementById('home_address').value.trim();
-                    pendingFormData.home_city = document.getElementById('home_city').value;
-                    pendingFormData.home_district = document.getElementById('home_district').value;
-                    pendingFormData.home_date = document.getElementById('home_date').value;
-                    pendingFormData.home_time = document.getElementById('home_time').value;
-                    pendingFormData.home_service_status = 'pending';
-                }
-
-                if (isCorporate) {
-                    document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
-                    document.getElementById('paymentService').textContent = serviceType + " (Kurumsal)";
-                    document.getElementById('paymentStatusDisplay').textContent = "🏢 Şirket Ödemeli";
-                    document.getElementById('paymentStatusDisplay').style.color = "#3b82f6";
-                    document.getElementById('hospitalWarning').innerHTML = "🏢 <strong>Kurumsal Çalışan:</strong> Ödeme şirketiniz tarafından yapılacaktır. Lütfen hastane seçiniz.";
-                    
-                    await loadHospitals();
-                    document.getElementById('paymentModal').classList.add('active');
-                    submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
-                    return; 
-                }
-
-                document.getElementById('payPatient').textContent = pendingFormData.fullname;
-                document.getElementById('payService').textContent = serviceType;
-                document.getElementById('payAmount').textContent = '₺' + price.toLocaleString('tr-TR');
-
-                document.getElementById('card_number').value = '';
-                document.getElementById('card_name').value = '';
-                document.getElementById('card_expiry').value = '';
-                document.getElementById('card_cvv').value = '';
-                cardBrandEl.textContent = '';
-                document.getElementById('paymentLoader').classList.remove('active');
-                document.getElementById('cardForm').style.display = 'block';
-                document.getElementById('paymentButtons').style.display = 'flex';
-                document.getElementById('payBtn').disabled = false;
-                document.getElementById('payBtn').textContent = 'Ödemeyi Tamamla';
-
+            // Ödeme Modalını Aç
+            document.getElementById('payPatient').textContent = pendingFormData.fullname;
+            document.getElementById('payService').textContent = service;
+            document.getElementById('payAmount').textContent = '₺' + price.toLocaleString('tr-TR');
+            
+            if (isCorporate) {
+                document.getElementById('paymentStatusDisplay').textContent = "🏢 Şirket Ödemeli";
+                document.getElementById('paymentGatewayModal').classList.remove('active');
+                await loadHospitals();
+                document.getElementById('paymentModal').classList.add('active');
+            } else {
                 document.getElementById('paymentGatewayModal').classList.add('active');
-                submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
-
-            } catch (err) {
-                showMessage('❌ Bir hata oluştu: ' + err.message, 'error');
-                submitBtn.disabled = false; submitBtn.textContent = '💳 Ödemeye Geç';
             }
         });
 
+        // Ödeme Onayı Butonu
         document.getElementById('payBtn').addEventListener('click', async function() {
-            const cardNum = document.getElementById('card_number').value.replace(/\s/g, '');
-            const cardName = document.getElementById('card_name').value.trim();
-            const cardExp = document.getElementById('card_expiry').value;
-            const cardCvv = document.getElementById('card_cvv').value;
-
-            if (cardNum.length < 16) { alert('Lütfen 16 haneli kart numarası girin.'); return; }
-            if (cardName.length < 3) { alert('Lütfen kart üzerindeki ismi girin.'); return; }
-            if (!/^\d{2}\/\d{2}$/.test(cardExp)) { alert('Son kullanma tarihi AA/YY formatında olmalıdır.'); return; }
-            const [mm, yy] = cardExp.split('/').map(Number);
-            if (mm < 1 || mm > 12) { alert('Geçersiz son kullanma ayı.'); return; }
-            const now = new Date();
-            const expDate = new Date(2000 + yy, mm, 0);
-            if (expDate < now) { alert('Kartın son kullanma tarihi geçmiş.'); return; }
-            if (cardCvv.length < 3) { alert('Lütfen geçerli bir CVV girin.'); return; }
-
-            document.getElementById('cardForm').style.display = 'none';
-            document.getElementById('paymentButtons').style.display = 'none';
-            document.getElementById('paymentLoader').classList.add('active');
-
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            const transactionId = 'DEMO-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
-            const paidAt = new Date().toISOString();
-            
-            pendingFormData.payment_status = 'paid';
-            pendingFormData.payment_transaction_id = transactionId;
-            pendingFormData.payment_date = paidAt;
-            pendingFormData.payment_card_last4 = cardNum.slice(-4);
-
+            this.disabled = true; this.textContent = 'İşleniyor...';
+            await new Promise(r => setTimeout(r, 1500)); // Demo bekleme
             document.getElementById('paymentGatewayModal').classList.remove('active');
-            document.getElementById('paymentLoader').classList.remove('active');
-
-            document.getElementById('paymentPatient').textContent = pendingFormData.fullname;
-            document.getElementById('paymentService').textContent = pendingFormData.service_type;
-            document.getElementById('paymentStatusDisplay').textContent = "✅ Ödendi";
-            document.getElementById('paymentStatusDisplay').style.color = "#059669";
-            document.getElementById('hospitalWarning').innerHTML = "✅ <strong>Ödemeniz alındı.</strong> Şimdi hizmet almak istediğiniz anlaşmalı hastaneyi seçiniz.";
-            
+            this.disabled = false; this.textContent = 'Ödemeyi Tamamla';
             await loadHospitals();
             document.getElementById('paymentModal').classList.add('active');
         });
 
-        document.getElementById('cancelPaymentBtn').addEventListener('click', () => {
-            document.getElementById('paymentGatewayModal').classList.remove('active');
-            pendingFormData = null;
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').textContent = '💳 Ödemeye Geç';
-        });
-
-        document.getElementById('completePayment').addEventListener('click', async () => {
-            const selectEl = document.getElementById('selectedHospital');
-            const selectedHospitalId = selectEl.value;
-            const selectedHospitalName = selectEl.options[selectEl.selectedIndex]?.dataset.name;
-
-            if (!selectedHospitalId) {
-                alert('Lütfen yönlendirilmek istediğiniz anlaşmalı hastaneyi seçin.');
-                return;
-            }
-
-            const btn = document.getElementById('completePayment');
-            btn.disabled = true; btn.textContent = 'Kaydediliyor...';
-
-            pendingFormData.hospital_id = selectedHospitalId;
-            pendingFormData.doctor_note = '🏥 Yönlendirilen Hastane: ' + selectedHospitalName;
-            const mevcutNot = pendingFormData.test_notes || '';
-            pendingFormData.test_notes = (mevcutNot ? mevcutNot + ' | ' : '') + 'Hastane: ' + selectedHospitalName;
-            if (!pendingFormData.test_location) {
-                pendingFormData.test_location = selectedHospitalName;
-            }
-
-            const { error } = await _supabase.from('applications').insert([pendingFormData]);
-            if (error) { 
-                alert('❌ Hata: ' + error.message); 
-                btn.disabled = false; btn.textContent = 'Yönlendirmeyi Onayla'; return; 
-            }
-
-            document.getElementById('paymentModal').classList.remove('active');
+        // Hastane Onayı ve Veritabanına Kayıt
+        document.getElementById('completePayment').addEventListener('click', async function() {
+            const hospId = document.getElementById('selectedHospital').value;
+            if (!hospId) { alert('Hastane seçin.'); return; }
             
-            // YÖNLENDİRME MANTIĞI BURADA
-            let redirectMessage = "✅ Başvurunuz alındı ve hastaneye iletildi. Hasta paneline yönlendiriliyorsunuz...";
-            let redirectUrl = 'hasta-panel.html';
-
-            if (pendingFormData.service_type === 'Psikolojik Destek') {
-                redirectMessage = "🧠 Ödemeniz alındı. Lütfen psikolog görüşmesi öncesi testleri tamamlayın. Test sayfasına yönlendiriliyorsunuz...";
-                redirectUrl = 'psikolojik.html';
-            } else if (pendingFormData.service_type === 'Longevity Takibi') {
-                redirectMessage = "🧬 Ödemeniz alındı. Lütfen biyolojik yaşınızı hesaplamak için formu doldurun. Longevity paneline yönlendiriliyorsunuz...";
-                redirectUrl = 'longevity.html';
+            this.disabled = true; this.textContent = 'Kaydediliyor...';
+            
+            pendingFormData.hospital_id = hospId;
+            
+            const { error } = await _supabase.from('applications').insert([pendingFormData]);
+            if (error) {
+                alert('Hata: ' + error.message);
+                this.disabled = false; this.textContent = 'Onayla';
+            } else {
+                alert('✅ Başvurunuz başarıyla alındı!');
+                window.location.href = 'hasta-panel.html';
             }
-
-            showMessage(redirectMessage, 'success');
-            setTimeout(() => window.location.href = redirectUrl, 3000);
         });
 
-        document.getElementById('cancelHospitalBtn').addEventListener('click', () => {
-            document.getElementById('paymentModal').classList.remove('active');
-            pendingFormData = null;
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').textContent = '💳 Ödemeye Geç';
-        });
+        // İptal Butonları
+        document.getElementById('cancelPaymentBtn').onclick = () => document.getElementById('paymentGatewayModal').classList.remove('active');
+        document.getElementById('cancelHospitalBtn').onclick = () => document.getElementById('paymentModal').classList.remove('active');
 
         checkSession();
     </script>
