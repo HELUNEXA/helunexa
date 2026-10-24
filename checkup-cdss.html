@@ -130,18 +130,34 @@
             document.getElementById('nextBtn').onclick = () => { step = 3; render(); };
         }
 
-        function payment() {
+                function payment() {
             document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Ödemeye Geç</h2><p>Planınız hazır. Başvuru formuna yönlendiriliyorsunuz.</p></div>
-                <div class="application"><p><b>Planlanan İşlemler:</b></p><ul style="margin-left: 20px; margin-top: 10px; font-size: 13px; color: var(--muted);">${state.plan.map(p => p.tests.map(t => `<li>${t}</li>`).join('')).join('')}</ul></div>
-                <label class="check"><input type="checkbox" id="confirmCheck"> Planı onaylıyorum.</label>
-                <div class="actions"><button class="btn btn-secondary" onclick="step=2; render();">Geri</button><button class="btn btn-primary" id="finishBtn">💳 Ödemeye Geç</button></div>
+                <div class="card-heading">
+                    <h2>Planı Onayla ve Ödemeye Geç</h2>
+                    <p>Tetkik planınız hazır. Ödeme adımına geçebilirsiniz.</p>
+                </div>
+                <div class="application">
+                    <p><b>Planlanan İşlemler:</b></p>
+                    <ul style="margin-left: 20px; margin-top: 10px; font-size: 13px; color: var(--muted);">
+                        ${state.plan.map(p => p.tests.map(t => `<li>${t}</li>`).join('')).join('')}
+                    </ul>
+                </div>
+                <label class="check"><input type="checkbox" id="confirmCheck"> Planı ve tetkik listesini onaylıyorum.</label>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="step=2; render();">Geri</button>
+                    <button class="btn btn-primary" id="finishBtn">💳 Ödemeye Geç</button>
+                </div>
             `;
+
             document.getElementById('finishBtn').onclick = () => {
                 if (!document.getElementById('confirmCheck').checked) return toast('Lütfen planı onaylayın.');
-                const planText = state.plan.map(p=>p.tests.join(', ')).join(' | ');
+                
+                // Verileri hafızaya kaydet
+                const planText = state.plan.map(p => p.tests.join(', ')).join(' | ');
                 sessionStorage.setItem('cdss_profile', JSON.stringify(state.profile));
                 sessionStorage.setItem('cdss_plan_text', planText);
+                
+                // Doğrudan basvuru.html'e dön ama ödeme ekranını açması için sinyal gönder
                 window.location.href = 'basvuru.html?checkup=approved';
             };
         }
