@@ -1,96 +1,38 @@
-<!doctype html>
-<html lang="tr" translate="no">
-<head>
-    <meta charset="UTF-8">
-    <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HELUNEXA - Check-up Akıllı Değerlendirme</title>
-    <link rel="icon" href="favicon.ico">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root { --ink: #213e39; --muted: #76877e; --teal: #10b981; --teal-dark: #059669; --line: #e2e9e3; --bg: #f6f8f4; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font: 14px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--ink); background: var(--bg); }
-        .header { background: white; padding: 15px; text-align: center; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
-        .header img { height: 80px; width: auto; }
-        main { max-width: 700px; padding: 0 20px 40px; margin: auto; }
-        .card { border: 1px solid var(--line); background: #fff; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .card-heading { margin-bottom: 25px; text-align: center; }
-        .card-heading h2 { font-size: 24px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
-        .card-heading p { font-size: 13px; color: var(--muted); }
-        nav { display: flex; margin-bottom: 25px; gap: 10px; justify-content: center; }
-        .step { flex: 1; border-bottom: 2px solid var(--line); padding-bottom: 12px; display: flex; align-items: center; gap: 8px; color: #829087; font-size: 11px; font-weight: bold; }
-        .step span { width: 24px; height: 24px; border: 1px solid #dce5dd; border-radius: 50%; display: grid; place-items: center; font-size: 10px; }
-        .step.current { border-color: var(--teal); color: var(--teal); }
-        .step.current span, .step.done span { background: #e7f2ea; color: var(--teal); border-color: #d7e9dc; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        label { display: block; font-size: 13px; margin-bottom: 15px; color: #486359; font-weight: bold; }
-        input, select { width: 100%; font: inherit; padding: 12px; margin-top: 6px; border: 1px solid #d9e3da; border-radius: 8px; color: var(--ink); outline: none; }
-        input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
-        .panel { padding: 20px 0; border-bottom: 1px solid var(--line); }
-        .panel:last-of-type { border: 0; }
-        .panel-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .panel-title h3 { font-size: 15px; color: var(--ink); }
-        .panel-tag { font-size: 10px; background: #eaf3ed; color: var(--teal); border-radius: 5px; padding: 4px 8px; font-weight: bold; }
-        .test-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-        .test-list span { border: 1px solid var(--line); background: #f7f9f6; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #486151; }
-        .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
-        .btn-primary { background: var(--teal); color: white; }
-        .btn-primary:hover { background: var(--teal-dark); }
-        .btn-secondary { background: #fff; color: var(--ink); border: 1px solid var(--line); }
-        .actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 30px; }
-        .application { background: #f5f8f4; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        .application p { font-size: 13px; color: #4d6758; margin: 5px 0; }
-        .subnote { padding: 15px; background: #f2f7f2; border-radius: 8px; color: #65816d; font-size: 12px; margin-top: 20px; border-left: 4px solid var(--teal); }
-        .check { display: flex; align-items: center; gap: 10px; font-size: 12px; margin: 15px 0; }
-        .check input { width: auto; margin: 0; accent-color: var(--teal); }
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #254a3a; color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 13px; z-index: 5; display: none; }
-        @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .step { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 10px; } .card { padding: 20px; } .actions { flex-direction: column; } .btn { width: 100%; } }
-    </style>
-</head>
-<body class="notranslate">
-    <div class="header"><img src="logo.png" alt="HELUNEXA"></div>
-    <main>
-        <div class="card">
-            <nav id="steps">
-                <div class="step current"><span>1</span>Başvuru</div>
-                <div class="step"><span>2</span>Ön Plan</div>
-                <div class="step"><span>3</span>Hekim Onayı</div>
-                <div class="step"><span>4</span>Ödeme</div>
-            </nav>
-            <div id="screen"></div>
-        </div>
-    </main>
-    <div id="toast"></div>
-
-    <script>
-        const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' } });
-
-        let step = 0;
-        let state = { profile: {}, plan: [] };
-
-        function toast(text) { const el = document.getElementById('toast'); el.textContent = text; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3000); }
-
-        function buildPlan(p) {
-            const panels = [];
-            const bmi = p.weight / ((p.height / 100) ** 2);
-            panels.push({ title: 'Kan Sayımı', tests: ['Hemogram'], reason: 'Genel değerlendirme.' });
-            panels.push({ title: 'Metabolik Değerlendirme', tests: ['Açlık plazma glukozu', 'Lipid profili'], reason: 'Metabolik risk taraması.' });
-            if (bmi >= 25) panels.push({ title: 'İnsülin Direnci', tests: ['HOMA-IR'], reason: 'VKİ yüksekliği.' });
-            if (p.age >= 40) panels.push({ title: 'Kalp Sağlığı', tests: ['EKG'], reason: 'Yaş faktörü.' });
-            return panels;
-        }
-
-        function render() {
-            const screens = [intake, plan, doctor, payment];
-            screens[step]();
-            document.querySelectorAll('.step').forEach((s, i) => { s.className = 'step'; if (i < step) s.classList.add('done'); if (i === step) s.classList.add('current'); });
-        }
-
         function intake() {
+            document.getElementById('screen').innerHTML = `
+                <div class="card-heading">
+                    <h2>Size nasıl yardımcı olalım?</h2>
+                    <p>Check-up planınızı oluşturmak için önce durumunuzu belirtin.</p>
+                </div>
+                <button class="panel" style="width:100%; text-align:left; cursor:pointer;" id="btn_well">
+                    <div class="panel-title"><h3>1. Şikayetim yok, genel kontrol istiyorum.</h3><span class="panel-tag">→</span></div>
+                    <p style="font-size:12px; color:var(--muted);">Vücudum ve sağlığımla ilgili bir şikayetim yok. Genel kontrol tahlilleri yaptırmak istiyorum.</p>
+                </button>
+                <button class="panel" style="width:100%; text-align:left; cursor:pointer;" id="btn_symptomatic">
+                    <div class="panel-title"><h3>2. Şikayetlerim var, doktor muayenesi istiyorum.</h3><span class="panel-tag">→</span></div>
+                    <p style="font-size:12px; color:var(--muted);">Şikayetlerim var, muayene için yönlendirme istiyorum.</p>
+                </button>
+            `;
+
+            document.getElementById('btn_well').onclick = () => {
+                // Şikayeti yoksa formu (yaş, kilo vb.) göster
+                showIntakeForm();
+            };
+
+            document.getElementById('btn_symptomatic').onclick = () => {
+                // Şikayeti varsa Check-up'a uygun olmadığını söyle
+                document.getElementById('screen').innerHTML = `
+                    <div class="card-heading">
+                        <h2>Doktor muayenesi için başvurun.</h2>
+                        <p>Bu check-up modülü, şikâyeti olmayan kişilerin genel sağlık kontrolü içindir.</p>
+                    </div>
+                    <div class="subnote">Şikâyetlerinizin değerlendirilmesi için bir sağlık kuruluşundan doktor randevusu almanızı öneririz. Bu başvuru için tahlil önerisi oluşturulmadı.</div>
+                    <div class="actions"><button class="btn btn-secondary" onclick="window.location.href='basvuru.html'">Geri Dön</button></div>
+                `;
+            };
+        }
+
+        function showIntakeForm() {
             document.getElementById('screen').innerHTML = `
                 <div class="card-heading"><h2>Kısaca sizi tanıyalım.</h2><p>Check-up planınızı oluşturmak için temel bilgiler.</p></div>
                 <div class="form-grid">
@@ -99,7 +41,7 @@
                     <div><label>Kilo (kg) *<input type="number" id="weight" min="20" max="300"></label></div>
                     <div><label>Boy (cm) *<input type="number" id="height" min="100" max="250"></label></div>
                 </div>
-                <div class="actions"><button class="btn btn-secondary" onclick="window.location.href='basvuru.html'">Geri</button><button class="btn btn-primary" id="nextBtn">Kontrol Panelini Gör →</button></div>
+                <div class="actions"><button class="btn btn-secondary" onclick="step=0; render();">Geri</button><button class="btn btn-primary" id="nextBtn">Kontrol Panelini Gör →</button></div>
             `;
             document.getElementById('nextBtn').onclick = () => {
                 const age = Number(document.getElementById('age').value), weight = Number(document.getElementById('weight').value), height = Number(document.getElementById('height').value), sex = document.getElementById('sex').value;
@@ -109,65 +51,3 @@
                 step = 1; render();
             };
         }
-
-        function plan() {
-            const p = state.profile;
-            document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Örnek check-up planınız</h2><p>Hekiminizin inceleyip değiştirebileceği taslak.</p></div>
-                <div class="application"><p><b>${p.age} yaş</b> · ${p.sex}</p><p>${p.weight} kg · ${p.height} cm · VKİ: <b>${p.bmi}</b></p></div>
-                ${state.plan.map(x => `<div class="panel"><div class="panel-title"><h3>${x.title}</h3><span class="panel-tag">Öneri</span></div><div class="test-list">${x.tests.map(t => `<span>${t}</span>`).join('')}</div><p style="font-size:11px; color:var(--muted); margin-top:5px;">${x.reason}</p></div>`).join('')}
-                <div class="actions"><button class="btn btn-secondary" onclick="step=0; render();">Geri</button><button class="btn btn-primary" id="nextBtn">Hekim Onayına Gönder →</button></div>
-            `;
-            document.getElementById('nextBtn').onclick = () => { step = 2; render(); };
-        }
-
-        function doctor() {
-            document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Hekim Onayı Bekleniyor</h2><p>Planınız hekiminize iletilmiştir.</p></div>
-                <div class="application"><p>Hekim onayı sonrası ödeme sayfasına geçebilirsiniz.</p></div>
-                <div class="actions"><button class="btn btn-secondary" onclick="step=1; render();">Geri</button><button class="btn btn-primary" id="nextBtn">Ödemeye Geç →</button></div>
-            `;
-            document.getElementById('nextBtn').onclick = () => { step = 3; render(); };
-        }
-
-                function payment() {
-            document.getElementById('screen').innerHTML = `
-                <div class="card-heading">
-                    <h2>Planı Onayla ve Ödemeye Geç</h2>
-                    <p>Tetkik planınız hazır. Ödeme adımına geçebilirsiniz.</p>
-                </div>
-                <div class="application">
-                    <p><b>Planlanan İşlemler:</b></p>
-                    <ul style="margin-left: 20px; margin-top: 10px; font-size: 13px; color: var(--muted);">
-                        ${state.plan.map(p => p.tests.map(t => `<li>${t}</li>`).join('')).join('')}
-                    </ul>
-                </div>
-                <label class="check"><input type="checkbox" id="confirmCheck"> Planı ve tetkik listesini onaylıyorum.</label>
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="step=2; render();">Geri</button>
-                    <button class="btn btn-primary" id="finishBtn">💳 Ödemeye Geç</button>
-                </div>
-            `;
-
-            document.getElementById('finishBtn').onclick = () => {
-                if (!document.getElementById('confirmCheck').checked) return toast('Lütfen planı onaylayın.');
-                
-                // Verileri hafızaya kaydet
-                const planText = state.plan.map(p => p.tests.join(', ')).join(' | ');
-                sessionStorage.setItem('cdss_profile', JSON.stringify(state.profile));
-                sessionStorage.setItem('cdss_plan_text', planText);
-                
-                // Doğrudan basvuru.html'e dön ama ödeme ekranını açması için sinyal gönder
-                window.location.href = 'basvuru.html?checkup=approved';
-            };
-        }
-
-        async function checkSession() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) render();
-            else window.location.href = 'giris.html';
-        }
-        checkSession();
-    </script>
-</body>
-</html>
