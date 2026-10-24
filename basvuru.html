@@ -449,6 +449,87 @@
             }
         });
 
+        // ═══════════════════════════════════════════════════════════
+        // RANDEVU TARİH & SAAT AYARLARI
+        // Özel hastane sistemi: Hafta sonu açık, öğle arası kapalı
+        // ═══════════════════════════════════════════════════════════
+
+        // Geçmiş tarihleri engelle (min = bugün)
+        (function setMinDate() {
+            const dateInput = document.getElementById('appointmentDate');
+            if (!dateInput) return;
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            dateInput.min = `${yyyy}-${mm}-${dd}`;
+        })();
+
+        // Gün bazlı çalışma saatleri (özel hastane)
+        function getWorkingHours(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            const day = d.getDay(); // 0=Paz, 6=Cmt
+            if (day === 0) return { start: 10, end: 14, label: 'Pazar 10:00–14:00' };
+            if (day === 6) return { start: 9,  end: 17, label: 'Cumartesi 09:00–17:00' };
+            return { start: 9, end: 17, label: 'Hafta içi 09:00–17:00' };
+        }
+
+        // Tarih değişince saat listesini doldur
+        document.getElementById('appointmentDate').addEventListener('change', function() {
+            const timeSelect = document.getElementById('appointmentTime');
+            const selectedDate = this.value;
+
+            timeSelect.innerHTML = '<option value="">Saat seçiniz...</option>';
+
+            if (!selectedDate) {
+                timeSelect.disabled = false;
+                return;
+            }
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            const isToday = selectedDate === todayStr;
+
+            const { start, end, label } = getWorkingHours(selectedDate);
+            const nowMinutes = today.getHours() * 60 + today.getMinutes();
+
+            // Öğle arası (12:00-13:00) sadece o aralık çalışma saatlerinin içindeyse uygula
+            const lunchStart = 12 * 60;
+            const lunchEnd = 13 * 60;
+            const hasLunch = !(start >= 13 || end <= 12);
+
+            let options = `<option value="">Saat seçiniz (${label})</option>`;
+            let hasSlot = false;
+
+            for (let h = start; h < end; h++) {
+                for (let m = 0; m < 60; m += 30) {
+                    const slotMinutes = h * 60 + m;
+
+                    // Öğle arası atla
+                    if (hasLunch && slotMinutes >= lunchStart && slotMinutes < lunchEnd) continue;
+
+                    // Bugünse geçmiş saatleri gizle (+30 dk buffer)
+                    if (isToday && slotMinutes <= nowMinutes + 30) continue;
+
+                    const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                    options += `<option value="${timeStr}">${timeStr}</option>`;
+                    hasSlot = true;
+                }
+            }
+
+            if (!hasSlot) {
+                timeSelect.innerHTML = '<option value="">Bugün için uygun saat kalmadı</option>';
+                timeSelect.disabled = true;
+            } else {
+                timeSelect.innerHTML = options;
+                timeSelect.disabled = false;
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════
+        // RANDEVU AYARLARI BİTTİ
+        // ═══════════════════════════════════════════════════════════
+
         // Oturum Kontrol
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
