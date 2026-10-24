@@ -72,7 +72,7 @@
                 <div class="step current"><span>1</span>Başvuru</div>
                 <div class="step"><span>2</span>Ön Plan</div>
                 <div class="step"><span>3</span>Hekim Onayı</div>
-                <div class="step"><span>4</span>Sonuç ve Takip</div>
+                <div class="step"><span>4</span>Ödeme</div>
             </nav>
             <div id="screen"></div>
         </div>
@@ -90,22 +90,32 @@
 
         function toast(text) { const el = document.getElementById('toast'); el.textContent = text; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3000); }
 
+        // BKİ (VKİ) HESAPLAMA FONKSİYONU (Garantili)
+        function calculateBMI(weight, height) {
+            if (!weight || !height || height === 0) return 0;
+            const heightInMeters = height / 100;
+            return (weight / (heightInMeters * heightInMeters)).toFixed(1);
+        }
+
         function buildPlan(p) {
             const panels = [];
-            const bmi = p.weight / ((p.height / 100) ** 2);
+            const bmi = parseFloat(p.bmi); // String'den number'a çevir
+            
             panels.push({ title: 'Kan Sayımı', tests: ['Hemogram'], reason: 'Genel değerlendirme.' });
             panels.push({ title: 'Metabolik Değerlendirme', tests: ['Açlık plazma glukozu', 'Lipid profili'], reason: 'Metabolik risk taraması.' });
             panels.push({ title: 'Böbrek ve Karaciğer Değerlendirmesi', tests: ['Kreatinin / eGFR', 'ALT', 'AST'], reason: 'Organ fonksiyonları.' });
-            if (bmi >= 25) panels.push({ title: 'İnsülin Direnci Taraması', tests: ['HOMA-IR'], reason: 'VKİ yüksekliği.' });
+            
+            if (bmi >= 25) panels.push({ title: 'İnsülin Direnci Taraması', tests: ['HOMA-IR'], reason: 'VKİ yüksekliği (Fazla Kilolu).' });
+            if (bmi >= 30) panels.push({ title: 'Diyabet Taraması', tests: ['HbA1c'], reason: 'Obezite sınırında VKİ.' });
             if (p.age >= 40) panels.push({ title: 'Kalp Sağlığı', tests: ['EKG'], reason: 'Yaş faktörü.' });
+            
             return panels;
         }
 
         function render() {
-            const screens = [entry, intakeForm, plan, doctor, follow];
+            const screens = [entry, intakeForm, plan, doctor, payment];
             if(step >= 0 && step <= 4) {
                 screens[step]();
-                // Update steps UI
                 document.querySelectorAll('.step').forEach((s, i) => { 
                     s.className = 'step'; 
                     if (i < step) s.classList.add('done'); 
@@ -146,9 +156,19 @@
                 </div>
             `;
             document.getElementById('nextBtn').onclick = () => {
-                const age = Number(document.getElementById('age').value), weight = Number(document.getElementById('weight').value), height = Number(document.getElementById('height').value), sex = document.getElementById('sex').value;
+                const age = Number(document.getElementById('age').value);
+                const weight = Number(document.getElementById('weight').value);
+                const height = Number(document.getElementById('height').value);
+                const sex = document.getElementById('sex').value;
+
                 if (!age || !weight || !height || !sex) return toast('Tüm alanları doldurun.');
-                state.profile = { age, weight, height, sex, bmi: (weight / ((height / 100) ** 2)).toFixed(1) };
+                if (height < 100 || height > 250) return toast('Lütfen boyunuzu cm cinsinden girin (Örn: 175).');
+                if (weight < 20 || weight > 300) return toast('Lütfen kilonuzu kg cinsinden girin.');
+
+                // BKİ'yi güvenli fonksiyonla hesapla
+                const bmi = calculateBMI(weight, height);
+                
+                state.profile = { age, weight, height, sex, bmi: bmi };
                 state.plan = buildPlan(state.profile);
                 step = 2; render();
             };
@@ -163,67 +183,56 @@
                 <div class="subnote">Bu liste prototip içindir; herkese gerekli kabul edilmez. Hekim önceki sonuçları ve kişisel uygunluğu değerlendirerek son listeyi belirler.</div>
                 <div class="actions">
                     <button class="btn btn-secondary" onclick="step=1; render();">Yanıtları düzenle</button>
-                    <button class="btn btn-primary" id="nextBtn">Online hekim onayını göster →</button>
+                    <button class="btn btn-primary" id="nextBtn">Hekim Onayına Gönder →</button>
                 </div>
             `;
             document.getElementById('nextBtn').onclick = () => { step = 3; render(); };
         }
 
+        // ADIM 3: Hekim Onayı (Hasta tarafında sadece bilgilendirme)
         function doctor() {
             document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Planı değerlendirin.</h2><p>Online hekim değerlendirmesinin demosudur; gerçek görüşme oluşturmaz.</p></div>
+                <div class="card-heading">
+                    <h2>Planınız Hekim Onayına Gönderildi</h2>
+                    <p>Girdiğiniz bilgilere göre oluşturulan bu plan, hekiminiz tarafından ödeme sonrasında incelenecektir.</p>
+                </div>
                 <div class="application">
                     <span style="font-size:10px; color:var(--teal); letter-spacing:1px;">BAŞVURU ÖZETİ</span>
                     <p><b>${state.profile.age} yaş</b> · ${state.profile.sex}</p>
                     <p>${state.profile.weight} kg · ${state.profile.height} cm · BKİ ${state.profile.bmi}</p>
                 </div>
-                <label>Değerlendiren hekim<input type="text" id="clinician" value="Dr. Ali Gül"></label>
-                <label>Plan ve gerekçesi<textarea id="decisionNote" rows="2">Rutin kontrol planı uygundur.</textarea></label>
                 <div class="test-list" style="margin-top:15px;">${state.plan.map(p=>p.tests.map(t=>`<span>${t}</span>`).join('')).join('')}</div>
-                <label class="check"><input type="checkbox" id="verified" checked> Kişisel bilgileri, önceki sonuçları ve panel uygunluğunu değerlendirdim.</label>
                 <div class="actions">
                     <button class="btn btn-secondary" onclick="step=2; render();">Geri</button>
-                    <button class="btn btn-primary" id="approveBtn">Planı onayla →</button>
+                    <button class="btn btn-primary" id="approveBtn">Ödemeye Geç →</button>
                 </div>
             `;
             document.getElementById('approveBtn').onclick = () => {
-                if (!document.getElementById('verified').checked) return toast('Lütfen onay kutusunu işaretleyin.');
-                step = 4; render();
+                // Hasta onaylamaz, direkt ödemeye geçer. Hekim onayı admin panelinde yapılacak.
+                step = 4; 
+                render();
             };
         }
 
-        function follow() {
+        // ADIM 4: Ödeme
+        function payment() {
             document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Planın devamını takip edin.</h2><p>Onaylanan plan, sonuç değerlendirmesine kadar açık kalır.</p></div>
-                <div class="application">
-                    <span style="color:var(--teal); font-size:12px; font-weight:bold;">✓ Hekim onayı kaydedildi</span>
-                    <p style="margin-top:10px;">Hastanın planı onaylandı. Testlerin sonuçları aşağıdan girilerek takip kapatılabilir.</p>
+                <div class="card-heading"><h2>Ödemeye Geç</h2><p>Planınız hazır. Başvuru formuna yönlendiriliyorsunuz.</p></div>
+                <div class="application"><p><b>Planlanan İşlemler:</b></p><ul style="margin-left: 20px; margin-top: 10px; font-size: 13px; color: var(--muted);">${state.plan.map(p => p.tests.map(t => `<li>${t}</li>`).join('')).join('')}</ul></div>
+                <label class="check"><input type="checkbox" id="confirmCheck"> Planı ve tetkik listesini gördüm, ödemeye geçiyorum.</label>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="step=3; render();">Geri</button>
+                    <button class="btn btn-primary" id="finishBtn">💳 Ödemeye Geç</button>
                 </div>
-                <form id="followForm">
-                    <div class="form-grid">
-                        <div><label>Takip sorumlusu<input type="text" value="Dr. Ali Gül"></label></div>
-                        <div><label>Sonraki işlem tarihi<input type="date"></label></div>
-                    </div>
-                    <label>Sonuç durumu
-                        <select>
-                            <option value="waiting">Sonuç bekleniyor</option>
-                            <option value="normal">Hekim değerlendirdi · normal</option>
-                        </select>
-                    </label>
-                    <label>Sonraki adım<textarea rows="2" placeholder="Sonuçlara göre planlanan sonraki adım..."></textarea></label>
-                    <label class="check"><input type="checkbox" checked> Hekim değerlendirdi ve kullanıcı bilgilendirildi.</label>
-                    <label class="check"><input type="checkbox" checked> Gerekli sonraki işlem tamamlandı.</label>
-                    <div class="actions">
-                        <button type="button" class="btn btn-secondary">Takibi kaydet</button>
-                        <button type="button" class="btn btn-primary" id="finishBtn">Takibi tamamla ve Ödemeye Geç</button>
-                    </div>
-                </form>
             `;
 
             document.getElementById('finishBtn').onclick = () => {
-                const planText = state.plan.map(p=>p.tests.join(', ')).join(' | ');
+                if (!document.getElementById('confirmCheck').checked) return toast('Lütfen devam etmek için onaylayın.');
+                
+                const planText = state.plan.map(p => p.tests.join(', ')).join(' | ');
                 sessionStorage.setItem('cdss_profile', JSON.stringify(state.profile));
                 sessionStorage.setItem('cdss_plan_text', planText);
+                
                 window.location.href = 'basvuru.html?checkup=approved';
             };
         }
