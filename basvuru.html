@@ -26,7 +26,6 @@
         .message.success { background: #d1fae5; color: #065f46; display: block; border-left: 4px solid #10b981; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
         
-        /* DİNAMİK MODÜL KUTULARI */
         .dynamic-box { display: none; background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 15px; }
         .dynamic-box h4 { color: #1e40af; font-size: 14px; margin-bottom: 12px; }
         .dynamic-box label { color: #1e40af; }
@@ -36,9 +35,6 @@
         .file-upload-box label { color: #92400e; font-size: 13px; }
         .file-preview { margin-top: 10px; padding: 10px; background: white; border-radius: 6px; font-size: 13px; color: #475569; display: none; }
         
-        .footer-text { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; }
-        
-        /* Modallar */
         .payment-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .payment-overlay.active { display: flex; }
         .payment-modal { background: white; border-radius: 12px; max-width: 450px; width: 100%; padding: 30px; max-height: 90vh; overflow-y: auto; }
@@ -53,35 +49,17 @@
         .btn-cancel { background: #e2e8f0; color: #475569; }
         .btn-pay { background: #3b82f6; color: white; }
         .btn-pay:disabled { background: #94a3b8; cursor: not-allowed; }
-
-        /* Kart formu */
-        .card-input-row { display: flex; gap: 10px; }
-        .card-input-row .form-group { flex: 1; }
-        .card-number-wrap { position: relative; }
-        .card-number-wrap input { padding-right: 60px; letter-spacing: 1px; }
-        .card-brand { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: bold; color: #3b82f6; }
         .payment-total { display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; }
         .payment-total span { font-size: 14px; color: #065f46; font-weight: bold; }
         .payment-total strong { font-size: 22px; color: #059669; }
-        .payment-loader { display: none; text-align: center; padding: 20px; }
-        .payment-loader.active { display: block; }
-        .spinner { border: 4px solid #e2e8f0; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         .step-indicator { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-size: 12px; color: #94a3b8; }
         .step-indicator .step { display: flex; align-items: center; gap: 6px; }
         .step-indicator .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .step-indicator .step.active .step-num { background: #3b82f6; color: white; }
         .step-indicator .step.done .step-num { background: #10b981; color: white; }
-        .step-indicator .step.active { color: #1e40af; font-weight: bold; }
-        .step-indicator .step.done { color: #065f46; }
         .step-indicator .divider { width: 20px; height: 2px; background: #e2e8f0; }
         
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .form-container { padding: 20px 15px; }
-            input, select, textarea { font-size: 16px; }
-        }
+        @media (max-width: 768px) { body { padding: 10px; } .form-container { padding: 20px 15px; } input, select, textarea { font-size: 16px; } }
     </style>
 </head>
 <body class="notranslate">
@@ -108,7 +86,7 @@
                 <input type="tel" id="phone" required placeholder="05XX XXX XX XX">
             </div>
 
-            <!-- KURUMSAL GİRİŞ (KORUNDU) -->
+            <!-- KURUMSAL GİRİŞ -->
             <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px dashed #cbd5e1;">
                 <label for="corporate_code" style="color:#3b82f6;">🏢 Kurumsal Çalışan Girişi (Varsa)</label>
                 <input type="text" id="corporate_code" placeholder="Şirket Kodu (Örn: PILOT01)" style="margin-bottom:8px;">
@@ -131,9 +109,7 @@
                 </select>
             </div>
 
-            <!-- DİNAMİK ALANLAR (Seçime göre açılır) -->
-
-            <!-- 2. Kronik Hastalık Takibi -->
+            <!-- DİNAMİK ALANLAR -->
             <div id="box_chronic" class="dynamic-box">
                 <h4>🩺 Kronik Hastalık Takibi</h4>
                 <div class="form-group">
@@ -142,7 +118,6 @@
                 </div>
             </div>
 
-            <!-- 3. İlaç Raporu Yenileme -->
             <div id="box_prescription" class="dynamic-box">
                 <h4>📄 İlaç Raporu Yenileme</h4>
                 <div class="form-group">
@@ -159,7 +134,6 @@
                 </div>
             </div>
 
-            <!-- 4. Longevity -->
             <div id="box_longevity" class="dynamic-box">
                 <h4>🧬 Longevity / Healthy Aging</h4>
                 <div class="form-group">
@@ -172,7 +146,6 @@
                 </div>
             </div>
 
-            <!-- 5. Kanser Taraması (Mevcut Anket) -->
             <div id="box_cancer" class="dynamic-box" style="border-left-color: #8b5cf6;">
                 <h4 style="color: #6b21a8;">🔬 Kişiselleştirilmiş Kanser Tarama Anketi</h4>
                 <div class="form-group">
@@ -197,7 +170,6 @@
                 </div>
             </div>
 
-            <!-- 6. Evde Bakım -->
             <div id="box_homecare" class="dynamic-box" style="border-left-color: #f59e0b;">
                 <h4 style="color: #92400e;">🏠 Evde Bakım Hizmetleri</h4>
                 <div class="form-group">
@@ -214,7 +186,6 @@
                 </div>
             </div>
 
-            <!-- 7. Gebelik Yolculuğu -->
             <div id="box_pregnancy" class="dynamic-box" style="border-left-color: #ec4899;">
                 <h4 style="color: #be185d;">🤰 Anne & Bebek Sağlığı</h4>
                 <div class="form-group">
@@ -238,7 +209,7 @@
                 </div>
             </div>
 
-            <!-- RANDEVU KUTUSU (Tüm hizmetler için) -->
+            <!-- RANDEVU KUTUSU -->
             <div id="appointmentBox" style="display:none; background:#ecfdf5; padding:15px; border-radius:8px; border-left:4px solid #10b981; margin-bottom:15px;">
                 <h4 style="color:#065f46; font-size:14px; margin-bottom:12px;">📅 Online Görüşme Randevusu</h4>
                 <div class="form-group">
@@ -253,7 +224,6 @@
                 </div>
             </div>
 
-            <!-- ORTAK ALANLAR -->
             <div class="form-group">
                 <label for="test_status">Tahlil Durumu *</label>
                 <select id="test_status" required>
@@ -280,7 +250,6 @@
                 <textarea id="test_notes" rows="2" placeholder="Eklemek istediğiniz notlar..."></textarea>
             </div>
 
-            <!-- KVKK -->
             <input type="checkbox" id="kvkk_consent" style="display:none;">
             <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #10b981;">
                 <button type="button" id="kvkkBtn" style="display:inline-block; width:auto; padding:10px 20px; background:#f0fdf4; border:2px solid #10b981; border-radius:8px; color:#065f46; font-weight:bold; font-size:14px; cursor:pointer; margin-bottom:12px; transition:all 0.2s; font-family:inherit;">
@@ -295,7 +264,7 @@
         </form>
     </div>
 
-    <!-- ADIM 1: ÖDEME MODALI (Aynı kalacak) -->
+    <!-- ADIM 1: ÖDEME MODALI -->
     <div class="payment-overlay" id="paymentGatewayModal">
         <div class="payment-modal">
             <div class="step-indicator">
@@ -312,9 +281,7 @@
                 <span>Ödenecek Tutar</span>
                 <strong id="payAmount">₺0</strong>
             </div>
-            <div class="demo-warning">
-                ⚠️ <strong>Demo Ödeme:</strong> Bu bir test ödeme ekranıdır.
-            </div>
+            <div class="demo-warning">⚠️ <strong>Demo Ödeme:</strong> Bu bir test ödeme ekranıdır.</div>
             <div id="cardForm">
                 <div class="form-group">
                     <label for="card_number">Kart Numarası *</label>
@@ -348,7 +315,7 @@
         </div>
     </div>
 
-    <!-- ADIM 2: HASTANE SEÇİM MODALI (Aynı kalacak) -->
+    <!-- ADIM 2: HASTANE SEÇİM MODALI -->
     <div class="payment-overlay" id="paymentModal">
         <div class="payment-modal">
             <div class="step-indicator">
@@ -407,11 +374,9 @@
         document.getElementById('service_type').addEventListener('change', function() {
             const val = this.value;
             
-            // Tüm dinamik kutuları gizle
             document.querySelectorAll('.dynamic-box').forEach(box => box.style.display = 'none');
             document.getElementById('appointmentBox').style.display = 'none';
 
-            // Seçime göre ilgili kutuyu aç
             if (val === 'Kronik Hastalık Takibi') document.getElementById('box_chronic').style.display = 'block';
             if (val === 'İlaç Raporu Yenileme') document.getElementById('box_prescription').style.display = 'block';
             if (val === 'Longevity Takibi') document.getElementById('box_longevity').style.display = 'block';
@@ -419,7 +384,6 @@
             if (val === 'Evde Bakım') document.getElementById('box_homecare').style.display = 'block';
             if (val === 'Gebelik Takibi') document.getElementById('box_pregnancy').style.display = 'block';
 
-            // Randevu kutusunu her hizmet için göster (Şimdilik tümü için randevu alıyoruz)
             if (val) {
                 document.getElementById('appointmentBox').style.display = 'block';
             }
@@ -451,10 +415,9 @@
 
         // ═══════════════════════════════════════════════════════════
         // RANDEVU TARİH & SAAT AYARLARI
-        // Özel hastane sistemi: Hafta sonu açık, öğle arası kapalı
         // ═══════════════════════════════════════════════════════════
 
-        // Geçmiş tarihleri engelle (min = bugün)
+        // Geçmiş tarihleri engelle
         (function setMinDate() {
             const dateInput = document.getElementById('appointmentDate');
             if (!dateInput) return;
@@ -465,7 +428,6 @@
             dateInput.min = `${yyyy}-${mm}-${dd}`;
         })();
 
-        // Gün bazlı çalışma saatleri (özel hastane)
         function getWorkingHours(dateStr) {
             const d = new Date(dateStr + 'T00:00:00');
             const day = d.getDay(); // 0=Paz, 6=Cmt
@@ -474,7 +436,6 @@
             return { start: 9, end: 17, label: 'Hafta içi 09:00–17:00' };
         }
 
-        // Tarih değişince saat listesini doldur
         document.getElementById('appointmentDate').addEventListener('change', function() {
             const timeSelect = document.getElementById('appointmentTime');
             const selectedDate = this.value;
@@ -493,7 +454,6 @@
             const { start, end, label } = getWorkingHours(selectedDate);
             const nowMinutes = today.getHours() * 60 + today.getMinutes();
 
-            // Öğle arası (12:00-13:00) sadece o aralık çalışma saatlerinin içindeyse uygula
             const lunchStart = 12 * 60;
             const lunchEnd = 13 * 60;
             const hasLunch = !(start >= 13 || end <= 12);
@@ -505,10 +465,7 @@
                 for (let m = 0; m < 60; m += 30) {
                     const slotMinutes = h * 60 + m;
 
-                    // Öğle arası atla
                     if (hasLunch && slotMinutes >= lunchStart && slotMinutes < lunchEnd) continue;
-
-                    // Bugünse geçmiş saatleri gizle (+30 dk buffer)
                     if (isToday && slotMinutes <= nowMinutes + 30) continue;
 
                     const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
@@ -526,10 +483,6 @@
             }
         });
 
-        // ═══════════════════════════════════════════════════════════
-        // RANDEVU AYARLARI BİTTİ
-        // ═══════════════════════════════════════════════════════════
-
         // Oturum Kontrol
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
@@ -541,7 +494,6 @@
             }
         }
 
-        // HASTANE YÜKLEME (Ödeme ekranı için)
         async function loadHospitals() {
             const select = document.getElementById('selectedHospital');
             select.innerHTML = '<option value="">Yükleniyor...</option>';
@@ -554,7 +506,6 @@
             }
         }
 
-        // FORM GÖNDERİMİ (Demo Ödeme Akışı)
         document.getElementById('healthForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!document.getElementById('kvkk_consent').checked) {
@@ -567,9 +518,8 @@
             
             const corpCode = document.getElementById('corporate_code').value.trim();
             const isCorporate = corpCode.length > 0;
-            if (isCorporate) price = 0; // Kurumsal ise ödeme yok
+            if (isCorporate) price = 0;
 
-            // Form verilerini topla
             pendingFormData = {
                 user_id: currentUser.id,
                 email: currentUser.email,
@@ -587,7 +537,6 @@
                 is_corporate: isCorporate
             };
 
-            // Dinamik verileri ekle
             if (service === 'Kronik Hastalık Takibi') pendingFormData.test_notes = "Kronik: " + document.getElementById('chronic_diseases').value;
             if (service === 'İlaç Raporu Yenileme') pendingFormData.test_notes = "İlaç: " + document.getElementById('rx_meds').value;
             if (service === 'Longevity Takibi') pendingFormData.test_notes = "Hedef: " + document.getElementById('long_goals').value;
@@ -596,7 +545,6 @@
                 if(document.getElementById('preg_lmp').value) pendingFormData.test_notes += " | SAT: " + document.getElementById('preg_lmp').value;
             }
 
-            // Ödeme Modalını Aç
             document.getElementById('payPatient').textContent = pendingFormData.fullname;
             document.getElementById('payService').textContent = service;
             document.getElementById('payAmount').textContent = '₺' + price.toLocaleString('tr-TR');
@@ -611,17 +559,15 @@
             }
         });
 
-        // Ödeme Onayı Butonu
         document.getElementById('payBtn').addEventListener('click', async function() {
             this.disabled = true; this.textContent = 'İşleniyor...';
-            await new Promise(r => setTimeout(r, 1500)); // Demo bekleme
+            await new Promise(r => setTimeout(r, 1500));
             document.getElementById('paymentGatewayModal').classList.remove('active');
             this.disabled = false; this.textContent = 'Ödemeyi Tamamla';
             await loadHospitals();
             document.getElementById('paymentModal').classList.add('active');
         });
 
-        // Hastane Onayı ve Veritabanına Kayıt
         document.getElementById('completePayment').addEventListener('click', async function() {
             const hospId = document.getElementById('selectedHospital').value;
             if (!hospId) { alert('Hastane seçin.'); return; }
@@ -640,7 +586,6 @@
             }
         });
 
-        // İptal Butonları
         document.getElementById('cancelPaymentBtn').onclick = () => document.getElementById('paymentGatewayModal').classList.remove('active');
         document.getElementById('cancelHospitalBtn').onclick = () => document.getElementById('paymentModal').classList.remove('active');
 
