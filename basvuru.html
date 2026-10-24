@@ -106,22 +106,7 @@
                 </select>
             </div>
 
-            <!-- CHECK-UP İÇİN BOY KİLO ALANI -->
-            <div id="box_checkup" class="dynamic-box" style="border-left-color: #10b981;">
-                <h4 style="color: #065f46;">📏 Check-up Ön Değerlendirme</h4>
-                <div class="form-group">
-                    <label for="height">Boy (cm) *</label>
-                    <input type="number" id="height" min="100" max="250" step="0.1" placeholder="Örn: 175">
-                </div>
-                <div class="form-group">
-                    <label for="weight">Kilo (kg) *</label>
-                    <input type="number" id="weight" min="20" max="500" step="0.1" placeholder="Örn: 70">
-                </div>
-                <div class="form-group" style="background:white; padding:10px; border-radius:6px;">
-                    <label style="color:#334155;">Vücut Kitle İndeksi (VKİ):</label>
-                    <strong id="bmi_display" style="color:#10b981; font-size:16px;">-</strong>
-                </div>
-            </div>
+            <!-- Check-up için Boy/Kilo alanlarını sildik, çünkü o akış artık checkup-cdss.html'de -->
 
             <div id="box_chronic" class="dynamic-box">
                 <h4>🩺 Kronik Hastalık Takibi</h4>
@@ -278,74 +263,28 @@
 
     <div class="payment-overlay" id="paymentGatewayModal">
         <div class="payment-modal">
-            <div class="step-indicator">
-                <div class="step active" id="step1"><span class="step-num">1</span> Ödeme</div>
-                <div class="divider"></div>
-                <div class="step" id="step2"><span class="step-num">2</span> Hastane</div>
-            </div>
+            <div class="step-indicator"><div class="step active"><span class="step-num">1</span> Ödeme</div><div class="divider"></div><div class="step"><span class="step-num">2</span> Hastane</div></div>
             <h3>💳 Güvenli Ödeme</h3>
-            <div class="payment-summary">
-                <div><span style="color:#64748b;">Hasta Adı:</span><strong id="payPatient">-</strong></div>
-                <div><span style="color:#64748b;">Hizmet:</span><strong id="payService">-</strong></div>
-            </div>
-            <div class="payment-total">
-                <span>Ödenecek Tutar</span>
-                <strong id="payAmount">₺0</strong>
-            </div>
+            <div class="payment-summary"><div><span style="color:#64748b;">Hasta Adı:</span><strong id="payPatient">-</strong></div><div><span style="color:#64748b;">Hizmet:</span><strong id="payService">-</strong></div></div>
+            <div class="payment-total"><span>Ödenecek Tutar</span><strong id="payAmount">₺0</strong></div>
             <div class="demo-warning">⚠️ <strong>Demo Ödeme:</strong> Bu bir test ödeme ekranıdır.</div>
             <div id="cardForm">
-                <div class="form-group">
-                    <label for="card_number">Kart Numarası *</label>
-                    <div class="card-number-wrap">
-                        <input type="text" id="card_number" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="card_name">Kart Üzerindeki İsim *</label>
-                    <input type="text" id="card_name" placeholder="Ad Soyad">
-                </div>
-                <div class="card-input-row">
-                    <div class="form-group">
-                        <label for="card_expiry">Son Kullanma *</label>
-                        <input type="text" id="card_expiry" inputmode="numeric" maxlength="5" placeholder="AA/YY">
-                    </div>
-                    <div class="form-group">
-                        <label for="card_cvv">CVV *</label>
-                        <input type="text" id="card_cvv" inputmode="numeric" maxlength="4" placeholder="123">
-                    </div>
-                </div>
+                <div class="form-group"><label>Kart Numarası *</label><input type="text" id="card_number" maxlength="19" placeholder="0000 0000 0000 0000"></div>
+                <div class="form-group"><label>Kart Üzerindeki İsim *</label><input type="text" id="card_name" placeholder="Ad Soyad"></div>
+                <div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Son Kullanma *</label><input type="text" id="card_expiry" maxlength="5" placeholder="AA/YY"></div><div class="form-group" style="flex:1;"><label>CVV *</label><input type="text" id="card_cvv" maxlength="4" placeholder="123"></div></div>
             </div>
-            <div class="payment-buttons" id="paymentButtons">
-                <button type="button" class="btn-cancel" id="cancelPaymentBtn">İptal</button>
-                <button type="button" class="btn-pay" id="payBtn">Ödemeyi Tamamla</button>
-            </div>
+            <div class="payment-buttons" id="paymentButtons"><button type="button" class="btn-cancel" id="cancelPaymentBtn">İptal</button><button type="button" class="btn-pay" id="payBtn">Ödemeyi Tamamla</button></div>
         </div>
     </div>
 
     <div class="payment-overlay" id="paymentModal">
         <div class="payment-modal">
-            <div class="step-indicator">
-                <div class="step done" id="step1b"><span class="step-num">✓</span> Ödeme</div>
-                <div class="divider"></div>
-                <div class="step active" id="step2b"><span class="step-num">2</span> Hastane</div>
-            </div>
+            <div class="step-indicator"><div class="step done"><span class="step-num">✓</span> Ödeme</div><div class="divider"></div><div class="step active"><span class="step-num">2</span> Hastane</div></div>
             <h3>🏥 Anlaşmalı Hastane Seçimi</h3>
-            <div class="payment-summary">
-                <div><span style="color:#64748b;">Hasta Adı:</span><strong id="paymentPatient">-</strong></div>
-                <div><span style="color:#64748b;">Hizmet:</span><strong id="paymentService">-</strong></div>
-                <div><span style="color:#64748b;">Ödeme:</span><strong id="paymentStatusDisplay" style="color:#059669;">✅ Ödendi</strong></div>
-            </div>
-            <div class="demo-warning" id="hospitalWarning">
-                ✅ <strong>Ödemeniz alındı.</strong> Şimdi anlaşmalı hastaneyi seçiniz.
-            </div>
+            <div class="payment-summary"><div><span style="color:#64748b;">Hasta Adı:</span><strong id="paymentPatient">-</strong></div><div><span style="color:#64748b;">Hizmet:</span><strong id="paymentService">-</strong></div><div><span style="color:#64748b;">Ödeme:</span><strong id="paymentStatusDisplay" style="color:#059669;">✅ Ödendi</strong></div></div>
             <label style="font-size:14px; color:#334155; font-weight:bold; display:block; margin-bottom:8px;">Size En Yakın Anlaşmalı Hastane *</label>
-            <select id="selectedHospital" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; margin-bottom: 20px; background:#f8fafc;">
-                <option value="">Hastaneler Yükleniyor...</option>
-            </select>
-            <div class="payment-buttons">
-                <button type="button" class="btn-cancel" id="cancelHospitalBtn">İptal</button>
-                <button type="button" class="btn-pay" id="completePayment">Yönlendirmeyi Onayla</button>
-            </div>
+            <select id="selectedHospital" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; margin-bottom: 20px; background:#f8fafc;"><option value="">Hastaneler Yükleniyor...</option></select>
+            <div class="payment-buttons"><button type="button" class="btn-cancel" id="cancelHospitalBtn">İptal</button><button type="button" class="btn-pay" id="completePayment">Yönlendirmeyi Onayla</button></div>
         </div>
     </div>
 
@@ -353,10 +292,7 @@
         const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
-            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
-        });
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' }, global: { headers: { 'apikey': SUPABASE_ANON_KEY } } });
 
         let currentUser = null;
         let pendingFormData = null;
@@ -373,7 +309,7 @@
             document.querySelectorAll('.dynamic-box').forEach(box => box.style.display = 'none');
             document.getElementById('appointmentBox').style.display = 'none';
 
-            if (val === 'Rutin Kontrol') document.getElementById('box_checkup').style.display = 'block';
+            // Check-up seçilirse hasta doğrudan CDSS sayfasına yönlendirilecek (form submit edilince)
             if (val === 'Kronik Hastalık Takibi') document.getElementById('box_chronic').style.display = 'block';
             if (val === 'İlaç Raporu Yenileme') document.getElementById('box_prescription').style.display = 'block';
             if (val === 'Longevity Takibi') document.getElementById('box_longevity').style.display = 'block';
@@ -383,26 +319,6 @@
 
             if (val) document.getElementById('appointmentBox').style.display = 'block';
         });
-
-        document.getElementById('height').addEventListener('input', calculateBMI);
-        document.getElementById('weight').addEventListener('input', calculateBMI);
-
-        function calculateBMI() {
-            const height = parseFloat(document.getElementById('height').value);
-            const weight = parseFloat(document.getElementById('weight').value);
-            const display = document.getElementById('bmi_display');
-            
-            if (height > 0 && weight > 0) {
-                const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-                display.textContent = bmi;
-                if (bmi < 18.5) display.style.color = '#f59e0b';
-                else if (bmi < 25) display.style.color = '#10b981';
-                else if (bmi < 30) display.style.color = '#f59e0b';
-                else display.style.color = '#ef4444';
-            } else {
-                display.textContent = '-';
-            }
-        }
 
         document.getElementById('preg_stage').addEventListener('change', function() {
             document.getElementById('preg_during_details').style.display = (this.value === 'during') ? 'block' : 'none';
@@ -464,17 +380,11 @@
             else { timeSelect.innerHTML = options; timeSelect.disabled = false; }
         });
 
-        // OTURUM KONTROLÜ (Gecikmeli ve Güvenli)
         async function checkSession() {
             await new Promise(resolve => setTimeout(resolve, 150)); 
             const { data: { session } } = await _supabase.auth.getSession();
-            
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('userEmail').textContent = session.user.email;
-            } else {
-                window.location.href = 'giris.html';
-            }
+            if (session) { currentUser = session.user; document.getElementById('userEmail').textContent = session.user.email; }
+            else { window.location.href = 'giris.html'; }
         }
 
         async function loadHospitals() {
@@ -490,6 +400,13 @@
             if (!document.getElementById('kvkk_consent').checked) { alert('Lütfen KVKK onayını verin.'); return; }
 
             const service = document.getElementById('service_type').value;
+            
+            // EĞER CHECK-UP SEÇİLDİYSE, DOĞRUDAN CDSS SAYFASINA YÖNLENDİR
+            if (service === 'Rutin Kontrol') {
+                window.location.href = 'checkup-cdss.html';
+                return;
+            }
+
             const selectedOpt = document.getElementById('service_type').options[document.getElementById('service_type').selectedIndex];
             let price = parseFloat(selectedOpt.getAttribute('data-price') || '0');
             
@@ -512,12 +429,6 @@
                 is_corporate: isCorporate
             };
 
-            if (service === 'Rutin Kontrol') {
-                const h = document.getElementById('height').value;
-                const w = document.getElementById('weight').value;
-                const bmi = document.getElementById('bmi_display').textContent;
-                pendingFormData.test_notes = `Boy: ${h}cm | Kilo: ${w}kg | VKİ: ${bmi}`;
-            }
             if (service === 'Kronik Hastalık Takibi') pendingFormData.test_notes = "Kronik: " + document.getElementById('chronic_diseases').value;
             if (service === 'İlaç Raporu Yenileme') pendingFormData.test_notes = "İlaç: " + document.getElementById('rx_meds').value;
             if (service === 'Longevity Takibi') pendingFormData.test_notes = "Hedef: " + document.getElementById('long_goals').value;
