@@ -4,297 +4,126 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HELUNEXA - Yönetim Paneli</title>
+    <title>HELUNEXA - Yönetim & Hekim Paneli</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="manifest" href="site.webmanifest">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
         body { font-family: -apple-system, Arial, sans-serif; background: #f1f5f9; color: #0f172a; }
-        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100dvh; background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; overflow-y: auto; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin: auto; }
-        .logo-container { text-align: center; margin-bottom: 25px; }
-        .logo-container img { height: 100px; width: auto; }
-        .login-box p { color: #64748b; text-align: center; margin-bottom: 25px; font-size: 14px; }
-        .login-box input { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; font-size: 16px; -webkit-appearance: none; appearance: none; }
-        .login-box input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        .login-box button { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .login-box button:hover { background: #059669; }
-        .login-box button:disabled { background: #94a3b8; cursor: not-allowed; }
-        .login-error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
-        .panel { display: none; }
-        .panel.active { display: block; }
         .header { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .header-left { display: flex; align-items: center; }
-        .header-left img { height: 100px; width: auto; }
-        .header-info { display: flex; align-items: center; gap: 15px; }
+        .header-left img { height: 100px; }
         .role-badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
         .role-badge.admin { background: #fef3c7; color: #92400e; }
         .role-badge.doctor { background: #dbeafe; color: #1e40af; }
-        .role-badge.lab { background: #e9d5ff; color: #6b21a8; }
-        .user-info { font-size: 13px; color: #64748b; }
-        .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .logout-btn:hover { background: #dc2626; }
+        .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
         .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
-
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; font-weight: bold; color: #64748b; }
-        .tab-btn.active { color: #10b981; border-bottom-color: #10b981; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .stat-card .num { font-size: 28px; font-weight: bold; color: #10b981; }
-        .stat-card .label { font-size: 13px; color: #64748b; margin-top: 5px; }
-        .filters { background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .filters button { padding: 8px 16px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px; color: #475569; }
-        .filters button.active { background: #10b981; color: white; border-color: #10b981; }
-        .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); -webkit-overflow-scrolling: touch; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+        .tab-btn { padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; color: #64748b; }
+        .tab-btn.active { color: #10b981; border-bottom-color: #10b981; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .filters { background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 10px; }
+        .filters button { padding: 8px 16px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; }
+        .filters button.active { background: #10b981; color: white; }
+        .table-container { background: white; border-radius: 10px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 14px 15px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; padding: 14px 15px; text-align: left; font-size: 12px; color: #64748b; border-bottom: 1px solid #e2e8f0; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        tr:hover { background: #f8fafc; }
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
         .badge.pending { background: #fef3c7; color: #92400e; }
-        .badge.paid { background: #dbeafe; color: #1e40af; }
-        .badge.in_progress { background: #dbeafe; color: #1e40af; }
         .badge.completed { background: #d1fae5; color: #065f46; }
-        .badge.cancelled { background: #fee2e2; color: #991b1b; }
-        .badge.apt-pending { background: #fef3c7; color: #92400e; }
-        .badge.apt-confirmed { background: #d1fae5; color: #065f46; }
-        .badge.apt-changed { background: #dbeafe; color: #1e40af; }
-        .badge.apt-cancelled { background: #fee2e2; color: #991b1b; }
-        .action-btn { padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; }
-        .action-btn:hover { background: #059669; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: white; border-radius: 12px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; }
-        .modal-header { padding: 20px 25px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { font-size: 18px; }
-        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; }
-        .modal-body { padding: 25px; }
-        .detail-row { margin-bottom: 15px; }
-        .detail-row label { display: block; font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
-        .detail-row .value { font-size: 15px; color: #0f172a; }
-        .modal-footer { padding: 20px 25px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
-        .btn-primary { background: #10b981; color: white; }
-        .btn-primary:hover { background: #059669; }
-        .btn-secondary { background: #e2e8f0; color: #475569; }
-        .btn-secondary:hover { background: #cbd5e1; }
-        select, textarea, input[type="text"], input[type="date"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; font-family: inherit; }
-        textarea { resize: vertical; min-height: 80px; }
-        .empty-state { padding: 60px 20px; text-align: center; color: #94a3b8; }
-        .loading { text-align: center; padding: 40px; color: #64748b; }
-        .lab-box { background: #f3e8ff; padding: 12px; border-radius: 6px; border-left: 4px solid #8b5cf6; margin-bottom: 12px; }
-        .lab-box label { color: #6b21a8; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .lab-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; }
-        .lab-box a { color: #8b5cf6; font-weight: bold; text-decoration: none; }
-        .test-box { background: #ecfdf5; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 12px; }
-        .test-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .test-box .value { font-size: 14px; margin-top: 4px; }
-        .test-box a { color: #10b981; font-weight: bold; text-decoration: none; }
-        .prescription-box { background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 15px; }
-        .prescription-box label { color: #92400e; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .evaluation-box { background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 15px; }
-        .evaluation-box label { color: #1e40af; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .home-box { background: #f0fdf4; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 12px; }
-        .home-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .home-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; }
-        .appointment-box { background: #ecfdf5; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 20px; }
-        .appointment-box label { color: #065f46; font-size: 12px; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 8px; }
-        .appointment-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; margin-bottom: 8px; }
-        .pregnancy-box { background: #fdf2f8; padding: 15px; border-radius: 8px; border-left: 4px solid #ec4899; margin-bottom: 15px; }
-        .pregnancy-box label { color: #be185d; font-size: 12px; text-transform: uppercase; font-weight: bold; }
-        .pregnancy-box .value { font-size: 14px; margin-top: 4px; color: #0f172a; }
-
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .calendar-header h3 { font-size: 18px; color: #0f172a; }
-        .calendar-header button { padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .calendar-header button:hover { background: #059669; }
-        .calendar-legend { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; font-size: 13px; }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-        .calendar-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .calendar-grid { min-width: 900px; display: grid; grid-template-columns: 80px repeat(7, 1fr); }
-        .cal-header { background: #f8fafc; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: bold; color: #475569; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }
-        .cal-header.today { background: #d1fae5; color: #065f46; }
-        .cal-hour { background: #f8fafc; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: bold; color: #64748b; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }
-        .cal-slot { padding: 8px; font-size: 11px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; min-height: 50px; cursor: pointer; transition: background 0.2s; }
-        .cal-slot:hover { background: #f8fafc; }
-        .cal-slot.empty { color: #cbd5e1; text-align: center; display: flex; align-items: center; justify-content: center; }
-        .cal-slot.pending { background: #fef3c7; border-left: 3px solid #f59e0b; }
-        .cal-slot.confirmed { background: #d1fae5; border-left: 3px solid #10b981; }
-        .cal-slot.changed { background: #dbeafe; border-left: 3px solid #3b82f6; }
-        .cal-slot.cancelled { background: #fee2e2; border-left: 3px solid #ef4444; }
-        .cal-slot .name { font-weight: bold; color: #0f172a; font-size: 12px; }
-        .cal-slot .service { color: #64748b; font-size: 10px; margin-top: 2px; }
-        .cal-slot .time { color: #0f172a; font-weight: bold; font-size: 11px; }
+        .action-btn { padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; }
         
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-grid .full-width { grid-column: 1 / -1; }
+        /* MODAL STİLLERİ */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; max-width: 750px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 30px; }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .detail-row { margin-bottom: 15px; }
+        .detail-row label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: bold; }
+        .detail-row .value { font-size: 15px; }
+        textarea, select, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; }
+        textarea { min-height: 80px; resize: vertical; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #10b981; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #475569; }
+        
+        /* CDSS VE DEĞERLENDİRME KUTULARI */
+        .cdss-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .cdss-box h4 { color: #1e40af; font-size: 15px; margin-bottom: 10px; }
+        .cdss-list { list-style: none; padding: 0; }
+        .cdss-list li { background: white; padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #bfdbfe; font-size: 13px; }
+        
+        .eval-box { background: #f8fafc; border-left: 4px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .eval-box h4 { color: #065f46; font-size: 15px; margin-bottom: 10px; }
+        .eval-box textarea { border-color: #10b981; margin-bottom: 10px; }
 
-        @media (max-width: 768px) {
-            .login-container { padding: 15px; align-items: flex-start; padding-top: 40px; }
-            .login-box { padding: 30px 20px; }
-            .logo-container img { height: 80px; }
-            .header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
-            .header-left img { height: 70px; }
-            .header-info { flex-wrap: wrap; gap: 8px; }
-            .user-info { font-size: 11px; }
-            .role-badge { font-size: 11px; padding: 4px 8px; }
-            .logout-btn { padding: 6px 12px; font-size: 12px; }
-            .container { padding: 15px; }
-            .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stat-card { padding: 15px; }
-            .stat-card .num { font-size: 22px; }
-            .stat-card .label { font-size: 11px; }
-            .filters { padding: 10px; gap: 5px; }
-            .filters button { padding: 6px 10px; font-size: 12px; }
-            .table-container { border-radius: 8px; }
-            table { min-width: 800px; }
-            th, td { padding: 10px 8px; font-size: 12px; white-space: nowrap; }
-            .modal { max-width: 100%; max-height: 95vh; border-radius: 12px 12px 0 0; }
-            .modal-header { padding: 15px; }
-            .modal-body { padding: 15px; }
-            .modal-footer { padding: 15px; flex-wrap: wrap; }
-            .btn { padding: 10px 15px; font-size: 13px; }
-            select, textarea, input[type="text"], input[type="date"], input[type="email"] { font-size: 16px; }
-            .tab-btn { padding: 10px 14px; font-size: 13px; }
-            .form-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 768px) { .container { padding: 15px; } table { min-width: 800px; } }
     </style>
 </head>
 <body class="notranslate">
-
-    <div class="login-container" id="loginScreen">
-        <div class="login-box">
-            <div class="logo-container">
-                <img src="logo.png" alt="HELUNEXA">
-            </div>
-            <p>Yönetim Paneli Girişi</p>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="E-posta" autocomplete="email" required>
-                <input type="password" id="loginPassword" placeholder="Şifre" autocomplete="current-password" required>
-                <button type="submit" id="loginBtn">Giriş Yap</button>
-            </form>
-            <div class="login-error" id="loginError"></div>
+    <div class="header">
+        <div class="header-left"><img src="logo.png" alt="HELUNEXA"></div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <span id="roleBadge" class="role-badge"></span>
+            <span id="userEmail" style="font-size:13px; color:#64748b;"></span>
+            <button class="logout-btn" id="logoutBtn">Çıkış</button>
         </div>
     </div>
 
-    <div class="panel" id="panelScreen">
-        <div class="header">
-            <div class="header-left">
-                <img src="logo.png" alt="HELUNEXA">
-            </div>
-            <div class="header-info">
-                <span id="roleBadge" class="role-badge"></span>
-                <span id="userEmail" class="user-info"></span>
-                <button class="logout-btn" id="logoutBtn">Çıkış</button>
-            </div>
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">Toplam</div></div>
+            <div class="stat-card"><div class="num" id="statPending">-</div><div class="label">Bekleyen</div></div>
+            <div class="stat-card"><div class="num" id="statProgress">-</div><div class="label">İşlemde</div></div>
+            <div class="stat-card"><div class="num" id="statCompleted">-</div><div class="label">Tamamlanan</div></div>
         </div>
 
-        <div class="container">
-            <div class="stats">
-                <div class="stat-card"><div class="num" id="statTotal">-</div><div class="label">Toplam Başvuru</div></div>
-                <div class="stat-card"><div class="num" id="statPending">-</div><div class="label">Yeni / Bekleyen</div></div>
-                <div class="stat-card"><div class="num" id="statProgress">-</div><div class="label">İşlemde</div></div>
-                <div class="stat-card"><div class="num" id="statCompleted">-</div><div class="label">Tamamlanan</div></div>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="applications">📋 Başvurular</button>
+            <button class="tab-btn" data-tab="addDoctor" id="tabAddDoctorBtn" style="display:none;">👨‍⚕️ Yeni Doktor Ekle</button>
+        </div>
+
+        <div class="tab-content active" id="tab-applications">
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Tümü</button>
+                <button class="filter-btn" data-filter="pending">Bekleyen</button>
+                <button class="filter-btn" data-filter="completed">Tamamlanan</button>
             </div>
+            <div class="table-container"><div id="tableContent">Yükleniyor...</div></div>
+        </div>
 
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="applications">📋 Başvurular</button>
-                <button class="tab-btn" data-tab="calendar">📅 Randevu Takvimi</button>
-                <button class="tab-btn" data-tab="addDoctor" id="tabAddDoctorBtn" style="display:none; color:#3b82f6;">👨‍⚕️ Yeni Doktor Ekle</button>
-            </div>
-
-            <div class="tab-content active" id="tab-applications">
-                <div class="filters">
-                    <button class="filter-btn active" data-filter="all">Tümü</button>
-                    <button class="filter-btn" data-filter="pending">Bekleyen</button>
-                    <button class="filter-btn" data-filter="in_progress">İşlemde</button>
-                    <button class="filter-btn" data-filter="completed">Tamamlanan</button>
-                    <button class="filter-btn" data-filter="cancelled">İptal</button>
-                </div>
-
-                <div class="table-container">
-                    <div id="tableContent"><div class="loading">Yükleniyor...</div></div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="tab-calendar">
-                <div class="calendar-header">
-                    <button onclick="prevWeek()">◀ Önceki Hafta</button>
-                    <h3 id="weekLabel">-</h3>
-                    <button onclick="nextWeek()">Sonraki Hafta ▶</button>
-                </div>
-
-                <div class="calendar-legend">
-                    <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Onaylandı</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Onay Bekliyor</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> Değiştirildi</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> İptal</div>
-                    <div class="legend-item"><span class="legend-dot" style="background:#e2e8f0;"></span> Boş</div>
-                </div>
-
-                <div class="calendar-container">
-                    <div class="calendar-grid" id="calendarGrid"></div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="tab-addDoctor">
-                <div class="card" style="background:white; padding:25px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                    <h2 style="font-size:20px; margin-bottom:20px; color:#0f172a;">👨‍⚕️ Sisteme Yeni Doktor Ekle</h2>
-                    <p style="color:#64748b; font-size:14px; margin-bottom:20px;">Doktorun hesabını oluşturmak için lütfen bilgilerini girin. Kaydedildiğinde doktor sisteme giriş yapabilir.</p>
-                    
-                    <div class="form-grid">
-                        <div class="full-width">
-                            <label>Ad Soyad *</label>
-                            <input type="text" id="newDocName" placeholder="Örn: Dr. Ayşe Yılmaz">
-                        </div>
-                        <div class="full-width">
-                            <label>E-posta Adresi *</label>
-                            <input type="email" id="newDocEmail" placeholder="ornek@helunexa.com">
-                        </div>
-                        <div>
-                            <label>Branş *</label>
-                            <select id="newDocSpecialty">
-                                <option value="internal">Dahiliye</option>
-                                <option value="psychology">Psikoloji / Psikiyatri</option>
-                                <option value="home_care">Evde Bakım</option>
-                                <option value="gynecology">Kadın Doğum</option>
-                                <option value="cardiology">Kardiyoloji</option>
-                                <option value="pediatrics">Pediatri (Çocuk)</option>
-                                <option value="physiotherapy">Fizyoterapi</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Geçici Şifre *</label>
-                            <input type="text" id="newDocPassword" value="Helunexa123!" placeholder="Geçici şifre">
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" id="saveDoctorBtn" style="background:#3b82f6; width:100%; padding:14px; font-size:16px;">Doktoru Sisteme Kaydet</button>
-                    <div id="doctorMessage" style="margin-top:15px; font-size:14px; font-weight:bold;"></div>
+        <div class="tab-content" id="tab-addDoctor">
+            <div style="background:white; padding:25px; border-radius:12px;">
+                <h2>Yeni Doktor Ekle</h2>
+                <div style="margin-top:15px;">
+                    <label>Ad Soyad</label><input type="text" id="newDocName" style="margin-bottom:10px;">
+                    <label>E-posta</label><input type="email" id="newDocEmail" style="margin-bottom:10px;">
+                    <label>Branş</label>
+                    <select id="newDocSpecialty" style="margin-bottom:10px;">
+                        <option value="internal">Dahiliye</option>
+                        <option value="psychology">Psikoloji</option>
+                        <option value="gynecology">Kadın Doğum</option>
+                    </select>
+                    <label>Şifre</label><input type="text" id="newDocPassword" value="Helunexa123!" style="margin-bottom:15px;">
+                    <button class="btn btn-primary" id="saveDoctorBtn">Kaydet</button>
+                    <div id="doctorMessage" style="margin-top:10px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- DETAY MODALI -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
-            <div class="modal-header">
-                <h2 id="modalTitle">Başvuru Detayı</h2>
-                <button class="close-btn" id="closeModal">×</button>
-            </div>
+            <div class="modal-header"><h2 id="modalTitle">Hasta Detayı</h2><button class="close-btn" onclick="closeModal()">×</button></div>
             <div class="modal-body" id="modalBody"></div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelBtn">Kapat</button>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Kapat</button>
                 <button class="btn btn-primary" id="saveBtn">Kaydet</button>
             </div>
         </div>
@@ -303,571 +132,179 @@
     <script>
         const SUPABASE_URL = 'https://grbjmhknmlheoyknmyhd.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lA5YB8KySIyhrLseQV56Kw_cWLCWq7p';
-        
-        // TEK BİR İSTEMCİ OLUŞTURUYORUZ (Çakışmayı önlemek için)
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' },
-            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
-        });
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' } });
 
-        let currentFilter = 'all';
-        let allApplications = [];
-        let currentApplication = null;
-        let currentRole = 'doctor';
-        let currentSpecialty = null;
-        let currentDisplayName = '';
-        
-        let currentWeekStart = getMonday(new Date());
-
-        const ALL_TIME_SLOTS = [
-            '09:00', '10:00', '11:00', '12:00', '13:00',
-            '14:00', '15:00', '16:00', '17:00', '18:00'
-        ];
-
-        function getMonday(d) {
-            const date = new Date(d);
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            const monday = new Date(date.setDate(diff));
-            monday.setHours(0, 0, 0, 0);
-            return monday;
-        }
+        let currentRole = 'doctor', currentSpecialty = null, allApps = [], currentApp = null, currentFilter = 'all';
 
         async function checkSession() {
-            try {
-                const { data: { session } } = await _supabase.auth.getSession();
-                if (session) {
-                    const { data: roleData } = await _supabase.from('user_roles').select('*').eq('user_id', session.user.id).single();
-                    if (!roleData) {
-                        await _supabase.auth.signOut();
-                        showLogin();
-                        document.getElementById('loginError').textContent = 'Bu panele sadece yetkili kullanıcılar girebilir.';
-                        return;
-                    }
-                    currentRole = roleData.role;
-                    currentSpecialty = roleData.specialty;
-                    currentDisplayName = roleData.display_name || session.user.email;
-                    
-                    if (currentRole !== 'admin' && currentRole !== 'doctor' && currentRole !== 'lab') {
-                        await _supabase.auth.signOut();
-                        showLogin();
-                        document.getElementById('loginError').textContent = 'Yetkisiz erişim.';
-                        return;
-                    }
-                    showPanel(session.user);
-                    loadApplications();
-                } else {
-                    showLogin();
-                }
-            } catch (err) {
-                console.error('Session error:', err);
-                showLogin();
-            }
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) { window.location.href = 'giris.html'; return; }
+            
+            const { data: roleData } = await _supabase.from('user_roles').select('*').eq('user_id', session.user.id).single();
+            if (!roleData) { window.location.href = 'giris.html'; return; }
+            
+            currentRole = roleData.role;
+            currentSpecialty = roleData.specialty;
+            
+            const badge = document.getElementById('roleBadge');
+            if (currentRole === 'admin') { badge.textContent = '👑 Admin'; badge.className = 'role-badge admin'; document.getElementById('tabAddDoctorBtn').style.display = 'block'; }
+            else { badge.textContent = '🩺 ' + (roleData.display_name || 'Doktor'); badge.className = 'role-badge doctor'; }
+            
+            document.getElementById('userEmail').textContent = session.user.email;
+            loadApps();
         }
 
-        function showLogin() {
-            window.location.href = 'giris.html';
-        }
-
-        function showPanel(user) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('panelScreen').classList.add('active');
-            const roleBadge = document.getElementById('roleBadge');
-            if (currentRole === 'admin') { 
-                roleBadge.textContent = '👑 Admin'; roleBadge.className = 'role-badge admin'; 
-                document.getElementById('tabAddDoctorBtn').style.display = 'block';
-            }
-            else if (currentRole === 'lab') { roleBadge.textContent = '🔬 Laboratuvar'; roleBadge.className = 'role-badge lab'; }
-            else { roleBadge.textContent = '🩺 ' + currentDisplayName; roleBadge.className = 'role-badge doctor'; }
-            document.getElementById('userEmail').textContent = user.email;
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
-            const err = document.getElementById('loginError');
-
-            if (!email || !password) { err.textContent = 'E-posta ve şifre gerekli'; return; }
-
-            btn.disabled = true; btn.textContent = 'Giriş yapılıyor...'; err.textContent = '';
-
-            try {
-                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) { err.textContent = '❌ ' + error.message; btn.disabled = false; btn.textContent = 'Giriş Yap'; return; }
-
-                const { data: roleData } = await _supabase.from('user_roles').select('*').eq('user_id', data.user.id).single();
-                if (!roleData) {
-                    await _supabase.auth.signOut();
-                    err.textContent = '❌ Bu panele sadece yetkili kullanıcılar girebilir.';
-                    btn.disabled = false; btn.textContent = 'Giriş Yap'; return;
-                }
-                currentRole = roleData.role;
-                currentSpecialty = roleData.specialty;
-                currentDisplayName = roleData.display_name || data.user.email;
-                
-                if (currentRole !== 'admin' && currentRole !== 'doctor' && currentRole !== 'lab') {
-                    await _supabase.auth.signOut();
-                    err.textContent = '❌ Yetkisiz erişim.';
-                    btn.disabled = false; btn.textContent = 'Giriş Yap'; return;
-                }
-                showPanel(data.user); loadApplications();
-            } catch (ex) {
-                console.error('Login error:', ex);
-                err.textContent = '❌ Bağlantı hatası: ' + ex.message;
-                btn.disabled = false; btn.textContent = 'Giriş Yap';
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => { await _supabase.auth.signOut(); showLogin(); });
-
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-
-                if (btn.dataset.tab === 'calendar') {
-                    renderCalendar();
-                }
-            });
-        });
-
-        async function loadApplications() {
+        async function loadApps() {
             let query = _supabase.from('applications').select('*');
-            
-            if (currentRole !== 'admin' && currentSpecialty) {
-                query = query.eq('specialty', currentSpecialty);
-            }
-            
-            const { data, error } = await query.order('created_at', { ascending: false });
-            
-            if (error) { document.getElementById('tableContent').innerHTML = '<div class="empty-state">Hata: ' + error.message + '</div>'; return; }
-            allApplications = data || []; updateStats(); renderTable();
-        }
-
-        function updateStats() {
-            document.getElementById('statTotal').textContent = allApplications.length;
-            document.getElementById('statPending').textContent = allApplications.filter(a => a.status === 'pending' || !a.status || a.status === 'paid').length;
-            document.getElementById('statProgress').textContent = allApplications.filter(a => a.status === 'in_progress').length;
-            document.getElementById('statCompleted').textContent = allApplications.filter(a => a.status === 'completed').length;
-        }
-
-        function aptStatusBadge(status) {
-            const map = {
-                'pending': ['⏳ Onay Bekliyor', 'apt-pending'],
-                'confirmed': ['✅ Onaylandı', 'apt-confirmed'],
-                'changed': ['🔄 Değiştirildi', 'apt-changed'],
-                'cancelled': ['❌ İptal', 'apt-cancelled']
-            };
-            if (!status) return '';
-            const [text, cls] = map[status] || [status, ''];
-            return `<span class="badge ${cls}">${text}</span>`;
+            if (currentRole !== 'admin' && currentSpecialty) query = query.eq('specialty', currentSpecialty);
+            const { data } = await query.order('created_at', { ascending: false });
+            allApps = data || [];
+            renderTable();
         }
 
         function renderTable() {
-            const filtered = currentFilter === 'all' ? allApplications : allApplications.filter(a => (a.status || 'pending') === currentFilter);
-            const container = document.getElementById('tableContent');
-            if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Bu filtrede başvuru yok.</div>'; return; }
-            let html = `<table><thead><tr><th>Tarih</th><th>Ad Soyad</th><th>Yaş</th><th>Telefon</th><th>Hizmet</th><th>Randevu</th><th>Durum</th><th>Lab</th><th></th></tr></thead><tbody>`;
+            const filtered = currentFilter === 'all' ? allApps : allApps.filter(a => a.status === currentFilter);
+            let html = `<table><thead><tr><th>Tarih</th><th>Hasta</th><th>Hizmet</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>`;
             filtered.forEach(app => {
-                const date = new Date(app.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                const status = app.status || 'pending';
-                const statusText = { pending: 'Bekliyor', paid: 'Ödendi', in_progress: 'İşlemde', completed: 'Tamamlandı', cancelled: 'İptal' }[status] || status;
-                const labStatus = app.lab_result_url ? '<span style="color:#8b5cf6; font-weight:bold;">🔬 Var</span>' : '<span style="color:#94a3b8;">—</span>';
-
-                let aptInfo = '<span style="color:#94a3b8;">—</span>';
-                if (app.appointment_date) {
-                    const d = new Date(app.appointment_date);
-                    const dt = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
-                    aptInfo = `<div style="font-size:12px;">📅 ${dt} · ${app.appointment_time}<br>${aptStatusBadge(app.appointment_status)}</div>`;
-                }
-
-                html += `<tr><td>${date}</td><td><strong>${escapeHtml(app.fullname)}</strong></td><td>${app.age}</td><td>${escapeHtml(app.phone)}</td><td>${escapeHtml(app.service_type)}</td><td>${aptInfo}</td><td><span class="badge ${status}">${statusText}</span></td><td>${labStatus}</td><td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td></tr>`;
+                const statusCls = app.status === 'completed' ? 'completed' : 'pending';
+                html += `<tr>
+                    <td>${new Date(app.created_at).toLocaleDateString('tr-TR')}</td>
+                    <td><strong>${app.fullname}</strong></td>
+                    <td>${app.service_type}</td>
+                    <td><span class="badge ${statusCls}">${app.status === 'completed' ? 'Tamamlandı' : 'Bekliyor'}</span></td>
+                    <td><button class="action-btn" onclick="openDetail(${app.id})">Detay</button></td>
+                </tr>`;
             });
             html += '</tbody></table>';
-            container.innerHTML = html;
+            document.getElementById('tableContent').innerHTML = html;
         }
-
-        function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
         document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.onclick = () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active'); currentFilter = btn.dataset.filter; renderTable();
-            });
+            }
         });
 
-        function prevWeek() {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            renderCalendar();
-        }
-
-        function nextWeek() {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            renderCalendar();
-        }
-
-        function formatDate(date) {
-            return date.toISOString().split('T')[0];
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            const weekLabel = document.getElementById('weekLabel');
-            if(!grid || !weekLabel) return;
-
-            const weekEnd = new Date(currentWeekStart);
-            weekEnd.setDate(weekEnd.getDate() + 6);
-
-            const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-            weekLabel.textContent = `${currentWeekStart.getDate()} ${months[currentWeekStart.getMonth()]} - ${weekEnd.getDate()} ${months[weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
-
-            const days = [];
-            const dayNames = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-            for (let i = 0; i < 7; i++) {
-                const d = new Date(currentWeekStart);
-                d.setDate(d.getDate() + i);
-                days.push(d);
-            }
-
-            const weekStartStr = formatDate(currentWeekStart);
-            const weekEndStr = formatDate(weekEnd);
-            
-            const weekAppointments = allApplications.filter(a =>
-                a.appointment_date &&
-                a.appointment_date >= weekStartStr &&
-                a.appointment_date <= weekEndStr
-            );
-
-            let html = '<div class="cal-header" style="background:#0f172a; color:white;">Saat</div>';
-            const today = formatDate(new Date());
-            days.forEach((d, i) => {
-                const dateStr = formatDate(d);
-                const isToday = dateStr === today;
-                html += `<div class="cal-header ${isToday ? 'today' : ''}">
-                    ${dayNames[i]}<br>
-                    <span style="font-size:14px;">${d.getDate()} ${months[d.getMonth()].substring(0,3)}</span>
-                </div>`;
-            });
-
-            ALL_TIME_SLOTS.forEach(time => {
-                html += `<div class="cal-hour">${time}</div>`;
-                days.forEach(d => {
-                    const dateStr = formatDate(d);
-                    const apt = weekAppointments.find(a => a.appointment_date === dateStr && a.appointment_time === time);
-
-                    if (apt) {
-                        const status = apt.appointment_status || 'pending';
-                        html += `<div class="cal-slot ${status}" onclick="openDetail(${apt.id})">
-                            <div class="name">${escapeHtml(apt.fullname)}</div>
-                            <div class="service">${escapeHtml(apt.service_type)}</div>
-                        </div>`;
-                    } else {
-                        html += `<div class="cal-slot empty">—</div>`;
-                    }
-                });
-            });
-
-            grid.innerHTML = html;
-        }
-
-        function buildAppointmentCard(app) {
-            if (!app.appointment_date) return '';
-
-            const d = new Date(app.appointment_date);
-            const formattedDate = d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', weekday: 'long' });
-
-            return `
-                <div class="appointment-box">
-                    <label>📅 Randevu Bilgisi</label>
-                    <div class="value"><strong>Tarih:</strong> ${formattedDate}</div>
-                    <div class="value"><strong>Saat:</strong> ${escapeHtml(app.appointment_time) || '-'}</div>
-                    <div class="value"><strong>Tür:</strong> 💻 Online Görüşme</div>
-                    <div class="value"><strong>Durum:</strong> ${aptStatusBadge(app.appointment_status)}</div>
-
-                    <div style="margin-top:12px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div>
-                            <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">Yeni Tarih (değiştir)</label>
-                            <input type="date" id="editAppointmentDate" value="${app.appointment_date || ''}">
-                        </div>
-                        <div>
-                            <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">Yeni Saat</label>
-                            <select id="editAppointmentTime">
-                                ${ALL_TIME_SLOTS.map(t => `<option value="${t}" ${app.appointment_time === t ? 'selected' : ''}>${t}</option>`).join('')}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div style="margin-top:12px;">
-                        <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">🔗 Görüşme Linki (Zoom/Meet)</label>
-                        <input type="text" id="editAppointmentLink" placeholder="https://meet.google.com/..." value="${escapeHtml(app.appointment_link) || ''}">
-                    </div>
-
-                    <div style="margin-top:12px;">
-                        <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">📝 Randevu Notu</label>
-                        <textarea id="editAppointmentNote" rows="2" placeholder="Hasta ile ilgili not...">${escapeHtml(app.appointment_note) || ''}</textarea>
-                    </div>
-
-                    <div style="margin-top:12px;">
-                        <label style="font-size:11px; color:#065f46; display:block; margin-bottom:4px;">Randevu Durumu</label>
-                        <select id="editAppointmentStatus">
-                            <option value="pending" ${app.appointment_status === 'pending' ? 'selected' : ''}>⏳ Onay Bekliyor</option>
-                            <option value="confirmed" ${app.appointment_status === 'confirmed' ? 'selected' : ''}>✅ Onaylandı</option>
-                            <option value="changed" ${app.appointment_status === 'changed' ? 'selected' : ''}>🔄 Değiştirildi</option>
-                            <option value="cancelled" ${app.appointment_status === 'cancelled' ? 'selected' : ''}>❌ İptal</option>
-                        </select>
-                    </div>
-                </div>
-            `;
-        }
-
         window.openDetail = function(id) {
-            const app = allApplications.find(a => a.id === id);
-            if (!app) return; currentApplication = app;
-            const date = new Date(app.created_at).toLocaleString('tr-TR');
-            const status = app.status || 'pending';
-            document.getElementById('modalTitle').textContent = app.fullname;
-
-            const appointmentCard = buildAppointmentCard(app);
-
-            let pregnancyHtml = '';
-            if (app.service_type === 'Gebelik Takibi' || app.pregnancy_lmp) {
-                pregnancyHtml = `
-                <div class="pregnancy-box">
-                    <label>🤰 Anne & Bebek Bilgileri</label>
-                    <div class="value"><strong>Son Adet Tarihi (SAT):</strong> ${app.pregnancy_lmp || 'Belirtilmedi'}</div>
-                    <div class="value"><strong>Mevcut Kilo:</strong> ${app.pregnancy_weight || '-'} kg</div>
-                    <div class="value"><strong>Şikayetler:</strong> ${app.pregnancy_complaints || 'Yok'}</div>
-                </div>`;
+            currentApp = allApps.find(a => a.id === id);
+            if (!currentApp) return;
+            
+            document.getElementById('modalTitle').textContent = currentApp.fullname;
+            
+            // Hocanın Prototipindeki "CDSS Onay Ekranı" Mantığı
+            let cdssHtml = '';
+            if (currentApp.test_notes && currentApp.test_notes.includes('Check-up Planı:')) {
+                cdssHtml = `
+                    <div class="cdss-box">
+                        <h4>🧠 CDSS (Klinik Karar Destek) Önerisi</h4>
+                        <p style="font-size:12px; margin-bottom:10px; color:#1e40af;">Sistemin otomatik oluşturduğu taslak plan:</p>
+                        <div style="font-size:13px; background:white; padding:10px; border-radius:6px; border:1px solid #bfdbfe; margin-bottom:15px;">
+                            ${currentApp.test_notes}
+                        </div>
+                        
+                        <div class="eval-box">
+                            <h4>🩺 Hekim Değerlendirmesi</h4>
+                            <textarea id="doctorNote" placeholder="Planı onaylıyor musunuz? Eklemek/çıkarmak istediğiniz tetkik var mı?"></textarea>
+                            <div style="display:flex; gap:10px;">
+                                <button type="button" class="btn btn-primary" style="flex:1;" onclick="approvePlan('approved')">✅ Planı Onayla</button>
+                                <button type="button" class="btn btn-secondary" style="flex:1;" onclick="approvePlan('revision')">🔄 Revizyon İste</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
             document.getElementById('modalBody').innerHTML = `
-                ${appointmentCard}
-                ${pregnancyHtml}
-                ${app.home_address ? `
-                <div class="home-box">
-                    <label>🏠 Evde Hizmet Bilgileri</label>
-                    <div class="value"><strong>Adres:</strong> ${escapeHtml(app.home_address)}</div>
-                    <div class="value"><strong>İl/İlçe:</strong> ${escapeHtml(app.home_city) || '-'}</div>
-                    <div class="value"><strong>Tarih:</strong> ${app.home_date || '-'}</div>
-                    <div class="value"><strong>Saat:</strong> ${escapeHtml(app.home_time) || '-'}</div>
-                    ${app.home_note ? `<div class="value"><strong>Not:</strong> ${escapeHtml(app.home_note)}</div>` : ''}
-                </div>` : ''}
-                <div class="detail-row"><label>Başvuru Tarihi</label><div class="value">${date}</div></div>
-                <div class="detail-row"><label>Yaş</label><div class="value">${app.age}</div></div>
-                <div class="detail-row"><label>Telefon</label><div class="value">${escapeHtml(app.phone)}</div></div>
-                <div class="detail-row"><label>E-posta</label><div class="value">${escapeHtml(app.email)}</div></div>
-                <div class="detail-row"><label>Hizmet Türü</label><div class="value">${escapeHtml(app.service_type)}</div></div>
-                <div class="detail-row"><label>Tıbbi Geçmiş</label><div class="value">${escapeHtml(app.medical_history) || '<em>Belirtilmemiş</em>'}</div></div>
-                
-                <div id="testResultsContainer" style="margin-top: 20px;">
-                    <div class="loading" style="padding: 10px;">Test sonuçları kontrol ediliyor...</div>
-                </div>
-
-                ${app.test_file_url ? `<div class="test-box"><label>📄 Hastanın Yüklediği Tahlil</label><div class="value"><a href="${app.test_file_url}" target="_blank">📎 ${escapeHtml(app.test_file_name) || 'Dosyayı Görüntüle'}</a></div></div>` : ''}
-                ${app.lab_result_url ? `
-                <div class="lab-box"><label>🔬 Laboratuvar Sonucu</label><div class="value"><a href="${app.lab_result_url}" target="_blank">📎 ${escapeHtml(app.lab_result_name) || 'Sonucu Görüntüle'}</a></div></div>
-                ${app.lab_note ? `<div class="lab-box"><label>🔬 Laboratuvar Notu</label><div class="value">${escapeHtml(app.lab_note)}</div></div>` : ''}` : ''}
-                
+                ${cdssHtml}
+                <div class="detail-row"><label>Hizmet Türü</label><div class="value">${currentApp.service_type}</div></div>
+                <div class="detail-row"><label>Hasta Notları</label><div class="value">${currentApp.test_notes || '-'}</div></div>
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
-                <div class="detail-row"><label>Durum</label><select id="editStatus">
-                    <option value="pending" ${status === 'pending' ? 'selected' : ''}>Bekliyor</option>
-                    <option value="paid" ${status === 'paid' ? 'selected' : ''}>Ödendi</option>
-                    <option value="in_progress" ${status === 'in_progress' ? 'selected' : ''}>İşlemde</option>
-                    <option value="completed" ${status === 'completed' ? 'selected' : ''}>Tamamlandı</option>
-                    <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>İptal</option>
-                </select></div>
-                <div class="detail-row"><label>Hekim Notu (Kısa)</label><textarea id="editNote" placeholder="Kısa not...">${escapeHtml(app.doctor_note) || ''}</textarea></div>
-                <div class="evaluation-box"><label>🩺 Hekim Değerlendirmesi</label><textarea id="editEvaluation" placeholder="Klinik değerlendirme, tanı, öneriler..." style="margin-top:8px; min-height:100px;">${escapeHtml(app.evaluation) || ''}</textarea></div>
-                <div class="prescription-box"><label>💊 Reçete</label><textarea id="editPrescription" placeholder="İlaç adı, doz, kullanım..." style="margin-top:8px; min-height:120px; font-family:monospace;">${escapeHtml(app.prescription) || ''}</textarea></div>
+                <div class="detail-row">
+                    <label>Genel Durum</label>
+                    <select id="editStatus">
+                        <option value="pending" ${currentApp.status === 'pending' ? 'selected' : ''}>Bekliyor (Onay Bekliyor)</option>
+                        <option value="completed" ${currentApp.status === 'completed' ? 'selected' : ''}>Tamamlandı (Onaylandı)</option>
+                    </select>
+                </div>
+                <div class="detail-row"><label>Hekim Notu (Kısa)</label><textarea id="editEvaluation">${currentApp.evaluation || ''}</textarea></div>
+                <div class="detail-row"><label>Reçete / Öneri</label><textarea id="editPrescription">${currentApp.prescription || ''}</textarea></div>
             `;
             
-            loadPatientTestResults(app.user_id, app.email);
             document.getElementById('modalOverlay').classList.add('active');
         };
 
-        async function loadPatientTestResults(userId, email) {
-            const container = document.getElementById('testResultsContainer');
-            if (!container) return;
+        // Hekim Onay Butonuna Basıldığında
+        window.approvePlan = async function(action) {
+            const note = document.getElementById('doctorNote').value.trim();
+            if (!note) return alert('Lütfen hekim değerlendirme notunu yazın.');
             
-            try {
-                const searchEmail = email || currentApplication?.email;
-
-                const { data: psychData } = await _supabase
-                    .from('psych_results')
-                    .select('*')
-                    .eq('email', searchEmail)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
-                    
-                const { data: longData } = await _supabase
-                    .from('longevity_results')
-                    .select('*')
-                    .eq('email', searchEmail)
-                    .limit(1);
-
-                let html = '';
-
-                if (psychData && psychData.length > 0) {
-                    const p = psychData[0];
-                    let riskColor = p.risk_flag === 'suicidal_ideation' || p.risk_flag === 'severe' ? 'red' : (p.risk_flag === 'moderate' ? 'orange' : 'green');
-                    html += `
-                        <div class="test-box" style="border-left-color: #3b82f6; background: #eff6ff;">
-                            <label style="color: #1e40af;">🧠 Psikolojik Test Sonuçları (Son: ${new Date(p.created_at).toLocaleDateString('tr-TR')})</label>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:8px; font-size:13px;">
-                                <div><strong>GAD-7:</strong> ${p.gad7 ?? '-'}/21</div>
-                                <div><strong>PHQ-9:</strong> ${p.phq9 ?? '-'}/27</div>
-                                <div><strong>Stres (PSS):</strong> ${p.pss10 ?? '-'}/40</div>
-                            </div>
-                            <div style="margin-top:8px; font-size:13px;">
-                                <strong>Bileşik Skor:</strong> ${p.composite_score ?? '-'}/100 | 
-                                <strong>Risk:</strong> <span style="color:${riskColor}; font-weight:bold;">${p.risk_flag || 'Normal'}</span>
-                            </div>
-                            ${p.risk_flag === 'suicidal_ideation' ? '<div style="color:red; font-weight:bold; margin-top:8px;">🚨 ACİL: İntihar düşüncesi riski tespit edildi!</div>' : ''}
-                        </div>
-                    `;
-                }
-
-                if (longData && longData.length > 0) {
-                    const l = longData[0];
-                    html += `
-                        <div class="test-box" style="border-left-color: #8b5cf6; background: #f3e8ff;">
-                            <label style="color: #6b21a8;">🧬 Longevity Sonuçları (Son: ${new Date(l.updated_at || l.created_at).toLocaleDateString('tr-TR')})</label>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px; font-size:13px;">
-                                <div><strong>Kronolojik Yaş:</strong> ${l.chrono_age ?? '-'}</div>
-                                <div><strong>Biyolojik Yaş:</strong> <span style="color:#8b5cf6; font-weight:bold;">${l.bio_age ?? '-'}</span></div>
-                                <div><strong>Longevity Skoru:</strong> ${l.longevity_score ?? '-'}/100</div>
-                                <div><strong>Yaş Farkı:</strong> ${l.age_diff ?? '-'} yıl</div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                if (html === '') {
-                    html = '<div class="info-box yellow" style="margin-top:10px; padding:10px; background:#fef3c7; color:#92400e; border-radius:6px;">⚠️ Bu hasta henüz psikolojik veya longevity testi çözmemiş.</div>';
-                }
-
-                container.innerHTML = html;
-            } catch (err) {
-                console.error("Test sonuçları yüklenemedi:", err);
-                container.innerHTML = '<div class="info-box red" style="padding:10px; background:#fee2e2; color:#991b1b; border-radius:6px;">Test sonuçları yüklenirken hata oluştu.</div>';
+            const status = action === 'approved' ? 'completed' : 'pending';
+            
+            const { error } = await _supabase.from('applications').update({
+                status: status,
+                evaluation: "Hekim Notu: " + note
+            }).eq('id', currentApp.id);
+            
+            if (error) alert('Hata: ' + error.message);
+            else {
+                alert(action === 'approved' ? '✅ Plan onaylandı ve hastaya bildirildi!' : '🔄 Revizyon istendi.');
+                closeModal(); loadApps();
             }
-        }
+        };
 
-        document.getElementById('closeModal').addEventListener('click', closeModal);
-        document.getElementById('cancelBtn').addEventListener('click', closeModal);
-        function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); currentApplication = null; }
+        window.closeModal = () => document.getElementById('modalOverlay').classList.remove('active');
 
-        document.getElementById('saveBtn').addEventListener('click', async () => {
-            if (!currentApplication) return;
-            const newStatus = document.getElementById('editStatus').value;
-            const newNote = document.getElementById('editNote').value.trim();
-            const newEvaluation = document.getElementById('editEvaluation').value.trim();
-            const newPrescription = document.getElementById('editPrescription').value.trim();
-
-            const editApptDate = document.getElementById('editAppointmentDate');
-            const editApptTime = document.getElementById('editAppointmentTime');
-            const editApptLink = document.getElementById('editAppointmentLink');
-            const editApptNote = document.getElementById('editAppointmentNote');
-            const editApptStatus = document.getElementById('editAppointmentStatus');
-
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true; btn.textContent = 'Kaydediliyor...';
-
-            const updateData = {
-                status: newStatus,
-                doctor_note: newNote || null,
-                evaluation: newEvaluation || null,
-                prescription: newPrescription || null,
-                prescription_date: newPrescription ? new Date().toISOString() : null
-            };
-
-            if (editApptDate && editApptTime) {
-                const newDate = editApptDate.value;
-                const newTime = editApptTime.value;
-                const oldDate = currentApplication.appointment_date;
-                const oldTime = currentApplication.appointment_time;
-
-                updateData.appointment_date = newDate || null;
-                updateData.appointment_time = newTime || null;
-                updateData.appointment_link = editApptLink ? editApptLink.value.trim() || null : null;
-                updateData.appointment_note = editApptNote ? editApptNote.value.trim() || null : null;
-
-                let aptStatus = editApptStatus ? editApptStatus.value : currentApplication.appointment_status;
-                if ((newDate !== oldDate || newTime !== oldTime) && aptStatus === 'pending') {
-                    aptStatus = 'changed';
-                }
-                updateData.appointment_status = aptStatus;
-            }
-
-            const { error } = await _supabase.from('applications').update(updateData).eq('id', currentApplication.id);
-            if (error) { alert('❌ Hata: ' + error.message); btn.disabled = false; btn.textContent = 'Kaydet'; return; }
-            await loadApplications();
-            renderCalendar();
-            closeModal();
+        document.getElementById('saveBtn').onclick = async () => {
+            if (!currentApp) return;
+            const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.textContent = '...';
+            
+            const { error } = await _supabase.from('applications').update({
+                status: document.getElementById('editStatus').value,
+                evaluation: document.getElementById('editEvaluation').value,
+                prescription: document.getElementById('editPrescription').value
+            }).eq('id', currentApp.id);
+            
+            if (error) alert('Hata: ' + error.message);
+            else { closeModal(); loadApps(); }
             btn.disabled = false; btn.textContent = 'Kaydet';
-        });
+        };
 
-        // YENİ DOKTOR KAYIT İŞLEMİ (Hatasız Versiyon)
-        document.getElementById('saveDoctorBtn').addEventListener('click', async () => {
+        // Yeni Doktor Ekleme (Sadece Admin Görebilir)
+        document.getElementById('saveDoctorBtn').onclick = async () => {
             const name = document.getElementById('newDocName').value.trim();
             const email = document.getElementById('newDocEmail').value.trim();
-            const specialty = document.getElementById('newDocSpecialty').value;
-            const password = document.getElementById('newDocPassword').value;
+            const spec = document.getElementById('newDocSpecialty').value;
+            const pass = document.getElementById('newDocPassword').value;
             const msg = document.getElementById('doctorMessage');
-            const btn = document.getElementById('saveDoctorBtn');
-
-            if (!name || !email || !password) { msg.style.color = 'red'; msg.textContent = 'Lütfen tüm alanları doldurun.'; return; }
-            if (password.length < 6) { msg.style.color = 'red'; msg.textContent = 'Şifre en az 6 karakter olmalıdır.'; return; }
-
-            btn.disabled = true; btn.textContent = 'Kaydediliyor...';
-            msg.style.color = '#3b82f6'; msg.textContent = 'Sisteme ekleniyor, lütfen bekleyin...';
-
+            if (!name || !email || !pass) { msg.textContent = 'Tüm alanları doldurun.'; msg.style.color='red'; return; }
+            
+            const { createClient } = supabase;
+            const temp = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+            
             try {
-                // Supabase Auth'a kayıt (Oturumu etkilememesi için ayrı bir istemci kullanmıyoruz, mevcut istemci üzerinden gidiyoruz)
-                const { data: authData, error: authError } = await _supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: { data: { full_name: name } }
-                });
-
-                if (authError) {
-                    // Eğer hata "User already registered" ise, bu e-postanın zaten var olduğunu gösterir.
-                    if (authError.message.includes('already registered')) {
-                        throw new Error('Bu e-posta adresi zaten sisteme kayıtlı. Lütfen farklı bir e-posta deneyin.');
-                    }
-                    throw new Error(authError.message);
-                }
-
-                if (!authData.user) {
-                    throw new Error('Kullanıcı oluşturulamadı.');
-                }
-
-                // Rol tablosuna ekleme (email sütununu da ekleyerek hatayı önlüyoruz)
-                const { error: roleError } = await _supabase.from('user_roles').insert([{
-                    user_id: authData.user.id,
-                    email: email,
-                    role: 'doctor',
-                    display_name: name,
-                    specialty: specialty
-                }]);
-
-                if (roleError) throw new Error('Rol atanamadı: ' + roleError.message);
-
-                msg.style.color = 'green'; 
-                msg.textContent = '✅ Doktor başarıyla eklendi! Artık sisteme giriş yapabilir.';
-                document.getElementById('newDocName').value = '';
-                document.getElementById('newDocEmail').value = '';
+                const { data, error } = await temp.auth.signUp({ email, password: pass });
+                if (error) throw error;
                 
+                const { error: roleErr } = await _supabase.from('user_roles').insert([{
+                    user_id: data.user.id, email: email, role: 'doctor', display_name: name, specialty: spec
+                }]);
+                if (roleErr) throw roleErr;
+                
+                msg.textContent = '✅ Doktor eklendi!'; msg.style.color='green';
+                document.getElementById('newDocName').value = ''; document.getElementById('newDocEmail').value = '';
             } catch (err) {
-                console.error(err);
-                msg.style.color = 'red'; 
-                msg.textContent = '❌ Hata: ' + err.message;
-            } finally {
-                btn.disabled = false; btn.textContent = 'Doktoru Sisteme Kaydet';
+                msg.textContent = '❌ Hata: ' + err.message; msg.style.color='red';
+            }
+        };
+
+        document.getElementById('logoutBtn').onclick = async () => { await _supabase.auth.signOut(); window.location.href = 'giris.html'; };
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active'); document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
             }
         });
 
