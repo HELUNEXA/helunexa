@@ -37,38 +37,28 @@
         .badge.completed { background: #d1fae5; color: #065f46; }
         .action-btn { padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; }
         
-        /* MODAL VE TETKİK SEÇİM STİLLERİ */
+        /* MODAL STİLLERİ */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal { background: white; border-radius: 12px; max-width: 900px; width: 100%; max-height: 95vh; overflow-y: auto; padding: 30px; }
+        .modal { background: white; border-radius: 12px; max-width: 800px; width: 100%; max-height: 95vh; overflow-y: auto; padding: 30px; }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
         .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
         .detail-row { margin-bottom: 15px; }
         .detail-row label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: bold; }
         .detail-row .value { font-size: 15px; }
-        
-        /* KATALOG (TETKİK SEÇİMİ) */
-        .catalog-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .catalog-group { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
-        .catalog-group summary { background: #f8fafc; padding: 12px 15px; font-weight: bold; font-size: 14px; cursor: pointer; border-bottom: 1px solid #e2e8f0; }
-        .catalog-item { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; gap: 10px; }
-        .catalog-item:last-child { border-bottom: none; }
-        .catalog-item input[type="checkbox"] { margin-top: 3px; width: 18px; height: 18px; accent-color: #10b981; cursor: pointer; }
-        .catalog-item label { cursor: pointer; font-size: 13px; }
-        .catalog-item .test-name { font-weight: bold; color: #0f172a; display: block; }
-        .catalog-item .test-purpose { font-size: 11px; color: #64748b; display: block; margin-top: 3px; }
-        
         textarea, select, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; }
         textarea { min-height: 80px; resize: vertical; }
         .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .btn-primary { background: #10b981; color: white; }
         .btn-secondary { background: #e2e8f0; color: #475569; }
 
-        .selected-tests { background: #eff6ff; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #3b82f6; }
-        .selected-tests ul { list-style: none; padding: 0; margin-top: 10px; }
-        .selected-tests li { background: white; padding: 8px 12px; border-radius: 4px; margin-bottom: 5px; font-size: 13px; border: 1px solid #bfdbfe; }
+        .patient-selected-tests { background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b; }
+        .patient-selected-tests ul { list-style: none; padding: 0; margin-top: 10px; }
+        .patient-selected-tests li { background: white; padding: 8px 12px; border-radius: 4px; margin-bottom: 5px; font-size: 13px; border: 1px solid #fde68a; }
+        
+        .eval-box { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 15px; }
 
-        @media (max-width: 768px) { .container { padding: 15px; } table { min-width: 800px; } .catalog-container { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .container { padding: 15px; } table { min-width: 800px; } }
     </style>
 </head>
 <body class="notranslate">
@@ -143,20 +133,6 @@
 
         let currentRole = 'doctor', currentSpecialty = null, allApps = [], currentApp = null, currentFilter = 'all';
 
-        // --- HOCANIN 50 TETKİKLİK KATALOĞU VE GRUPLARI (core.js'den entegre) ---
-        const CATALOG_GROUPS = {
-            "Hepatit taraması": ["Hepatit B · HBsAg / anti-HBs / total anti-HBc", "Anti-HCV"],
-            "Kan ve demir": ["Hemogram", "Ferritin", "Transferrin satürasyonu / demir bağlama kapasitesi"],
-            "Metabolik sağlık": ["Açlık plazma glukozu ve HbA1c", "Ürik asit", "75 g OGTT", "Açlık insülini / HOMA-IR"],
-            "Kalp ve damar": ["Lipid profili", "ApoB", "Lipoprotein(a)", "hs-CRP", "Homosistein"],
-            "Böbrek ve karaciğer": ["Kreatinin / eGFR", "İdrar albümin/kreatinin oranı", "ALT", "AST", "ALP", "GGT", "Total / direkt bilirubin", "Albümin", "Total protein", "Üre"],
-            "Tiroid": ["TSH", "Serbest T4", "Serbest T3 (FT3)", "Anti-TPO", "Anti-Tg", "TRAb"],
-            "Vitaminler": ["D vitamini · 25-OH D", "Vitamin B12", "Folat"],
-            "Mineraller": ["Magnezyum", "Çinko", "Sodyum", "Potasyum", "Total kalsiyum", "Fosfor", "Selenyum", "İyot değerlendirmesi"],
-            "Kemik ve hormonlar": ["Parathormon (PTH)", "Total testosteron", "FSH / LH", "Estradiol", "Prolaktin"],
-            "Diğer seçilmiş değerlendirmeler": ["CRP", "Sedimentasyon (ESR)", "Tam idrar tahlili", "Çölyak serolojisi · tTG-IgA + total IgA"]
-        };
-
         async function checkSession() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.href = 'giris.html'; return; }
@@ -213,85 +189,44 @@
             
             document.getElementById('modalTitle').textContent = currentApp.fullname;
             
-            // Hekimin Tetkik Seçebileceği Katalog
-            let catalogHtml = '';
-            if (currentApp.service_type === 'Rutin Kontrol' || currentApp.service_type === 'Kanser Taraması' || currentApp.service_type === 'Longevity Takibi') {
-                catalogHtml = `
-                    <div style="margin-top: 20px;">
-                        <h3 style="font-size:16px; color:#0f172a; margin-bottom:10px;">🧪 Hekimin Seçebileceği Tetkikler</h3>
-                        <p style="font-size:12px; color:#64748b; margin-bottom:10px;">Hastanın ihtiyacına göre aşağıdaki katalogdan tetkik seçiniz. Seçilenler hastanın reçetesine/tetkik listesine eklenecektir.</p>
-                        <div class="catalog-container" id="catalogContainer">
-                            ${Object.entries(CATALOG_GROUPS).map(([groupName, tests]) => `
-                                <details class="catalog-group">
-                                    <summary>${groupName} <small>(${tests.length} seçenek)</small></summary>
-                                    ${tests.map((test, i) => `
-                                        <div class="catalog-item">
-                                            <input type="checkbox" id="test_${groupName.replace(/\s/g, '')}_${i}" value="${test}" class="test-checkbox" onchange="updateSelectedTests()">
-                                            <label for="test_${groupName.replace(/\s/g, '')}_${i}">
-                                                <span class="test-name">${test}</span>
-                                            </label>
-                                        </div>
-                                    `).join('')}
-                                </details>
-                            `).join('')}
-                        </div>
-                        
-                        <div class="selected-tests" id="selectedTestsBox" style="display:none;">
-                            <strong style="font-size:13px; color:#1e40af;">Seçilen Tetkikler:</strong>
-                            <ul id="selectedTestsList"></ul>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Hekim Değerlendirme Kutusu
-            let evalHtml = '';
-            if (currentApp.test_notes && currentApp.test_notes.includes('Check-up Planı:')) {
-                evalHtml = `
-                    <div class="selected-tests" style="border-left-color: #3b82f6; background:#eff6ff; margin-bottom:15px;">
-                        <strong style="color:#1e40af;">🧠 CDSS Ön Değerlendirme Önerisi (Hasta Tarafından):</strong>
-                        <p style="font-size:13px; margin-top:5px;">${currentApp.test_notes}</p>
+            // Hastanın CDSS'te seçtiği tetkikleri ayıkla ve göster
+            let patientSelectedHtml = '';
+            if (currentApp.test_notes && currentApp.test_notes.includes('Hastanın Hekimle Görüşmek İstediği Tetkikler:')) {
+                let selectedTestsString = currentApp.test_notes.replace('Hastanın Hekimle Görüşmek İstediği Tetkikler: ', '');
+                let testList = selectedTestsString.split(' | ');
+                
+                patientSelectedHtml = `
+                    <div class="patient-selected-tests">
+                        <strong style="color:#92400e; font-size:14px;">🧪 Hastanın Seçtiği Tetkikler (Onay Bekliyor):</strong>
+                        <p style="font-size:12px; color:#b45309; margin-top:5px;">Hasta form doldururken bu tetkikleri yaptırmak istediğini belirtti. Uygun bulduklarınızı reçeteye ekleyin.</p>
+                        <ul>
+                            ${testList.map(t => `<li>${t}</li>`).join('')}
+                        </ul>
                     </div>
                 `;
             }
 
             document.getElementById('modalBody').innerHTML = `
-                ${evalHtml}
+                ${patientSelectedHtml}
                 <div class="detail-row"><label>Hizmet Türü</label><div class="value">${currentApp.service_type}</div></div>
                 <div class="detail-row"><label>Hasta Notları</label><div class="value">${currentApp.test_notes || '-'}</div></div>
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
                 
-                ${catalogHtml}
-
-                <div style="margin-top:20px; padding-top:20px; border-top:1px solid #e2e8f0;">
-                    <h3 style="font-size:16px; margin-bottom:15px;">🩺 Hekim Değerlendirmesi ve Takip</h3>
+                <div class="eval-box">
+                    <h3 style="font-size:16px; color:#1e40af; margin-bottom:10px;">🩺 Hekim Değerlendirmesi</h3>
                     <div class="detail-row">
                         <label>Genel Durum</label>
                         <select id="editStatus">
-                            <option value="pending" ${currentApp.status === 'pending' ? 'selected' : ''}>Bekliyor (Onay Bekliyor)</option>
-                            <option value="completed" ${currentApp.status === 'completed' ? 'selected' : ''}>Tamamlandı (Onaylandı)</option>
+                            <option value="pending" ${currentApp.status === 'pending' ? 'selected' : ''}>Bekliyor</option>
+                            <option value="completed" ${currentApp.status === 'completed' ? 'selected' : ''}>Tamamlandı</option>
                         </select>
                     </div>
-                    <div class="detail-row"><label>Hekim Notu (Hastaya İletilecek)</label><textarea id="editEvaluation">${currentApp.evaluation || ''}</textarea></div>
-                    <div class="detail-row"><label>Reçete / Öneri (Hastaya İletilecek)</label><textarea id="editPrescription">${currentApp.prescription || ''}</textarea></div>
+                    <div class="detail-row"><label>Hekim Notu</label><textarea id="editEvaluation">${currentApp.evaluation || ''}</textarea></div>
+                    <div class="detail-row"><label>Reçete / Nihai Tetkik Listesi</label><textarea id="editPrescription">${currentApp.prescription || ''}</textarea></div>
                 </div>
             `;
             
             document.getElementById('modalOverlay').classList.add('active');
-        };
-
-        // Seçilen tetkikleri güncelle
-        window.updateSelectedTests = function() {
-            const selected = Array.from(document.querySelectorAll('.test-checkbox:checked')).map(cb => cb.value);
-            const box = document.getElementById('selectedTestsBox');
-            const list = document.getElementById('selectedTestsList');
-            
-            if (selected.length > 0) {
-                box.style.display = 'block';
-                list.innerHTML = selected.map(t => `<li>${t}</li>`).join('');
-            } else {
-                box.style.display = 'none';
-            }
         };
 
         window.closeModal = () => document.getElementById('modalOverlay').classList.remove('active');
@@ -300,18 +235,10 @@
             if (!currentApp) return;
             const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.textContent = '...';
             
-            // Seçilen tetkikleri topla
-            const selectedTests = Array.from(document.querySelectorAll('.test-checkbox:checked')).map(cb => cb.value);
-            let prescriptionText = document.getElementById('editPrescription').value;
-            
-            if (selectedTests.length > 0) {
-                prescriptionText = (prescriptionText ? prescriptionText + '\n\n' : '') + "Seçilen Tetkikler:\n" + selectedTests.map((t, i) => `${i+1}. ${t}`).join('\n');
-            }
-
             const { error } = await _supabase.from('applications').update({
                 status: document.getElementById('editStatus').value,
                 evaluation: document.getElementById('editEvaluation').value,
-                prescription: prescriptionText
+                prescription: document.getElementById('editPrescription').value
             }).eq('id', currentApp.id);
             
             if (error) alert('Hata: ' + error.message);
@@ -319,7 +246,6 @@
             btn.disabled = false; btn.textContent = 'Kaydet';
         };
 
-        // Yeni Doktor Ekleme
         document.getElementById('saveDoctorBtn').onclick = async () => {
             const name = document.getElementById('newDocName').value.trim();
             const email = document.getElementById('newDocEmail').value.trim();

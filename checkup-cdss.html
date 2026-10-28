@@ -59,6 +59,15 @@
         .check { display: flex; align-items: center; gap: 10px; font-size: 12px; margin: 15px 0; }
         .check input { width: auto; margin: 0; accent-color: var(--teal); }
         
+        /* KATALOG STİLLERİ */
+        .catalog-group { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+        .catalog-group summary { background: #f8fafc; padding: 12px 15px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .catalog-item { padding: 10px 15px; border-top: 1px solid #f1f5f9; display: flex; align-items: flex-start; gap: 10px; }
+        .catalog-item input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--teal); cursor: pointer; }
+        .catalog-item label { cursor: pointer; font-size: 13px; margin: 0; }
+        .catalog-item .test-name { font-weight: 600; color: #0f172a; display: block; }
+        .selected-count { font-size: 12px; color: var(--teal); font-weight: bold; margin-top: 10px; }
+
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #254a3a; color: #fff; border-radius: 8px; padding: 12px 20px; font-size: 13px; z-index: 5; display: none; }
         
         @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .step { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 10px; } .card { padding: 20px; } .actions { flex-direction: column; } .btn { width: 100%; } }
@@ -70,7 +79,7 @@
         <div class="card">
             <nav id="steps">
                 <div class="step current"><span>1</span>Başvuru</div>
-                <div class="step"><span>2</span>Ön Plan</div>
+                <div class="step"><span>2</span>Tetkik Seçimi</div>
                 <div class="step"><span>3</span>Hekim Onayı</div>
                 <div class="step"><span>4</span>Ödeme</div>
             </nav>
@@ -86,34 +95,26 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, storageKey: 'helunexa-hasta-auth' } });
 
         let step = 0;
-        let state = { profile: {}, plan: [] };
+        let state = { profile: {}, requestedTests: [] };
+
+        // Hocanın 10 Gruplu 50 Tetkiklik Kataloğu
+        const CATALOG_GROUPS = {
+            "Hepatit taraması": ["Hepatit B · HBsAg / anti-HBs / total anti-HBc", "Anti-HCV"],
+            "Kan ve demir": ["Hemogram", "Ferritin", "Transferrin satürasyonu / demir bağlama kapasitesi"],
+            "Metabolik sağlık": ["Açlık plazma glukozu ve HbA1c", "Ürik asit", "75 g OGTT", "Açlık insülini / HOMA-IR"],
+            "Kalp ve damar": ["Lipid profili", "ApoB", "Lipoprotein(a)", "hs-CRP", "Homosistein"],
+            "Böbrek ve karaciğer": ["Kreatinin / eGFR", "İdrar albümin/kreatinin oranı", "ALT", "AST", "ALP", "GGT", "Total / direkt bilirubin", "Albümin", "Total protein", "Üre"],
+            "Tiroid": ["TSH", "Serbest T4", "Serbest T3 (FT3)", "Anti-TPO", "Anti-Tg", "TRAb"],
+            "Vitaminler": ["D vitamini · 25-OH D", "Vitamin B12", "Folat"],
+            "Mineraller": ["Magnezyum", "Çinko", "Sodyum", "Potasyum", "Total kalsiyum", "Fosfor", "Selenyum", "İyot değerlendirmesi"],
+            "Kemik ve hormonlar": ["Parathormon (PTH)", "Total testosteron", "FSH / LH", "Estradiol", "Prolaktin"],
+            "Diğer seçilmiş değerlendirmeler": ["CRP", "Sedimentasyon (ESR)", "Tam idrar tahlili", "Çölyak serolojisi · tTG-IgA + total IgA"]
+        };
 
         function toast(text) { const el = document.getElementById('toast'); el.textContent = text; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3000); }
 
-        // BKİ (VKİ) HESAPLAMA FONKSİYONU (Garantili)
-        function calculateBMI(weight, height) {
-            if (!weight || !height || height === 0) return 0;
-            const heightInMeters = height / 100;
-            return (weight / (heightInMeters * heightInMeters)).toFixed(1);
-        }
-
-        function buildPlan(p) {
-            const panels = [];
-            const bmi = parseFloat(p.bmi); // String'den number'a çevir
-            
-            panels.push({ title: 'Kan Sayımı', tests: ['Hemogram'], reason: 'Genel değerlendirme.' });
-            panels.push({ title: 'Metabolik Değerlendirme', tests: ['Açlık plazma glukozu', 'Lipid profili'], reason: 'Metabolik risk taraması.' });
-            panels.push({ title: 'Böbrek ve Karaciğer Değerlendirmesi', tests: ['Kreatinin / eGFR', 'ALT', 'AST'], reason: 'Organ fonksiyonları.' });
-            
-            if (bmi >= 25) panels.push({ title: 'İnsülin Direnci Taraması', tests: ['HOMA-IR'], reason: 'VKİ yüksekliği (Fazla Kilolu).' });
-            if (bmi >= 30) panels.push({ title: 'Diyabet Taraması', tests: ['HbA1c'], reason: 'Obezite sınırında VKİ.' });
-            if (p.age >= 40) panels.push({ title: 'Kalp Sağlığı', tests: ['EKG'], reason: 'Yaş faktörü.' });
-            
-            return panels;
-        }
-
         function render() {
-            const screens = [entry, intakeForm, plan, doctor, payment];
+            const screens = [entry, intakeForm, testSelection, doctorApproval, payment];
             if(step >= 0 && step <= 4) {
                 screens[step]();
                 document.querySelectorAll('.step').forEach((s, i) => { 
@@ -152,74 +153,82 @@
                 </div>
                 <div class="actions">
                     <button class="btn btn-secondary" onclick="step=0; render();">Geri</button>
-                    <button class="btn btn-primary" id="nextBtn">Kontrol panelini gör →</button>
+                    <button class="btn btn-primary" id="nextBtn">Tetkik Seçimine Geç →</button>
                 </div>
             `;
             document.getElementById('nextBtn').onclick = () => {
-                const age = Number(document.getElementById('age').value);
-                const weight = Number(document.getElementById('weight').value);
-                const height = Number(document.getElementById('height').value);
-                const sex = document.getElementById('sex').value;
-
+                const age = Number(document.getElementById('age').value), weight = Number(document.getElementById('weight').value), height = Number(document.getElementById('height').value), sex = document.getElementById('sex').value;
                 if (!age || !weight || !height || !sex) return toast('Tüm alanları doldurun.');
-                if (height < 100 || height > 250) return toast('Lütfen boyunuzu cm cinsinden girin (Örn: 175).');
-                if (weight < 20 || weight > 300) return toast('Lütfen kilonuzu kg cinsinden girin.');
-
-                // BKİ'yi güvenli fonksiyonla hesapla
-                const bmi = calculateBMI(weight, height);
-                
-                state.profile = { age, weight, height, sex, bmi: bmi };
-                state.plan = buildPlan(state.profile);
+                state.profile = { age, weight, height, sex };
                 step = 2; render();
             };
         }
 
-        function plan() {
-            const p = state.profile;
+        // HASTANIN TETKİK SEÇİM EKRANI
+        function testSelection() {
             document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Örnek rutin check-up paneli</h2><p>Hekiminizin inceleyip değiştirebileceği başlangıç taslağı.</p></div>
-                <div class="application"><p><b>${p.age} yaş</b> · ${p.sex}</p><p>${p.weight} kg · ${p.height} cm · VKİ: <b>${p.bmi}</b></p></div>
-                ${state.plan.map(x => `<div class="panel"><div class="panel-title"><h3>${x.title}</h3><span class="panel-tag">Öneri</span></div><div class="test-list">${x.tests.map(t => `<span>${t}</span>`).join('')}</div><p style="font-size:11px; color:var(--muted); margin-top:5px;">${x.reason}</p></div>`).join('')}
-                <div class="subnote">Bu liste prototip içindir; herkese gerekli kabul edilmez. Hekim önceki sonuçları ve kişisel uygunluğu değerlendirerek son listeyi belirler.</div>
+                <div class="card-heading">
+                    <h2>Hekimle görüşmek istediğiniz tetkikler</h2>
+                    <p>Merak ettiğiniz veya yaptırmak istediğiniz tetkikleri seçin. Nihai planı hekiminiz onaylayacaktır.</p>
+                </div>
+                <div id="catalogContainer">
+                    ${Object.entries(CATALOG_GROUPS).map(([groupName, tests], gIndex) => `
+                        <details class="catalog-group">
+                            <summary>${groupName} <small>(${tests.length} seçenek)</small></summary>
+                            ${tests.map((test, tIndex) => `
+                                <div class="catalog-item">
+                                    <input type="checkbox" id="test_${gIndex}_${tIndex}" value="${test}" class="test-checkbox" onchange="updateCount()">
+                                    <label for="test_${gIndex}_${tIndex}">
+                                        <span class="test-name">${test}</span>
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </details>
+                    `).join('')}
+                </div>
+                <div class="selected-count" id="selectedCount">Seçilen tetkik sayısı: 0 / 50</div>
                 <div class="actions">
-                    <button class="btn btn-secondary" onclick="step=1; render();">Yanıtları düzenle</button>
+                    <button class="btn btn-secondary" onclick="step=1; render();">Geri</button>
                     <button class="btn btn-primary" id="nextBtn">Hekim Onayına Gönder →</button>
                 </div>
             `;
-            document.getElementById('nextBtn').onclick = () => { step = 3; render(); };
-        }
-
-        // ADIM 3: Hekim Onayı (Hasta tarafında sadece bilgilendirme)
-        function doctor() {
-            document.getElementById('screen').innerHTML = `
-                <div class="card-heading">
-                    <h2>Planınız Hekim Onayına Gönderildi</h2>
-                    <p>Girdiğiniz bilgilere göre oluşturulan bu plan, hekiminiz tarafından ödeme sonrasında incelenecektir.</p>
-                </div>
-                <div class="application">
-                    <span style="font-size:10px; color:var(--teal); letter-spacing:1px;">BAŞVURU ÖZETİ</span>
-                    <p><b>${state.profile.age} yaş</b> · ${state.profile.sex}</p>
-                    <p>${state.profile.weight} kg · ${state.profile.height} cm · BKİ ${state.profile.bmi}</p>
-                </div>
-                <div class="test-list" style="margin-top:15px;">${state.plan.map(p=>p.tests.map(t=>`<span>${t}</span>`).join('')).join('')}</div>
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="step=2; render();">Geri</button>
-                    <button class="btn btn-primary" id="approveBtn">Ödemeye Geç →</button>
-                </div>
-            `;
-            document.getElementById('approveBtn').onclick = () => {
-                // Hasta onaylamaz, direkt ödemeye geçer. Hekim onayı admin panelinde yapılacak.
-                step = 4; 
-                render();
+            document.getElementById('nextBtn').onclick = () => {
+                const selected = Array.from(document.querySelectorAll('.test-checkbox:checked')).map(cb => cb.value);
+                state.requestedTests = selected;
+                step = 3; render();
             };
         }
 
-        // ADIM 4: Ödeme
+        window.updateCount = function() {
+            const count = document.querySelectorAll('.test-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = `Seçilen tetkik sayısı: ${count} / 50`;
+        };
+
+        // HEKİM ONAYI BEKLENİYOR EKRANI (Hasta Tarafı)
+        function doctorApproval() {
+            document.getElementById('screen').innerHTML = `
+                <div class="card-heading">
+                    <h2>Başvurunuz Hekim Onayına Gönderildi</h2>
+                    <p>Seçtiğiniz tetkikler ve bilgileriniz hekiminiz tarafından değerlendirilecektir.</p>
+                </div>
+                <div class="application">
+                    <span style="font-size:10px; color:var(--teal); letter-spacing:1px;">SEÇİLEN TETKİKLER (${state.requestedTests.length})</span>
+                    <ul style="margin-left: 20px; margin-top: 10px; font-size: 13px; color: var(--muted);">
+                        ${state.requestedTests.length ? state.requestedTests.map(t => `<li>${t}</li>`).join('') : '<li>Henüz tetkik seçilmedi.</li>'}
+                    </ul>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="step=2; render();">Geri Dön</button>
+                    <button class="btn btn-primary" id="nextBtn">Ödemeye Geç →</button>
+                </div>
+            `;
+            document.getElementById('nextBtn').onclick = () => { step = 4; render(); };
+        }
+
         function payment() {
             document.getElementById('screen').innerHTML = `
-                <div class="card-heading"><h2>Ödemeye Geç</h2><p>Planınız hazır. Başvuru formuna yönlendiriliyorsunuz.</p></div>
-                <div class="application"><p><b>Planlanan İşlemler:</b></p><ul style="margin-left: 20px; margin-top: 10px; font-size: 13px; color: var(--muted);">${state.plan.map(p => p.tests.map(t => `<li>${t}</li>`).join('')).join('')}</ul></div>
-                <label class="check"><input type="checkbox" id="confirmCheck"> Planı ve tetkik listesini gördüm, ödemeye geçiyorum.</label>
+                <div class="card-heading"><h2>Ödemeye Geç</h2><p>Başvuru formuna yönlendiriliyorsunuz.</p></div>
+                <label class="check"><input type="checkbox" id="confirmCheck"> Seçtiğim tetkikleri ve bilgileri onaylıyorum.</label>
                 <div class="actions">
                     <button class="btn btn-secondary" onclick="step=3; render();">Geri</button>
                     <button class="btn btn-primary" id="finishBtn">💳 Ödemeye Geç</button>
@@ -229,9 +238,8 @@
             document.getElementById('finishBtn').onclick = () => {
                 if (!document.getElementById('confirmCheck').checked) return toast('Lütfen devam etmek için onaylayın.');
                 
-                const planText = state.plan.map(p => p.tests.join(', ')).join(' | ');
                 sessionStorage.setItem('cdss_profile', JSON.stringify(state.profile));
-                sessionStorage.setItem('cdss_plan_text', planText);
+                sessionStorage.setItem('cdss_requested_tests', JSON.stringify(state.requestedTests));
                 
                 window.location.href = 'basvuru.html?checkup=approved';
             };
